@@ -1,4 +1,8 @@
-from src.enums import Locations, Positions, Ressources, Images
+import itertools
+import math
+from typing import List
+
+from src.enum import Locations, Positions, Ressources, Images
 
 import pyautogui as pg
 import pytesseract
@@ -70,6 +74,8 @@ class Movement:
         for ressource_name in ressources:
             pos = self.MAPS_LIST[ressource_name]
             [self.maps.append(pos[i]) for i in range(len(pos)) if pos[i] not in self.maps]
+
+        self.maps = self.get_best_path(self.maps, from_checkpoint=Locations.GATES_LOCATION)
 
     # ==================================================================================================================
     def get_next_position(self):
@@ -308,3 +314,47 @@ class Movement:
             return
 
         ErrorHandler.MAP_POSITION_ERROR = 0
+
+    # ==================================================================================================================
+    # UTILS
+    @staticmethod
+    def get_distance(pos1: list, pos2: list):
+        return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
+
+    @staticmethod
+    def get_best_path(all_pos: List[List[int]], from_checkpoint: List[int]) -> List[List[int]]:
+        """
+        calculate most optimized path for all given positions
+        :param all_pos:         list of all positions that the bot is supposed to go to
+        :param from_checkpoint: checkpoint from where the char arrives
+        :return:
+        """
+
+        # get index of the position closest to the checkpoint
+        start_pos_index = None
+        for i in range(len(all_pos)):
+            if start_pos_index is None or Movement.get_distance(all_pos[start_pos_index], from_checkpoint) > Movement.get_distance(all_pos[i], from_checkpoint):
+                start_pos_index = i
+
+        # pop closest position from all positions as start position
+        start_pos = all_pos.pop(0)
+
+        # from remaining positions, calculate the shortest path
+        best_distance = math.inf
+        best_path = []
+        for path in itertools.permutations(all_pos, len(all_pos)):
+            distance = 0
+            last_pos = start_pos
+            for pos in path:
+                distance += Movement.get_distance(pos, last_pos)
+                last_pos = pos
+
+            # -- get back to start position
+            distance += Movement.get_distance(start_pos, last_pos)
+
+            # -- check if distance is shorter
+            if distance < best_distance:
+                best_path = path
+                best_distance = distance
+
+        return [start_pos] + best_path
