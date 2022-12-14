@@ -1,6 +1,6 @@
 from src.Bot import Bot
 from src.components.Fight import Fight
-from src.enums.ressources import Ressources
+from src.enum.ressources import Ressources
 
 import time
 import pyautogui

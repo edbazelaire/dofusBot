@@ -4,7 +4,7 @@ import os
 import pytesseract
 
 from src.components.Fight import Fight
-from src.enums import Positions, Images, Locations
+from src.enum import Positions, Images, Locations
 from src.components.Movement import Movement
 from src.utils.ErrorHandler import ErrorHandler
 
