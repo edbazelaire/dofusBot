@@ -15,13 +15,27 @@ class Movement:
         Ressources.HOUBLON: [
             [6, -22],
             [5, -24],
+
+            [5, -25],   # SEIGLE
+
             [5, -26],
             [4, -26],
             [4, -28],
+
+            [3, -27],   # SEIGLE
+
             [3, -30],
             [5, -28],
             [7, -23],  # fake position, to help path finding
             [8, -23],
+
+            [9, -22],   # SEIGLE
+        ],
+
+        Ressources.SEIGLE: [
+            # [5, -25],
+            # [3, -27],
+            # [9, -22]
         ],
 
         Ressources.BLE: [
@@ -59,7 +73,6 @@ class Movement:
     # ==================================================================================================================
     # INITIALIZATION
     def reset(self):
-        self.current_map_index = 0
         self.position = self.read_map_pos()
 
         if self.position in self.maps:

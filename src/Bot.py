@@ -24,6 +24,7 @@ class Bot:
 
         self.ressources = ressources
         self.get_images(ressources)
+        self.last_num_ressources_checked = 0
 
         self.clicked_pos = []
 
@@ -163,14 +164,26 @@ class Bot:
     # ==================================================================================================================
     # CHECKS
     def check_pods(self):
-        img = pg.screenshot(region=Positions.RESSOURCE_REG)
-        img = Images.change_color(img, min_value=140)
-        value = pytesseract.image_to_string(img, config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
+        num_ressources = 0
+        for region in Positions.RESSOURCES_REG:
+            img = pg.screenshot(region=Positions.RESSOURCE1_REG)
+            img = Images.change_color(img, min_value=140)
+            value = pytesseract.image_to_string(img, config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
 
-        if value == '':
+            value = 0 if value == '' else int(value)
+            num_ressources += value
+
+        # security : check that calculated number of ressources is not impossible
+        if num_ressources - self.last_num_ressources_checked > 800:
+            ErrorHandler.warning("OCR ressource bad ressource recognition : "
+                                 + f"\n    - num ressources checked {num_ressources}"
+                                 + f"\n    - last num ressources checked {self.last_num_ressources_checked}"
+                                 )
+            self.last_num_ressources_checked = num_ressources
             return False
 
-        return int(value) >= self.MAX_ALLOWED_RESSOURCES
+        self.last_num_ressources_checked = num_ressources
+        return num_ressources >= self.MAX_ALLOWED_RESSOURCES
 
     def check_is_ghost(self) -> bool:
         start = time.time()
@@ -258,7 +271,7 @@ class Bot:
 
     @staticmethod
     def test_ocr():
-        img = pg.screenshot(region=Positions.RESSOURCE_REG)
+        img = pg.screenshot(region=Positions.RESSOURCE2_REG)
         img = Images.change_color(img, min_value=140)
         value = pytesseract.image_to_string(img, config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
 

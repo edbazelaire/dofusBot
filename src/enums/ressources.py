@@ -3,3 +3,4 @@ class Ressources:
     HOUBLON = "houblon"
     BLE = "ble"
     ORGES = "orges"
+    SEIGLE = "seigle"
