@@ -7,12 +7,13 @@ from src.components.Fight import Fight
 from src.enum import Positions, Images, Locations
 from src.components.Movement import Movement
 from src.utils.ErrorHandler import ErrorHandler
+from src.utils.utils_fct import wait_click_on
 
 
 class Bot:
     MAX_TIME_SCANNING = 60
     HARVEST_TIME = 1
-    CONFIDENCE = 0.65
+    CONFIDENCE = 0.6
     MAX_ALLOWED_RESSOURCES = 2600
 
     DEATH_MAP_LOCATION = (6, -19)
@@ -100,14 +101,16 @@ class Bot:
                 continue
 
             # go to next map
-            self.Movement.get_next_position()
+            if self.Movement.position == self.Movement.next_position:
+                self.Movement.get_next_position()
+
             self.Movement.go_to_next_pos()
 
     def scan(self):
         print('Scanning....')
         print("")
 
-        if self.Movement.position not in self.Movement.maps:
+        if self.Movement.position not in self.Movement.path:
             ErrorHandler.error('current scanning position not in requested scanned maps')
             ErrorHandler.is_error = True
 
@@ -120,11 +123,20 @@ class Bot:
             time.sleep(self.HARVEST_TIME)
 
     def check_all_ressources(self):
-        for name, images in self.images.items():
+        for ressource_name, images in self.images.items():
+            # check if this ressource belong to this position
+            if self.Movement.position not in self.Movement.MAPS_LIST[ressource_name]:
+                continue
+
+            # check that this is not a "fake" location (only here to help path finding)
+            if ressource_name == "fake":
+                continue
+
             for image in images:
                 isAny = self.check_ressource(image)
                 if isAny:
                     return True
+
         return False
 
     def check_ressource(self, image) -> bool:
@@ -147,13 +159,13 @@ class Bot:
     def ghost_routine(self):
         self.Movement.position = Locations.PHOENIX_STATUE
 
-        self.wait_click_on('images/screenshots/yes_button.png')
+        wait_click_on('images/screenshots/yes_button.png')
 
         # wait that map is loaded
         time.sleep(5)
 
-        self.wait_click_on('images/screenshots/phoenix_statue.png', offset_x=20)
-        self.wait_click_on(Images.get_fight(Images.CANCEL_POPUP), offset_x=5, offset_y=5)
+        wait_click_on('images/screenshots/phoenix_statue.png', offset_x=20)
+        wait_click_on(Images.get_fight(Images.CANCEL_POPUP), offset_x=5, offset_y=5)
 
         # wait until reaching phoenix statue
         time.sleep(5)
@@ -167,6 +179,7 @@ class Bot:
         num_ressources = 0
         for region in Positions.RESSOURCES_REG:
             img = pg.screenshot(region=Positions.RESSOURCE1_REG)
+            img.resize((400, 200))
             img = Images.change_color(img, min_value=140)
             value = pytesseract.image_to_string(img, config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
 
@@ -174,20 +187,23 @@ class Bot:
             num_ressources += value
 
         # security : check that calculated number of ressources is not impossible
-        if num_ressources - self.last_num_ressources_checked > 800:
+        if self.last_num_ressources_checked != 0 \
+                and num_ressources != 0 \
+                and abs(num_ressources - self.last_num_ressources_checked) > 500:
             ErrorHandler.warning("OCR ressource bad ressource recognition : "
                                  + f"\n    - num ressources checked {num_ressources}"
                                  + f"\n    - last num ressources checked {self.last_num_ressources_checked}"
                                  )
-            self.last_num_ressources_checked = num_ressources
             return False
 
         self.last_num_ressources_checked = num_ressources
-        return num_ressources >= self.MAX_ALLOWED_RESSOURCES
+        if num_ressources >= self.MAX_ALLOWED_RESSOURCES:
+            print(f"MAX PODS : {num_ressources}")
+            return True
+        return False
 
     def check_is_ghost(self) -> bool:
         start = time.time()
-        pos = None
         while True:
             if time.time() - start > 5:
                 return False
@@ -221,38 +237,25 @@ class Bot:
 
     def unload_bank(self):
         # click on npc
-        self.wait_click_on(Images.get_bank(Images.BANK_NPC))
+        wait_click_on(Images.get_bank(Images.BANK_NPC))
 
         # click on "accept" to access your bank inventory
-        self.wait_click_on(Images.get_bank(Images.BANK_DIALOG_ACCESS), offset_x=50, offset_y=10)
+        wait_click_on(Images.get_bank(Images.BANK_DIALOG_ACCESS), offset_x=50, offset_y=10)
         time.sleep(0.5)
 
         # unload ressources
-        self.wait_click_on(Images.get_bank(Images.BANK_TRANSFER_BUTTON), offset_x=5, offset_y=5, confidence=0.99)
+        wait_click_on(Images.get_bank(Images.BANK_TRANSFER_BUTTON), offset_x=5, offset_y=5, confidence=0.99)
         time.sleep(1)
 
         # validate ressources unloading
-        self.wait_click_on(Images.get_bank(Images.BANK_TRANSFER_VISIBLE_OBJ_BTN))
+        wait_click_on(Images.get_bank(Images.BANK_TRANSFER_VISIBLE_OBJ_BTN))
         time.sleep(1)
 
         # close bank
         pg.click(*Positions.CLOSE_BANK_BUTTON_POSITION)
 
-    def wait_click_on(self, image: str, confidence: float = 0.8, max_timer: float = 5, offset_x=0, offset_y=0):
-        pos = None
-        start = time.time()
-        while pos is None:
-            if time.time() - start >= max_timer:
-                return False
-            pos = pg.locateOnScreen(image, confidence=confidence)
-
-        pg.click(pos[0] + offset_x, pos[1] + offset_y)
-        return True
-
     # ==================================================================================================================
     # FIGHT
-
-
     def on_death(self):
         # move once left (because death pos is in building)
         self.Movement.move_left()
@@ -260,10 +263,6 @@ class Bot:
 
     # ==================================================================================================================
     # DEBUG
-    def display_mouse(self):
-        while True:
-            print(pg.position(), end='\r')
-
     def test(self):
         self.test_ocr()
         # self.Fight.fight()
@@ -272,8 +271,9 @@ class Bot:
     @staticmethod
     def test_ocr():
         img = pg.screenshot(region=Positions.RESSOURCE2_REG)
+        img = img.resize((400, 200))
         img = Images.change_color(img, min_value=140)
-        value = pytesseract.image_to_string(img, config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
+        value = pytesseract.image_to_string(img, config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789,-')
 
         print(value)
         img.show()

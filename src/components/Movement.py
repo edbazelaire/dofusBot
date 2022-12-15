@@ -1,4 +1,5 @@
 import itertools
+import json
 import math
 from typing import List
 
@@ -19,27 +20,18 @@ class Movement:
         Ressources.HOUBLON: [
             [6, -22],
             [5, -24],
-
-            [5, -25],   # SEIGLE
-
             [5, -26],
             [4, -26],
             [4, -28],
-
-            [3, -27],   # SEIGLE
-
             [3, -30],
             [5, -28],
-            [7, -23],  # fake position, to help path finding
             [8, -23],
-
-            [9, -22],   # SEIGLE
         ],
 
         Ressources.SEIGLE: [
-            # [5, -25],
-            # [3, -27],
-            # [9, -22]
+            [5, -25],
+            [3, -27],
+            [9, -22]
         ],
 
         Ressources.BLE: [
@@ -59,11 +51,15 @@ class Movement:
             [5, -28],
             [7, -25],
             [7, -23],
+        ],
+
+        "fake": [
+            [7, -23]
         ]
     }
 
     def __init__(self, ressources: list):
-        self.maps = []
+        self.path = []
         self.clicked_pos = []
 
         self.get_maps(ressources)
@@ -79,27 +75,57 @@ class Movement:
     def reset(self):
         self.position = self.read_map_pos()
 
-        if self.position in self.maps:
-            self.current_map_index = self.maps.index(self.position)
+        if self.position in self.path:
+            self.current_map_index = self.path.index(self.position)
 
     def get_maps(self, ressources):
         """ get unique position of each ressources """
         for ressource_name in ressources:
             pos = self.MAPS_LIST[ressource_name]
-            [self.maps.append(pos[i]) for i in range(len(pos)) if pos[i] not in self.maps]
+            [self.path.append(pos[i]) for i in range(len(pos)) if pos[i] not in self.path]
 
-        self.maps = self.get_best_path(self.maps, from_checkpoint=Locations.GATES_LOCATION)
+        path = self.get_json_path(ressources)
+        if path is not None and len(path) == len(self.path):
+            print(f'Loaded path : {self.path}')
+            self.path = path
+            return
+
+        self.path = self.get_best_path(self.path, from_checkpoint=Locations.GATES_LOCATION)
+        self.save_json_path(ressources, self.path)
+        print(f'Path : {self.path}')
+
+    @staticmethod
+    def get_json_path(ressources: list):
+        with open('data/paths.json') as json_file:
+            data = json.load(json_file)
+            ressources.sort()
+            name = '_'.join(ressources)
+            if data is None or name not in data.keys():
+                return None
+            return data[name]
+
+    @staticmethod
+    def save_json_path(ressources: list, path: list):
+        with open('data/paths.json', 'r') as json_file:
+            all_paths = json.load(json_file)
+
+        with open('data/paths.json', 'w') as json_file:
+            ressources.sort()
+            name = '_'.join(ressources)
+            all_paths[name] = path
+            json.dump(all_paths, json_file)
 
     # ==================================================================================================================
     def get_next_position(self):
         if self.next_position is None:
-            self.next_position = self.maps[self.current_map_index]
+            self.next_position = self.path[self.current_map_index]
 
         elif self.next_position == self.position:
-            self.current_map_index = (self.current_map_index + 1) % len(self.maps)
-            self.next_position = self.maps[self.current_map_index]
+            self.current_map_index = (self.current_map_index + 1) % len(self.path)
+            self.next_position = self.path[self.current_map_index]
 
     def go_to_next_pos(self):
+        """ return True if reaches next pos, False if stop during movement """
         # security, if a None pos is provided
         if self.next_position is None:
             self.get_next_position()
@@ -113,9 +139,11 @@ class Movement:
         elif Locations.is_below_astrub(self.position) and Locations.is_above_astrub(self.next_position):
             self.go_to(Locations.TOP_CORNER_CITY_LOCATION)
 
-        self.go_to(self.next_position)
+        return self.go_to(self.next_position)
 
-    def go_to(self, pos):
+    def go_to(self, pos) -> bool:
+        """ go to a position, if bot is stopping for any reason, return false. Return True if reaches max position """
+
         print('=' * 100)
         print(f'Going to : {pos}')
 
@@ -145,7 +173,7 @@ class Movement:
                 if retry_ctr == max_retry:
                     print("ERROR : MAX RETRY MOVEMENT")
                     ErrorHandler.is_error = True
-                    return
+                    return False
                 retry_ctr += 1
                 time.sleep(2)
 
@@ -154,14 +182,22 @@ class Movement:
 
                 continue
 
+            # sleep (safety) and check position with OCR position
             time.sleep(1)
             self.check_position()
+
             print(f'     position : {self.position}')
             retry_ctr = 0
             print("")
 
+            # if during the movement, the bot stumble on a harvesting map, return false to scan the map
+            if self.position in self.path:
+                return False
+
             distance_x = pos[0] - self.position[0]
             distance_y = pos[1] - self.position[1]
+
+        return True
 
     def move_left(self):
         if not self.move(Positions.CHANGE_MAP_LEFT_POS):
@@ -198,21 +234,38 @@ class Movement:
     @staticmethod
     def read_map_pos(with_zone=False):
         """ get map location from GUID reading """
-        # read x, y
-        img = pg.screenshot(region=Positions.MAP_LOCATION_REG)
-        img = Images.change_color(img)
-        value = pytesseract.image_to_string(img, config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789,-')
+        x, y = 0, 0
+        success = False
 
-        try:
-            split = value.split(',')
-            x = int(split[0])
-            y = int(split[1])
-        except:
+        # check a small range of configurations to allow rechecking if OCR cant read the map properly
+        for i in range(10):
+            # read x, y
+            img = pg.screenshot(region=Positions.MAP_LOCATION_REG)
+            if i % 2 == 0:
+                img = img.resize((200, 75))
+            img = Images.change_color(img, min_value=210 + (i // 2) * 3)
+            value = pytesseract.image_to_string(img, config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789,-')
+
+            try:
+                split = value.split(',')
+                x = int(split[0])
+                y = int(split[1])
+
+                if abs(x) > 100 or abs(y) > 100:
+                    continue
+
+                success = True
+
+                if not with_zone:
+                    return [x, y]
+
+                break
+            except:
+                continue
+
+        if not success:
             ErrorHandler.error(f"unable to read position ({value})")
             return None
-
-        if not with_zone:
-            return [x, y]
 
         # read Zone
         img = pg.screenshot(region=Positions.MAP_ZONE_NAME_REG)
@@ -228,7 +281,7 @@ class Movement:
         self.go_to(Locations.GATES_LOCATION)
 
         # go to first map and reset all values
-        self.go_to(self.maps[0])
+        self.go_to(self.path[0])
         self.reset()
 
     def go_to_bank(self):
@@ -359,7 +412,17 @@ class Movement:
             distance = 0
             last_pos = start_pos
             for pos in path:
-                distance += Movement.get_distance(pos, last_pos)
+                relative_distance = Movement.get_distance(pos, last_pos)
+                if relative_distance > 6:
+                    distance = math.inf
+                    break
+
+                distance += relative_distance
+
+                if distance >= best_distance:
+                    distance = math.inf
+                    break
+
                 last_pos = pos
 
             # -- get back to start position
@@ -367,7 +430,7 @@ class Movement:
 
             # -- check if distance is shorter
             if distance < best_distance:
-                best_path = path
+                best_path = list(path)
                 best_distance = distance
 
         return [start_pos] + best_path

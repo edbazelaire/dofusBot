@@ -6,6 +6,7 @@ import pyautogui as pg
 import time
 
 from src.utils.ErrorHandler import ErrorHandler
+from src.utils.utils_fct import wait_click_on
 
 
 class Fight:
@@ -144,21 +145,11 @@ class Fight:
 
     def forfait(self):
         # click ff button
-        start = time.time()
-        pos = None
-        while pos is None:
-            if time.time() - start > 5:
-                ErrorHandler.error("unable to forfait")
-                ErrorHandler.is_error = True
-                exit()
-                return
-            pos = pg.locateOnScreen(Images.get_fight(Images.FF_BUTTON), confidence=0.7)
-        pg.click(pos[0] + 5, pos[1] + 5)
+        wait_click_on(Images.get_fight(Images.FF_BUTTON), confidence=0.7, offset_x=5, offset_y=5)
         time.sleep(1)
 
         # validate ff
-        pos = pg.locateOnScreen(Images.get_fight(Images.OK_FF_BUTTON), confidence=0.7)
-        pg.click(pos[0], pos[1])
+        wait_click_on(Images.get_fight(Images.OK_FF_BUTTON), confidence=0.7)
 
     # ==================================================================================================================
     # CHECK

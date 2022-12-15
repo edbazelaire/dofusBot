@@ -7,7 +7,7 @@ import pyautogui
 
 
 if __name__ == '__main__':
-    bot = Bot([Ressources.HOUBLON, Ressources.SEIGLE])
+    bot = Bot([Ressources.HOUBLON, Ressources.SEIGLE, 'fake'])
     bot.run()
     # bot.test()
 
