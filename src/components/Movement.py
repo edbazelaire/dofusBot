@@ -338,7 +338,7 @@ class Movement:
         if self.position[0] != pos[0] or self.position[1] != pos[1]:
             ErrorHandler.error(f"position calculated {self.position} is different from OCR position {pos}")
             ErrorHandler.MAP_POSITION_ERROR += 1
-            if ErrorHandler.MAP_POSITION_ERROR >= 3:
+            if ErrorHandler.MAP_POSITION_ERROR >= 2:
                 ErrorHandler.is_error = True
             return
 

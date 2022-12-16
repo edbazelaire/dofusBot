@@ -129,7 +129,7 @@ class Bot:
     def check_all_ressources(self):
         for ressource_name, images in self.images.items():
             # check if this ressource belong to this position
-            if self.Movement.position not in self.Movement.MAPS_LIST[ressource_name]:
+            if self.Movement.position not in Locations.RESSOURCES_LOCATIONS[self.region][ressource_name]:
                 continue
 
             # check that this is not a "fake" location (only here to help path finding)
