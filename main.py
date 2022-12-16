@@ -6,6 +6,7 @@ from src.enum.ressources import Ressources
 import time
 import pyautogui
 
+from src.utils.utils_fct import display_mouse
 
 if __name__ == '__main__':
     bot = Bot(region=Regions.CHAMP_ASTRUB, ressources=[Ressources.HOUBLON, Ressources.CHANVRE, Ressources.SEIGLE, 'fake'])
@@ -18,9 +19,9 @@ if __name__ == '__main__':
     #         fight.fight()
     #         break
 
-    Bot.test_ocr()
+    # Bot.test_ocr()
 
     # bot = Bot([Ressources.HOUBLON])
-    # bot.display_mouse()
+    display_mouse()
 
 

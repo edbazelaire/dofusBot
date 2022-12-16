@@ -1,4 +1,7 @@
 class ErrorHandler:
+    LOAD_MAP_TIME = 10
+    TRAVEL_MAP_TIME = 10
+
     MAP_POSITION_ERROR = 0
     MAP_POSITION_ERROR_MAX = 2
     is_error = False

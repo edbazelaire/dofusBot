@@ -13,9 +13,11 @@ class Locations:
     ASTRUB_TOP_LEFT = [3, -19]
     ASTRUB_BOTTOM_RIGHT = [6, -17]
 
-    BONTA_MILICE_LOCATION = []      # TODO
+    BONTA_MILICE_LOCATION = [-32, -57]
 
-    # TODO : ZAAPS
+    ZAAPS = {
+        Regions.PLAINES_CANIA: [-27, -36]
+    }
 
     RESSOURCES_LOCATIONS = {
         Regions.CHAMP_ASTRUB: {

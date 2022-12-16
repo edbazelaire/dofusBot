@@ -15,10 +15,10 @@ class Positions:
 
     # BANK
     BANK_DOOR_POSITION = (1145, 343)            # position to click in order to enter the bank
-    # TODO
-    BANK_PLAYER_INVENTORY_REG = ()              # region of the player's inventory when the bank is opened
-    # TODO
-    BANK_BANK_INVENTORY_REG = ()                # region of the bank's inventory when the bank is opened
+    BANK_PLAYER_INVENTORY_REG = (1241, 96, 1586, 884)              # region of the player's inventory when the bank is opened
+    BANK_BANK_INVENTORY_REG = (352, 96, )                # region of the bank's inventory when the bank is opened
+    BANK_PLAYER_RESSOURCE_POS = [1464, 155]
+    BANK_BANK_RESSOURCE_POS = [578, 155]
     CLOSE_BANK_BUTTON_POSITION = (1564, 111)    # position of closing bank button
     GET_OUT_BANK_POSITION = (735, 710)          # position of closing bank button
 

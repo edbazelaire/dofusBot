@@ -6,7 +6,8 @@ class Images:
     SCREENSHOTS_DIR = 'screenshots'
 
     BANK_DIR = 'bank'
-    BANK_NPC = 'bank_npc.png'
+    BANK_NPC_ASTRUB = 'bank_npc.png'
+    BANK_NPC_BONTA = 'bank_npc_bonta.png'
     BANK_DIALOG_ACCESS = 'dialog_access_bank_button.png'
     BANK_INVENTORY_RESSOURCES_BUTTON = 'inventory_ressources_button.png'
     BANK_TRANSFER_BUTTON = 'bank_transfer_button.png'

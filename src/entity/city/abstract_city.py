@@ -1,9 +1,19 @@
 class AbstractCity:
-    def is_in_city(self, location):
+    REGION = ''
+    SUB_REGION = ''
+
+    BANK_LOCATION = []
+    BANK_CLICK_POSITION = []
+    BANK_NPC_IMAGE = ''
+
+    @staticmethod
+    def is_in_city(location) -> bool:
         pass
 
-    def get_path(self, from_location, to_location):
+    @staticmethod
+    def get_path(from_location, to_location) -> list:
         pass
 
-    def go_to_bank(self, location):
+    @staticmethod
+    def get_bank_path(location) -> list:
         pass

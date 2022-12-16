@@ -17,13 +17,10 @@ import time
 from src.enum.regions import Regions
 from src.utils.ErrorHandler import ErrorHandler
 from src.utils.JsonHandler import JsonHandler
-from src.utils.utils_fct import read_map_location, wait_click_on
+from src.utils.utils_fct import read_map_location, wait_click_on, check_map_change
 
 
 class Movement:
-    TRAVEL_MAP_TIME = 10
-    LOAD_MAP_TIME = 10
-
     def __init__(self, region: str, ressources: list, city: AbstractCity = None):
         self.region = region
         self.city = self.get_closest_city(region) if city is None else city
@@ -191,7 +188,7 @@ class Movement:
 
     def move(self, click_pos):
         pg.click(*click_pos)
-        return self.check_map_change(from_location=read_map_location())
+        return check_map_change(from_location=read_map_location())
 
     def get_back_to_first_position(self):
         """ go back to first position by getting threw the gates (meaning that we can access this position from either
@@ -209,8 +206,7 @@ class Movement:
         success = False
         while not success:
             path = self.city.get_bank_path(self.position)
-            for location in path:
-                self.go_to(location)
+            self.follow_path(path)
 
             # SAFETY
             ocr_location = read_map_location()
@@ -223,7 +219,7 @@ class Movement:
 
         # get in the bank
         print(f"{self.position} : Clicking on BANK_DOOR")
-        test = self.enter_building(Positions.BANK_DOOR_POSITION, loading_img=Images.get_bank(Images.BANK_NPC))
+        test = self.enter_building(click_pos=self.city.BANK_CLICK_POSITION, loading_img=self.city.BANK_NPC_IMAGE)
 
         if not test:
             return
@@ -262,57 +258,6 @@ class Movement:
 
     # ==================================================================================================================
     # CHECKS
-    @staticmethod
-    def check_map_change(from_location, do_map_load_check=True) -> bool:
-        """ check if player changed map by looking at map position """
-        start = time.time()
-        map_location = read_map_location()
-        while from_location == map_location or map_location is None:
-            if time.time() - start > Movement.TRAVEL_MAP_TIME:
-                print("WARNING !! MAP NOT CHANGED")
-                return False
-            time.sleep(0.5)
-
-            map_location = read_map_location()
-
-        print("     MAP CHANGED")
-
-        if do_map_load_check:
-            Movement.check_map_loaded()
-        return True
-
-    @staticmethod
-    def check_map_loaded() -> bool:
-        """ check if player changed map by looking at map position """
-        start = time.time()
-        while True:
-            if time.time() - start > Movement.LOAD_MAP_TIME:
-                print(" -- map NOT loaded !!")
-                return False
-
-            confidence = 0.7
-            pg.moveTo(*Positions.CHANGE_MAP_LEFT_POS)
-            if pg.locateOnScreen('images/screenshots/cursor_left.png', confidence=confidence) is not None:
-                print("     -- map loaded ")
-                return True
-
-            pg.moveTo(*Positions.CHANGE_MAP_RIGHT_POS)
-            if pg.locateOnScreen('images/screenshots/cursor_right.png', confidence=confidence) is not None:
-                print("     -- map loaded")
-                return True
-
-            pg.moveTo(*Positions.CHANGE_MAP_UP_POS)
-            if pg.locateOnScreen('images/screenshots/cursor_up.png', confidence=confidence) is not None:
-                print("     -- map loaded")
-                return True
-
-            pg.moveTo(*Positions.CHANGE_MAP_DOWN_POS)
-            if pg.locateOnScreen('images/screenshots/cursor_down.png', confidence=confidence) is not None:
-                print("     -- map loaded")
-                return True
-
-            time.sleep(0.1)
-
     def check_location(self):
         pos = read_map_location()
         if self.position[0] != pos[0] or self.position[1] != pos[1]:

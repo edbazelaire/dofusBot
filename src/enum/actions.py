@@ -1,4 +1,3 @@
-from src.components.Movement import Movement
 from src.enum.images import Images
 from src.enum.locations import Locations
 from src.utils.ErrorHandler import ErrorHandler
@@ -72,7 +71,7 @@ class Actions:
         pg.doubleClick(pos[0] + offset_x, pos[1] + offset_y)
 
         # wait until map is loaded
-        Movement.check_map_change(from_location=current_location)
+        check_map_change(from_location=current_location)
 
         # check that the map location is the expected one
         if expected_location is not None:
