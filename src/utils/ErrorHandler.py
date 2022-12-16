@@ -1,5 +1,6 @@
 class ErrorHandler:
     MAP_POSITION_ERROR = 0
+    MAP_POSITION_ERROR_MAX = 2
     is_error = False
 
     @staticmethod
@@ -13,4 +14,9 @@ class ErrorHandler:
 
     @staticmethod
     def error(msg):
-        print('Warning : ' + msg)
+        print('Error : ' + msg)
+
+    @staticmethod
+    def fatal_error(msg):
+        print('FATAL ERROR : ' + msg)
+        exit()

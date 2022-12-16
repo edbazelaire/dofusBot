@@ -3,7 +3,7 @@ from src.enum.ressources import Ressources
 
 
 class Locations:
-    """ map locations """
+    """ map city """
     DEATH_MAP_LOCATION = (6, -19)
     BANK_LOCATION = (4, -18)
     GATES_LOCATION = (4, -22)
@@ -12,6 +12,8 @@ class Locations:
 
     ASTRUB_TOP_LEFT = [3, -19]
     ASTRUB_BOTTOM_RIGHT = [6, -17]
+
+    BONTA_MILICE_LOCATION = []      # TODO
 
     RESSOURCES_LOCATIONS = {
         Regions.CHAMP_ASTRUB: {

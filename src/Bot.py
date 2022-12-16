@@ -245,7 +245,11 @@ class Bot:
 
         # click on "accept" to access your bank inventory
         wait_click_on(Images.get_bank(Images.BANK_DIALOG_ACCESS), offset_x=50, offset_y=10)
-        time.sleep(0.5)
+        time.sleep(1)
+
+        # select ressources tab
+        wait_click_on(Images.get_bank(Images.BANK_INVENTORY_RESSOURCES_BUTTON), region=Positions.BANK_INVENTORY_REG, offset_x=5, offset_y=5)
+        time.sleep(1)
 
         # unload ressources
         wait_click_on(Images.get_bank(Images.BANK_TRANSFER_BUTTON), offset_x=5, offset_y=5, confidence=0.99)
