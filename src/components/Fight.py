@@ -1,6 +1,7 @@
 from pytesseract import pytesseract
 
-from src.enum import Images, Positions
+from src.enum.images import Images
+from src.enum.positions import Positions
 
 import pyautogui as pg
 import time

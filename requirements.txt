@@ -1,2 +1,3 @@
 pytesseract
 pyautogui
+opencv-python

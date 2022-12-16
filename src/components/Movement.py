@@ -3,7 +3,9 @@ import json
 import math
 from typing import List
 
-from src.enum import Locations, Positions, Ressources, Images
+from src.enum.positions import Positions
+from src.enum.images import Images
+from src.enum.locations import Locations
 
 import pyautogui as pg
 import pytesseract
@@ -16,49 +18,8 @@ class Movement:
     TRAVEL_MAP_TIME = 10
     LOAD_MAP_TIME = 10
 
-    MAPS_LIST = {
-        Ressources.HOUBLON: [
-            [6, -22],
-            [5, -24],
-            [5, -26],
-            [4, -26],
-            [4, -28],
-            [3, -30],
-            [5, -28],
-            [8, -23],
-        ],
-
-        Ressources.SEIGLE: [
-            [5, -25],
-            [3, -27],
-            [9, -22]
-        ],
-
-        Ressources.BLE: [
-            [5, -22],
-            [3, -22],
-            [3, -23],
-            [4, -23],
-            [5, -25],
-            [3, -26],
-            [4, -27],
-            [4, -29],
-            [4, -30],
-            [5, -30],
-            [6, -30],
-            [6, -29],
-            [6, -28],
-            [5, -28],
-            [7, -25],
-            [7, -23],
-        ],
-
-        "fake": [
-            [7, -23]
-        ]
-    }
-
-    def __init__(self, ressources: list):
+    def __init__(self, region: str, ressources: list):
+        self.region = region
         self.path = []
         self.clicked_pos = []
 
@@ -78,41 +39,43 @@ class Movement:
         if self.position in self.path:
             self.current_map_index = self.path.index(self.position)
 
-    def get_maps(self, ressources):
+    def get_maps(self, ressources: list):
         """ get unique position of each ressources """
         for ressource_name in ressources:
-            pos = self.MAPS_LIST[ressource_name]
+            pos = Locations.RESSOURCES_LOCATIONS[self.region][ressource_name]
             [self.path.append(pos[i]) for i in range(len(pos)) if pos[i] not in self.path]
 
-        path = self.get_json_path(ressources)
+        path = self.get_json_path(ressources, self.region)
         if path is not None and len(path) == len(self.path):
             print(f'Loaded path : {self.path}')
             self.path = path
             return
 
         self.path = self.get_best_path(self.path, from_checkpoint=Locations.GATES_LOCATION)
-        self.save_json_path(ressources, self.path)
+        self.save_json_path(ressources, self.region, self.path)
         print(f'Path : {self.path}')
 
     @staticmethod
-    def get_json_path(ressources: list):
+    def get_json_path(ressources: list, region: str):
         with open('data/paths.json') as json_file:
             data = json.load(json_file)
             ressources.sort()
             name = '_'.join(ressources)
-            if data is None or name not in data.keys():
+            if data is None or region not in data.keys() or name not in data[region].keys():
                 return None
-            return data[name]
+            return data[region][name]
 
     @staticmethod
-    def save_json_path(ressources: list, path: list):
+    def save_json_path(ressources: list, region: str,  path: list):
         with open('data/paths.json', 'r') as json_file:
             all_paths = json.load(json_file)
 
         with open('data/paths.json', 'w') as json_file:
             ressources.sort()
             name = '_'.join(ressources)
-            all_paths[name] = path
+            if region not in all_paths.keys():
+                all_paths[region] = {}
+            all_paths[region][name] = path
             json.dump(all_paths, json_file)
 
     # ==================================================================================================================

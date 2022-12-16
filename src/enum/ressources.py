@@ -4,3 +4,5 @@ class Ressources:
     BLE = "ble"
     ORGES = "orges"
     SEIGLE = "seigle"
+    CHANVRE = "chanvre"
+    MALT = "malt"

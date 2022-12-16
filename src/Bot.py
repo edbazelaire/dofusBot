@@ -3,8 +3,10 @@ import time
 import os
 import pytesseract
 
+from src.enum.positions import Positions
+from src.enum.images import Images
+from src.enum.locations import Locations
 from src.components.Fight import Fight
-from src.enum import Positions, Images, Locations
 from src.components.Movement import Movement
 from src.utils.ErrorHandler import ErrorHandler
 from src.utils.utils_fct import wait_click_on
@@ -14,22 +16,23 @@ class Bot:
     MAX_TIME_SCANNING = 60
     HARVEST_TIME = 1
     CONFIDENCE = 0.6
-    MAX_ALLOWED_RESSOURCES = 2600
+    MAX_ALLOWED_RESSOURCES = 2500
 
     DEATH_MAP_LOCATION = (6, -19)
     BANK_LOCATION = (4, -18)
     GATES_LOCATION = (4, -22)
 
-    def __init__(self, ressources: list):
+    def __init__(self, region: str, ressources: list):
         self.images = {}
 
+        self.region = region
         self.ressources = ressources
         self.get_images(ressources)
         self.last_num_ressources_checked = 0
 
         self.clicked_pos = []
 
-        self.Movement = Movement(ressources)
+        self.Movement = Movement(region, ressources)
         self.Fight = Fight()
 
     # ==================================================================================================================
@@ -78,6 +81,7 @@ class Bot:
                 continue
 
             # check if fight has occurred
+            time.sleep(1)
             if self.Fight.check_combat_started():
                 self.Fight.fight()
                 if self.Fight.check_is_victory():
@@ -178,7 +182,7 @@ class Bot:
     def check_pods(self):
         num_ressources = 0
         for region in Positions.RESSOURCES_REG:
-            img = pg.screenshot(region=Positions.RESSOURCE1_REG)
+            img = pg.screenshot(region=region)
             img.resize((400, 200))
             img = Images.change_color(img, min_value=140)
             value = pytesseract.image_to_string(img, config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
@@ -194,7 +198,7 @@ class Bot:
                                  + f"\n    - num ressources checked {num_ressources}"
                                  + f"\n    - last num ressources checked {self.last_num_ressources_checked}"
                                  )
-            return False
+            # return False
 
         self.last_num_ressources_checked = num_ressources
         if num_ressources >= self.MAX_ALLOWED_RESSOURCES:
@@ -270,8 +274,8 @@ class Bot:
 
     @staticmethod
     def test_ocr():
-        img = pg.screenshot(region=Positions.RESSOURCE2_REG)
-        img = img.resize((400, 200))
+        img = pg.screenshot(region=Positions.RESSOURCE3_REG)
+        img = img.resize((200, 100))
         img = Images.change_color(img, min_value=140)
         value = pytesseract.image_to_string(img, config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789,-')
 
