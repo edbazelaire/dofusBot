@@ -3,7 +3,10 @@ import json
 import math
 from typing import List
 
+from src.entity.city.abstract_city import AbstractCity
 from src.entity.city.astrub import Astrub
+from src.entity.city.bonta import Bonta
+from src.enum.actions import Actions
 from src.enum.positions import Positions
 from src.enum.images import Images
 from src.enum.locations import Locations
@@ -11,6 +14,7 @@ from src.enum.locations import Locations
 import pyautogui as pg
 import time
 
+from src.enum.regions import Regions
 from src.utils.ErrorHandler import ErrorHandler
 from src.utils.JsonHandler import JsonHandler
 from src.utils.utils_fct import read_map_location, wait_click_on
@@ -20,13 +24,13 @@ class Movement:
     TRAVEL_MAP_TIME = 10
     LOAD_MAP_TIME = 10
 
-    def __init__(self, region: str, ressources: list):
+    def __init__(self, region: str, ressources: list, city: AbstractCity = None):
         self.region = region
-        self.city = Astrub()
+        self.city = self.get_closest_city(region) if city is None else city
         self.path = []
         self.clicked_pos = []
 
-        self.get_path(ressources)
+        self.set_path(ressources)
 
         self.current_map_index = 0
         self.position = (0, 0)
@@ -42,7 +46,7 @@ class Movement:
     def reset(self):
         self.position = read_map_location()
 
-    def get_path(self, ressources: list):
+    def set_path(self, ressources: list):
         """ get unique position of each ressources """
         for ressource_name in ressources:
             pos = Locations.RESSOURCES_LOCATIONS[self.region][ressource_name]
@@ -57,6 +61,13 @@ class Movement:
         self.path = self.get_best_path(self.path, from_checkpoint=Locations.GATES_LOCATION)
         JsonHandler.save_json_path(ressources, self.region, self.path)
         print(f'Path : {self.path}')
+
+    @staticmethod
+    def get_closest_city(region) -> AbstractCity:
+        if region == Regions.CHAMP_ASTRUB:
+            return Astrub()
+        else:
+            return Bonta()
 
     # ==================================================================================================================
     def get_next_position(self):
@@ -73,13 +84,14 @@ class Movement:
         if self.next_position is None:
             self.get_next_position()
 
-        # if next pos or pos is in astrub while the other is above astrub -> go to GATES
-        if Locations.is_above_astrub(self.position) and Locations.is_in_astrub(self.next_position) \
-                or Locations.is_in_astrub(self.position) and Locations.is_above_astrub(self.next_position):
-            self.go_to(Locations.GATES_LOCATION)
+        # ANYWHERE -> IN CITY or IN CITY -> ANYWHERE
+        if self.city.is_in_city(self.next_position) or self.city.is_in_city(self.position):
+            path = self.city.get_path(from_location=self.position, to_location=self.next_position)
+            self.follow_path(path)
 
+        # TODO : change that in region maybe
         # BELOW astrub -> ABOVE astrub
-        elif Locations.is_below_astrub(self.position) and Locations.is_above_astrub(self.next_position):
+        elif Astrub.is_below_city(self.position) and Astrub.is_above_city(self.next_position):
             self.go_to(Locations.TOP_CORNER_CITY_LOCATION)
 
         return self.go_to(self.next_position)
@@ -127,7 +139,7 @@ class Movement:
 
             # sleep (safety) and check position with OCR position
             time.sleep(1)
-            self.check_position()
+            self.check_location()
 
             print(f'     position : {self.position}')
             retry_ctr = 0
@@ -141,6 +153,13 @@ class Movement:
             distance_y = pos[1] - self.position[1]
 
         return True
+
+    def follow_path(self, path: list):
+        for value in path:
+            if Actions.is_action(value):
+                Actions.do(value)
+            else:
+                self.go_to(value)
 
     def move_left(self):
         if not self.move(Positions.CHANGE_MAP_LEFT_POS):
@@ -294,16 +313,17 @@ class Movement:
 
             time.sleep(0.1)
 
-    def check_position(self):
+    def check_location(self):
         pos = read_map_location()
         if self.position[0] != pos[0] or self.position[1] != pos[1]:
             ErrorHandler.error(f"position calculated {self.position} is different from OCR position {pos}")
             ErrorHandler.MAP_POSITION_ERROR += 1
             if ErrorHandler.MAP_POSITION_ERROR >= ErrorHandler.MAP_POSITION_ERROR_MAX:
                 ErrorHandler.is_error = True
-            return
+            return False
 
         ErrorHandler.MAP_POSITION_ERROR = 0
+        return True
 
     # ==================================================================================================================
     # UTILS

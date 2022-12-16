@@ -2,6 +2,9 @@ from src.entity.city.abstract_city import AbstractCity
 
 
 class Astrub(AbstractCity):
+    REGION = 'Astrub'
+    SUB_REGION = ''             # TODO
+
     BANK_LOCATION = [4, -18]
     TOP_CITY_CHECKPOINT = [4, -22]
     TOP_LEFT_CITY_CHECKPOINT = [2, -22]

@@ -120,16 +120,23 @@ class Bot:
 
         start = time.time()
         isAny = True
+        found_one = False
         while isAny:
             isAny = self.check_all_ressources()
             if not isAny or time.time() - start > self.MAX_TIME_SCANNING:
                 break
+            found_one = True
             time.sleep(self.HARVEST_TIME)
+
+        # if we do not find any ressource on the map and that the OCR location is not ok with the calculated location
+        if not found_one and not self.Movement.check_location():
+            ErrorHandler.error("Scanning on wrong location -> reset")
+            ErrorHandler.is_error = True
 
     def check_all_ressources(self):
         for ressource_name, images in self.images.items():
             # check if this ressource belong to this position
-            if self.Movement.position not in self.Movement.MAPS_LIST[ressource_name]:
+            if self.Movement.position not in Locations.RESSOURCES_LOCATIONS[self.region][ressource_name]:
                 continue
 
             # check that this is not a "fake" location (only here to help path finding)
@@ -174,8 +181,9 @@ class Bot:
         # wait until reaching phoenix statue
         time.sleep(5)
 
+        # TODO : check in inventary that is not ghost anymore
+
         self.Movement.go_to(Locations.TOP_CORNER_CITY_LOCATION)
-        self.reset()
 
     # ==================================================================================================================
     # CHECKS

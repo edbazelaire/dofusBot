@@ -15,6 +15,8 @@ class Locations:
 
     BONTA_MILICE_LOCATION = []      # TODO
 
+    # TODO : ZAAPS
+
     RESSOURCES_LOCATIONS = {
         Regions.CHAMP_ASTRUB: {
             Ressources.HOUBLON: [
@@ -99,11 +101,6 @@ class Locations:
             "fake": []
         }
     }
-
-    @staticmethod
-    def is_in_astrub(pos):
-        return Locations.ASTRUB_BOTTOM_RIGHT[0] >= pos[0] >= Locations.ASTRUB_TOP_LEFT[0] \
-            and Locations.ASTRUB_BOTTOM_RIGHT[1] >= pos[1] >= Locations.ASTRUB_TOP_LEFT[1]
 
     @staticmethod
     def is_above_astrub(pos):

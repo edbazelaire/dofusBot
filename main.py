@@ -8,7 +8,7 @@ import pyautogui
 
 
 if __name__ == '__main__':
-    bot = Bot(Regions.CHAMP_ASTRUB, [Ressources.HOUBLON, Ressources.CHANVRE, Ressources.SEIGLE, 'fake'])
+    bot = Bot(region=Regions.CHAMP_ASTRUB, ressources=[Ressources.HOUBLON, Ressources.CHANVRE, Ressources.SEIGLE, 'fake'])
     bot.run()
     # bot.test()
 
