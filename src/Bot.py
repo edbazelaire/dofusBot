@@ -1,17 +1,16 @@
+from typing import List
+
 import pyautogui as pg
 import time
 import os
 import pytesseract
 
-from src.enum.actions import Actions
 from src.enum.positions import Positions
 from src.enum.images import Images
-from src.enum.locations import Locations
 from src.components.Fight import Fight
 from src.components.Movement import Movement
-from src.enum.regions import Regions
 from src.utils.ErrorHandler import ErrorHandler
-from src.utils.utils_fct import wait_click_on, check_map_change, check_map_loaded, read_map_location
+from src.utils.utils_fct import wait_click_on, check_map_change, check_map_loaded, read_map_location, check_is_ghost
 
 
 class Bot:
@@ -20,17 +19,16 @@ class Bot:
     CONFIDENCE = 0.6
     MAX_ALLOWED_RESSOURCES = 3000
 
-    def __init__(self, region: str, ressources: list):
+    def __init__(self, region_name: str, ressources: List[str], city_name: str = None):
         self.images = {}
 
-        self.region = region
         self.ressources = ressources
-        self.get_images(ressources)
+        self.get_ressources_images(ressources)
         self.last_num_ressources_checked = 0
 
         self.clicked_pos = []
 
-        self.Movement = Movement(region, ressources)
+        self.Movement = Movement(region_name, ressources, city_name)
         self.Fight = Fight()
 
     # ==================================================================================================================
@@ -46,27 +44,38 @@ class Bot:
         self.Movement.reset()
         ErrorHandler.reset()
 
-        self.make_first_move()
+        self.check_situation()
 
-    def make_first_move(self):
-        if self.check_pods():
+    def check_situation(self):
+        """ on reset check the situation the character is in """
+        if self.Fight.check_combat_started():
+            self.fight_routine()
+
+        elif self.check_tomb():
+            self.Movement.ghost_routine()
+
+        elif check_is_ghost():
+            self.Movement.go_to_phoenix()
+
+        elif self.check_pods():
             self.bank_routine()
+
         else:
             self.Movement.go_to_next_pos()
 
-    def get_images(self, ressources: list):
+    def get_ressources_images(self, ressources: list):
         """ get only images of requested ressources """
         dir = 'images'
-        for ressource_name in self.ressources:
+        for ressource_name in ressources:
             self.images[ressource_name] = [dir + '/' + filename for filename in os.listdir(dir) if filename.startswith(ressource_name)]
 
     # ==================================================================================================================
     # RUN
     def run(self):
-        print(f"STARTING POSITION : {self.Movement.position}")
-        print(f"STARTING MAP INDEX : {self.Movement.current_map_index}")
+        print(f"STARTING POSITION : {self.Movement.location}")
+        print(f"STARTING MAP INDEX : {self.Movement.current_path_index}")
 
-        self.make_first_move()
+        self.check_situation()
 
         while True:
             if ErrorHandler.is_error:
@@ -81,14 +90,7 @@ class Bot:
             # check if fight has occurred
             time.sleep(1)
             if self.Fight.check_combat_started():
-                self.Fight.fight()
-                if self.Fight.check_is_victory():
-                    continue
-
-                if self.check_tomb():
-                    self.ghost_routine()
-                elif self.Fight.check_is_defeat():
-                    self.on_death()
+                self.fight_routine()
                 continue
 
             if ErrorHandler.is_error:
@@ -102,17 +104,13 @@ class Bot:
             if ErrorHandler.is_error:
                 continue
 
-            # go to next map
-            if self.Movement.position == self.Movement.next_position:
-                self.Movement.get_next_position()
-
             self.Movement.go_to_next_pos()
 
     def scan(self):
-        print('Scanning....')
-        print("")
+        """ scan the map for ressources """
+        print('Scanning', end='')
 
-        if self.Movement.position not in self.Movement.path:
+        if self.Movement.location not in self.Movement.region.path:
             ErrorHandler.error('current scanning position not in requested scanned maps')
             ErrorHandler.is_error = True
 
@@ -120,6 +118,7 @@ class Bot:
         isAny = True
         found_one = False
         while isAny:
+            print('.', end='')
             isAny = self.check_all_ressources()
             if not isAny or time.time() - start > self.MAX_TIME_SCANNING:
                 break
@@ -131,10 +130,13 @@ class Bot:
             ErrorHandler.error("Scanning on wrong location -> reset")
             ErrorHandler.is_error = True
 
+        print("\n")
+
+
     def check_all_ressources(self):
         for ressource_name, images in self.images.items():
             # check if this ressource belong to this position
-            if self.Movement.position not in Locations.RESSOURCES_LOCATIONS[self.region][ressource_name]:
+            if self.Movement.location not in self.Movement.region.RESSOURCES_LOCATIONS[ressource_name]:
                 continue
 
             # check that this is not a "fake" location (only here to help path finding)
@@ -166,35 +168,10 @@ class Bot:
         return False
 
     # ==================================================================================================================
-    # GHOST
-    def ghost_routine(self):
-        print("-- is ghost")
-        wait_click_on('images/screenshots/yes_button.png')
-
-        # wait that map is loaded
-        check_map_change(from_location=self.Movement.position)
-
-        wait_click_on(Images.get_fight(Images.CANCEL_POPUP), offset_x=5, offset_y=5)
-
-        self.Movement.position = read_map_location()
-        self.Movement.go_to(Locations.PHOENIX_STATUES[self.region])
-
-        if self.region == Regions.PLAINES_CANIA:
-            wait_click_on(Images.get_screenshot(Images.PHOENIX_STATUE_2))
-        elif self.region == Regions.CHAMP_ASTRUB:
-            wait_click_on(Images.get_screenshot(Images.PHOENIX_STATUE), offset_x=20)
-
-        # wait until reaching phoenix statue
-        time.sleep(5)
-
-        # TODO : check in inventory that is not ghost anymore
-
-        if self.region == Regions.CHAMP_ASTRUB:
-            self.Movement.go_to(Locations.TOP_CORNER_CITY_LOCATION)
-
-    # ==================================================================================================================
     # CHECKS
     def check_pods(self):
+        """ check number of pods by reading number of ressources in the quick inventory (faster than opening inventory
+        but more subject to errors)"""
         num_ressources = self.read_num_ressources()
 
         # security : check that calculated number of ressources is not impossible
@@ -215,6 +192,7 @@ class Bot:
 
     @staticmethod
     def read_num_ressources(debug=False):
+        """ read number of ressources displayed on quick inventory """
         num_ressources = 0
         for region in Positions.RESSOURCES_REG:
             img = pg.screenshot(region=region)
@@ -233,7 +211,9 @@ class Bot:
             print(f"num_ressources : {num_ressources}")
         return num_ressources
 
-    def check_tomb(self) -> bool:
+    @staticmethod
+    def check_tomb() -> bool:
+        """ check if TOMB image is on screen"""
         start = time.time()
         while True:
             if time.time() - start > 5:
@@ -242,8 +222,20 @@ class Bot:
                 return True
 
     # ==================================================================================================================
-    # ACTIONS
+    # ROUTINES
+    def fight_routine(self):
+        """ routine of actions to take when a fight occures """
+        self.Fight.fight()
+        if self.Fight.check_is_victory():
+            return
+
+        if self.check_tomb():
+            self.Movement.ghost_routine()
+        elif self.Fight.check_is_defeat():
+            self.on_death()
+
     def bank_routine(self):
+        """ go to the bank and unload ressources """
         print("MAX PODS REACHED -> Going to bank")
 
         # go to the bank
@@ -261,13 +253,11 @@ class Bot:
         time.sleep(1)
         check_map_loaded()
 
-        # get back to first map location
-        self.Movement.get_back_to_first_position()
-
         # reset
         self.reset()
 
     def unload_bank(self):
+        """ unload ressources in the bank """
         # click on npc
         wait_click_on(self.Movement.city.BANK_NPC_IMAGE, offset_x=15, offset_y=15)
 
@@ -293,15 +283,13 @@ class Bot:
     # ==================================================================================================================
     # FIGHT
     def on_death(self):
-        # move once left (because death pos is in building)
-        self.Movement.position = read_map_location()
-        self.Movement.get_back_to_first_position()
+        self.Movement.location = read_map_location()
 
     # ==================================================================================================================
     # DEBUG
     def test(self):
-        self.test_ocr()
-        # self.Fight.fight()
+        # self.test_ocr()
+        self.Fight.fight()
         return
 
     @staticmethod

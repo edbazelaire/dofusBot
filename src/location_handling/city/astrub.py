@@ -1,9 +1,9 @@
-from src.entity.city.abstract_city import AbstractCity
+from src.location_handling.city.abstract_city import AbstractCity
 from src.enum.images import Images
 
 
 class Astrub(AbstractCity):
-    REGION = 'Astrub'
+    NAME = 'Astrub'
     SUB_REGION = ''
 
     BANK_LOCATION = [4, -18]

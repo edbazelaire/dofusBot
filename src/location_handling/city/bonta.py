@@ -1,12 +1,12 @@
-from src.entity.city.abstract_city import AbstractCity
-from src.entity.city.astrub import Astrub
+from src.location_handling.city.abstract_city import AbstractCity
+from src.location_handling.city.astrub import Astrub
 from src.enum.actions import Actions
 from src.enum.images import Images
 from src.utils.utils_fct import read_region
 
 
 class Bonta(AbstractCity):
-    REGION = 'Bonta'
+    NAME = 'Bonta'
     SUB_REGION = ''
 
     BANK_LOCATION = [-31, -57]

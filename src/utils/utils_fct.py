@@ -21,6 +21,7 @@ def wait_click_on(image: str, confidence: float = 0.8, region=None, max_timer: f
     pg.click(pos[0] + offset_x, pos[1] + offset_y)
     return True
 
+
 def wait_image(image: str, confidence: float = 0.8, region=None, max_timer: float = 5):
     pos = None
     start = time.time()
@@ -38,6 +39,10 @@ def wait_image(image: str, confidence: float = 0.8, region=None, max_timer: floa
 def display_mouse():
     while True:
         print(pg.position(), end='\r')
+
+
+def get_distance(pos1: list, pos2: list):
+    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
 
 def read_map_location():
@@ -124,3 +129,9 @@ def check_map_loaded() -> bool:
             return True
 
         time.sleep(0.1)
+
+
+def check_is_ghost():
+    """ open inventory to check if player is in ghost form """
+    # TODO
+    return False
