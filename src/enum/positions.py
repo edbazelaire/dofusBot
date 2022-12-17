@@ -1,11 +1,12 @@
 class Positions:
     """ contains all screen positions """
-    X_MIN = 370
+    X_MIN = 360
     X_MAX = 1560
     Y_MIN = 45
     Y_MAX = 900
 
-    X_BAND_OFFSET = 100
+    # CHANGE MAP
+    X_BAND_OFFSET = 20
     Y_BAND_OFFSET = 15
     CHANGE_MAP_LEFT_POS = (X_MIN - X_BAND_OFFSET, 450)
     CHANGE_MAP_RIGHT_POS = (X_MAX + X_BAND_OFFSET, 450)
@@ -13,20 +14,30 @@ class Positions:
     CHANGE_MAP_DOWN_POS = (1000, Y_MAX + Y_BAND_OFFSET)
 
     # BANK
-    BANK_DOOR_POSITION = (1145, 343)                 # position to click in order to enter the bank
-    CLOSE_BANK_BUTTON_POSITION = (1564, 111)         # position of closing bank button
-    GET_OUT_BANK_POSITION = (735, 710)         # position of closing bank button
+    BANK_DOOR_POSITION = (1145, 343)            # position to click in order to enter the bank
+    BANK_PLAYER_INVENTORY_REG = (1241, 96, 345, 800)              # region of the player's inventory when the bank is opened
+    BANK_BANK_INVENTORY_REG = (352, 96, 345, 800)                # region of the bank's inventory when the bank is opened
+    BANK_PLAYER_RESSOURCE_POS = [1464, 155]
+    BANK_BANK_RESSOURCE_POS = [578, 155]
+    CLOSE_BANK_BUTTON_POSITION = (1564, 111)    # position of closing bank button
+    GET_OUT_BANK_POSITION = (735, 710)          # position of closing bank button
 
     INVENTORY_POS = (1412, 949)
 
+    # RESSOURCES
     RESSOURCE1_REG = (1218, 934, 34, 16)
-    RESSOURCE2_REG = (1174, 934, 34, 16)
-    RESSOURCE3_REG = (1130, 934, 34, 16)
-    RESSOURCES_REG = [RESSOURCE1_REG, RESSOURCE2_REG, RESSOURCE3_REG]
-    MAP_LOCATION_REG = (0, 70, 80, 30)
-    MAP_ZONE_NAME_REG = (0, 45, 320, 25)
-    READY_BUTTON_REG = (1340, 950, 110, 35)
+    RESSOURCE2_REG = (1176, 934, 34, 16)
+    RESSOURCE3_REG = (1134, 934, 34, 16)
+    RESSOURCE4_REG = (1092, 934, 34, 16)
+    RESSOURCES_REG = [RESSOURCE1_REG, RESSOURCE2_REG, RESSOURCE3_REG, RESSOURCE4_REG]
 
+    # LOCATION (location / zone / region...)
+    MAP_LOCATION_REG = (0, 70, 100, 30)
+    MAP_ZONE_NAME_REG = (0, 45, 320, 25)
+    MAP_REGION_NAME_REG = (0, 45, 320, 25)
+
+    # FIGHT
+    READY_BUTTON_REG = (1340, 950, 110, 35)
     END_TURN_BUTTON_POS = (1396, 965)
     SPELL_1_POS = (894, 953)
     SPELL_2_POS = (940, 953)

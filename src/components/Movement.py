@@ -1,82 +1,69 @@
 import itertools
-import json
 import math
 from typing import List
 
+from src.entity.city.abstract_city import AbstractCity
+from src.entity.city.astrub import Astrub
+from src.entity.city.bonta import Bonta
+from src.enum.actions import Actions
 from src.enum.positions import Positions
-from src.enum.images import Images
 from src.enum.locations import Locations
 
 import pyautogui as pg
-import pytesseract
 import time
 
+from src.enum.regions import Regions
 from src.utils.ErrorHandler import ErrorHandler
+from src.utils.JsonHandler import JsonHandler
+from src.utils.utils_fct import read_map_location, wait_click_on, check_map_change
 
 
 class Movement:
-    TRAVEL_MAP_TIME = 10
-    LOAD_MAP_TIME = 10
-
-    def __init__(self, region: str, ressources: list):
+    def __init__(self, region: str, ressources: list, city: AbstractCity = None):
         self.region = region
+        self.city = self.get_closest_city(region) if city is None else city
         self.path = []
         self.clicked_pos = []
 
-        self.get_maps(ressources)
+        self.set_path(ressources)
 
         self.current_map_index = 0
         self.position = (0, 0)
         self.next_position = None
 
-        self.reset()
-
-    # ==================================================================================================================
-    # INITIALIZATION
-    def reset(self):
-        self.position = self.read_map_pos()
+        self.position = read_map_location()
 
         if self.position in self.path:
             self.current_map_index = self.path.index(self.position)
 
-    def get_maps(self, ressources: list):
+    # ==================================================================================================================
+    # INITIALIZATION
+    def reset(self):
+        self.position = read_map_location()
+
+    def set_path(self, ressources: list):
         """ get unique position of each ressources """
         for ressource_name in ressources:
             pos = Locations.RESSOURCES_LOCATIONS[self.region][ressource_name]
             [self.path.append(pos[i]) for i in range(len(pos)) if pos[i] not in self.path]
 
-        path = self.get_json_path(ressources, self.region)
+        path = JsonHandler.get_json_path(ressources, self.region)
         if path is not None and len(path) == len(self.path):
             print(f'Loaded path : {self.path}')
             self.path = path
             return
 
+        from_checkpoint = Locations.GATES_LOCATION if self.region == Regions.CHAMP_ASTRUB else Locations.ZAAPS[Regions.PLAINES_CANIA]
         self.path = self.get_best_path(self.path, from_checkpoint=Locations.GATES_LOCATION)
-        self.save_json_path(ressources, self.region, self.path)
+        JsonHandler.save_json_path(ressources, self.region, self.path)
         print(f'Path : {self.path}')
 
     @staticmethod
-    def get_json_path(ressources: list, region: str):
-        with open('data/paths.json') as json_file:
-            data = json.load(json_file)
-            ressources.sort()
-            name = '_'.join(ressources)
-            if data is None or region not in data.keys() or name not in data[region].keys():
-                return None
-            return data[region][name]
-
-    @staticmethod
-    def save_json_path(ressources: list, region: str,  path: list):
-        with open('data/paths.json', 'r') as json_file:
-            all_paths = json.load(json_file)
-
-        with open('data/paths.json', 'w') as json_file:
-            ressources.sort()
-            name = '_'.join(ressources)
-            if region not in all_paths.keys():
-                all_paths[region] = {}
-            all_paths[region][name] = path
-            json.dump(all_paths, json_file)
+    def get_closest_city(region) -> AbstractCity:
+        if region == Regions.CHAMP_ASTRUB:
+            return Astrub()
+        else:
+            return Bonta()
 
     # ==================================================================================================================
     def get_next_position(self):
@@ -93,14 +80,23 @@ class Movement:
         if self.next_position is None:
             self.get_next_position()
 
-        # if next pos or pos is in astrub while the other is above astrub -> go to GATES
-        if Locations.is_above_astrub(self.position) and Locations.is_in_astrub(self.next_position) \
-                or Locations.is_in_astrub(self.position) and Locations.is_above_astrub(self.next_position):
-            self.go_to(Locations.GATES_LOCATION)
+        # ANYWHERE -> IN CITY or IN CITY -> ANYWHERE
+        if self.city.is_in_city(self.next_position) or self.city.is_in_city(self.position):
+            path = self.city.get_path(from_location=self.position, to_location=self.next_position)
+            self.follow_path(path)
 
-        # BELOW astrub -> ABOVE astrub
-        elif Locations.is_below_astrub(self.position) and Locations.is_above_astrub(self.next_position):
-            self.go_to(Locations.TOP_CORNER_CITY_LOCATION)
+        elif self.get_distance(self.position, self.next_position) > 15:
+            self.position = read_map_location()
+            success = False
+            for i in range(3):
+                Actions.do(Actions.TAKE_RECALL_POTION)
+                if self.position != read_map_location():
+                    self.position = read_map_location()
+                    success = True
+                    break
+
+            if not success:
+                ErrorHandler.fatal_error("unable to take recall potion")
 
         return self.go_to(self.next_position)
 
@@ -147,7 +143,7 @@ class Movement:
 
             # sleep (safety) and check position with OCR position
             time.sleep(1)
-            self.check_position()
+            self.check_location()
 
             print(f'     position : {self.position}')
             retry_ctr = 0
@@ -161,6 +157,14 @@ class Movement:
             distance_y = pos[1] - self.position[1]
 
         return True
+
+    def follow_path(self, path: list):
+        for value in path:
+            if Actions.is_action(value):
+                Actions.do(value)
+                self.position = read_map_location()
+            else:
+                self.go_to(value)
 
     def move_left(self):
         if not self.move(Positions.CHANGE_MAP_LEFT_POS):
@@ -192,72 +196,42 @@ class Movement:
 
     def move(self, click_pos):
         pg.click(*click_pos)
-        return self.check_map_change()
-
-    @staticmethod
-    def read_map_pos(with_zone=False):
-        """ get map location from GUID reading """
-        x, y = 0, 0
-        success = False
-
-        # check a small range of configurations to allow rechecking if OCR cant read the map properly
-        for i in range(10):
-            # read x, y
-            img = pg.screenshot(region=Positions.MAP_LOCATION_REG)
-            if i % 2 == 0:
-                img = img.resize((200, 75))
-            img = Images.change_color(img, min_value=210 + (i // 2) * 3)
-            value = pytesseract.image_to_string(img, config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789,-')
-
-            try:
-                split = value.split(',')
-                x = int(split[0])
-                y = int(split[1])
-
-                if abs(x) > 100 or abs(y) > 100:
-                    continue
-
-                success = True
-
-                if not with_zone:
-                    return [x, y]
-
-                break
-            except:
-                continue
-
-        if not success:
-            ErrorHandler.error(f"unable to read position ({value})")
-            return None
-
-        # read Zone
-        img = pg.screenshot(region=Positions.MAP_ZONE_NAME_REG)
-        zone_name = pytesseract.image_to_string(img)
-
-        return [x, y, zone_name]
+        return check_map_change(from_location=read_map_location())
 
     def get_back_to_first_position(self):
         """ go back to first position by getting threw the gates (meaning that we can access this position from either
         in or outside the city) """
 
-        # go to the gates
-        self.go_to(Locations.GATES_LOCATION)
+        if self.region == Regions.CHAMP_ASTRUB:
+            # go to the gates
+            self.go_to(Locations.GATES_LOCATION)
+        else:
+            Actions.do(Actions.TAKE_RECALL_POTION)
+            self.position = read_map_location()
 
         # go to first map and reset all values
         self.go_to(self.path[0])
         self.reset()
 
     def go_to_bank(self):
-        if Locations.is_above_astrub(self.position):
-            print(f"{self.position} : Moving to the GATES")
-            self.go_to(Locations.GATES_LOCATION)
-
         print(f"{self.position} : Moving to the BANK")
-        self.go_to(Locations.BANK_LOCATION)
+        success = False
+        while not success:
+            path = self.city.get_bank_path(self.position)
+            self.follow_path(path)
+
+            # SAFETY
+            ocr_location = read_map_location()
+            if ocr_location != self.city.BANK_LOCATION:
+                ErrorHandler.error(f"ocr location ({ocr_location}) is not on bank location ({self.city.BANK_LOCATION})")
+                self.position = ocr_location
+                continue
+
+            success = True
 
         # get in the bank
         print(f"{self.position} : Clicking on BANK_DOOR")
-        test = self.enter_building(Positions.BANK_DOOR_POSITION, loading_img=Images.get_bank(Images.BANK_NPC))
+        test = self.enter_building(click_pos=self.city.BANK_DOOR_POSITION, loading_img=self.city.BANK_NPC_IMAGE)
 
         if not test:
             return
@@ -267,14 +241,24 @@ class Movement:
         print(f"{self.position} : I am in the bank")
 
     @staticmethod
-    def enter_building(click_pos: tuple, loading_img: str = '') -> bool:
+    def enter_building(click_pos: tuple = None, click_img: str = None, loading_img: str = '') -> bool:
         """ Enter a building by clicking requested position
         :param click_pos:   position to click to enter the building
+        :param click_img:   image to click in order to get in the building
         :param loading_img: waiting for this image to confirm map loading
         :return:
         """
+
+        if click_pos is not None:
+            pg.click(*click_pos)
+
+        elif click_img is not None:
+            success = wait_click_on(click_img)
+
+        else:
+            ErrorHandler.fatal_error("BAD CONFIGURATION, neither click_pos or click_img is provided")
+
         start = time.time()
-        pg.click(*click_pos)
         if loading_img != '':
             while pg.locateOnScreen(loading_img) is None:
                 if time.time() - start > 5:
@@ -286,63 +270,17 @@ class Movement:
 
     # ==================================================================================================================
     # CHECKS
-    def check_map_change(self, do_map_load_check=True) -> bool:
-        """ check if player changed map by looking at map position """
-        map_pos = self.read_map_pos()
-        start = time.time()
-        while map_pos == self.read_map_pos():
-            if time.time() - start > self.TRAVEL_MAP_TIME:
-                print("WARNING !! MAP NOT CHANGED")
-                return False
-            time.sleep(0.5)
-
-        print("     MAP CHANGED")
-
-        if do_map_load_check:
-            self.check_map_loaded()
-        return True
-
-    def check_map_loaded(self) -> bool:
-        """ check if player changed map by looking at map position """
-        start = time.time()
-        while True:
-            if time.time() - start > self.LOAD_MAP_TIME:
-                print(" -- map NOT loaded !!")
-                return False
-
-            confidence = 0.7
-            pg.moveTo(*Positions.CHANGE_MAP_LEFT_POS)
-            if pg.locateOnScreen('images/screenshots/cursor_left.png', confidence=confidence) is not None:
-                print("     -- map loaded ")
-                return True
-
-            pg.moveTo(*Positions.CHANGE_MAP_RIGHT_POS)
-            if pg.locateOnScreen('images/screenshots/cursor_right.png', confidence=confidence) is not None:
-                print("     -- map loaded")
-                return True
-
-            pg.moveTo(*Positions.CHANGE_MAP_UP_POS)
-            if pg.locateOnScreen('images/screenshots/cursor_up.png', confidence=confidence) is not None:
-                print("     -- map loaded")
-                return True
-
-            pg.moveTo(*Positions.CHANGE_MAP_DOWN_POS)
-            if pg.locateOnScreen('images/screenshots/cursor_down.png', confidence=confidence) is not None:
-                print("     -- map loaded")
-                return True
-
-            time.sleep(0.1)
-
-    def check_position(self):
-        pos = self.read_map_pos()
+    def check_location(self):
+        pos = read_map_location()
         if self.position[0] != pos[0] or self.position[1] != pos[1]:
             ErrorHandler.error(f"position calculated {self.position} is different from OCR position {pos}")
             ErrorHandler.MAP_POSITION_ERROR += 1
-            if ErrorHandler.MAP_POSITION_ERROR >= 2:
+            if ErrorHandler.MAP_POSITION_ERROR >= ErrorHandler.MAP_POSITION_ERROR_MAX:
                 ErrorHandler.is_error = True
-            return
+            return False
 
         ErrorHandler.MAP_POSITION_ERROR = 0
+        return True
 
     # ==================================================================================================================
     # UTILS

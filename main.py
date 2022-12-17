@@ -1,26 +1,23 @@
 from src.Bot import Bot
-from src.components.Fight import Fight
 from src.enum.regions import Regions
 from src.enum.ressources import Ressources
 
-import time
-import pyautogui
 
+from src.utils.utils_fct import display_mouse
 
 if __name__ == '__main__':
-    bot = Bot(Regions.CHAMP_ASTRUB, [Ressources.HOUBLON, Ressources.CHANVRE, Ressources.SEIGLE, 'fake'])
+    bot = Bot(
+        region=Regions.PLAINES_CANIA,
+        ressources=[
+            Ressources.MALT,
+            Ressources.CHANVRE,
+            # Ressources.SEIGLE,
+        ]
+    )
     bot.run()
-    # bot.test()
 
-    # fight = Fight()
-    # while True:
-    #     if fight.check_combat_started():
-    #         fight.fight()
-    #         break
-
-    Bot.test_ocr()
-
-    # bot = Bot([Ressources.HOUBLON])
-    # bot.display_mouse()
+    Bot.read_num_ressources(True)
+    # Bot.test_ocr_map()
+    display_mouse()
 
 

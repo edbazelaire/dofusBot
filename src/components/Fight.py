@@ -51,19 +51,6 @@ class Fight:
 
         self.equipe_stuff(Images.PODS_STUFF)
 
-
-    @staticmethod
-    def equipe_stuff(image: str, offset_x=5, offset_y=5):
-        pos = None
-        start = time.time()
-        while pos is None:
-            if time.time() -start >= 8:
-                ErrorHandler.error("unable to find stuff")
-                return
-            pos = pg.locateOnScreen(Images.get_stuff(image), confidence=0.7)
-
-        pg.doubleClick(pos[0] + offset_x, pos[1] + offset_y)
-
     @staticmethod
     def press_ready_button():
         pg.click(Positions.END_TURN_BUTTON_POS)

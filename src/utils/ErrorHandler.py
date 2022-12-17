@@ -1,5 +1,12 @@
+import time
+
+
 class ErrorHandler:
+    LOAD_MAP_TIME = 10
+    TRAVEL_MAP_TIME = 10
+
     MAP_POSITION_ERROR = 0
+    MAP_POSITION_ERROR_MAX = 2
     is_error = False
 
     @staticmethod
@@ -9,8 +16,13 @@ class ErrorHandler:
 
     @staticmethod
     def warning(msg):
-        print('Warning : ' + msg)
+        print(f'[{time.time()}] Warning : ' + msg)
 
     @staticmethod
     def error(msg):
-        print('Warning : ' + msg)
+        print(f'[{time.time()}] Error : ' + msg)
+
+    @staticmethod
+    def fatal_error(msg):
+        print(f'[{time.time()}] FATAL ERROR : ' + msg)
+        exit()
