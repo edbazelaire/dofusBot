@@ -8,7 +8,6 @@ class Locations:
     BANK_LOCATION = (4, -18)
     GATES_LOCATION = (4, -22)
     TOP_CORNER_CITY_LOCATION = [2, -22]
-    PHOENIX_STATUE = [2, -14]
 
     ASTRUB_TOP_LEFT = [3, -19]
     ASTRUB_BOTTOM_RIGHT = [6, -17]
@@ -17,6 +16,11 @@ class Locations:
 
     ZAAPS = {
         Regions.PLAINES_CANIA: [-27, -36]
+    }
+
+    PHOENIX_STATUES = {
+        Regions.CHAMP_ASTRUB: [2, -14],
+        Regions.PLAINES_CANIA: [-10, -54]
     }
 
     RESSOURCES_LOCATIONS = {

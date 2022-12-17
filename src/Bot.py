@@ -3,20 +3,22 @@ import time
 import os
 import pytesseract
 
+from src.enum.actions import Actions
 from src.enum.positions import Positions
 from src.enum.images import Images
 from src.enum.locations import Locations
 from src.components.Fight import Fight
 from src.components.Movement import Movement
+from src.enum.regions import Regions
 from src.utils.ErrorHandler import ErrorHandler
-from src.utils.utils_fct import wait_click_on
+from src.utils.utils_fct import wait_click_on, check_map_change, check_map_loaded, read_map_location
 
 
 class Bot:
     MAX_TIME_SCANNING = 60
     HARVEST_TIME = 1
     CONFIDENCE = 0.6
-    MAX_ALLOWED_RESSOURCES = 2500
+    MAX_ALLOWED_RESSOURCES = 3000
 
     def __init__(self, region: str, ressources: list):
         self.images = {}
@@ -84,6 +86,7 @@ class Bot:
                     continue
 
                 if self.check_is_ghost():
+                    print("-- is ghost")
                     self.ghost_routine()
                 elif self.Fight.check_is_defeat():
                     self.on_death()
@@ -154,6 +157,8 @@ class Bot:
                 continue
 
             if Positions.X_MAX > pos[0] > Positions.X_MIN and Positions.Y_MAX > pos[1] > Positions.Y_MIN:
+                pg.moveTo(pos[0], pos[1])
+                time.sleep(0.5)
                 pg.click(pos[0], pos[1])
                 self.clicked_pos.append((pos[0], pos[1]))
                 pg.moveTo(10, 10)   # move mouse to prevent overs
@@ -164,35 +169,36 @@ class Bot:
     # ==================================================================================================================
     # GHOST
     def ghost_routine(self):
-        self.Movement.position = Locations.PHOENIX_STATUE
-
         wait_click_on('images/screenshots/yes_button.png')
 
         # wait that map is loaded
-        time.sleep(5)
+        time.sleep(3)
 
-        wait_click_on('images/screenshots/phoenix_statue.png', offset_x=20)
         wait_click_on(Images.get_fight(Images.CANCEL_POPUP), offset_x=5, offset_y=5)
+
+        self.Movement.position = read_map_location()
+        self.Movement.go_to(Locations.PHOENIX_STATUES[self.region])
+
+        if self.region == Regions.PLAINES_CANIA:
+            wait_click_on(Images.get_screenshot(Images.PHOENIX_STATUE_2))
+        elif self.region == Regions.CHAMP_ASTRUB:
+            wait_click_on(Images.get_screenshot(Images.PHOENIX_STATUE), offset_x=20)
 
         # wait until reaching phoenix statue
         time.sleep(5)
 
-        # TODO : check in inventary that is not ghost anymore
+        # TODO : check in inventory that is not ghost anymore
 
-        self.Movement.go_to(Locations.TOP_CORNER_CITY_LOCATION)
+        # if self.region == Regions.PLAINES_CANIA:
+        #     Actions.do(Actions.TAKE_RECALL_POTION)
+        #     self.Movement.position = read_map_location()
+        # else:
+        #     self.Movement.go_to(Locations.TOP_CORNER_CITY_LOCATION)
 
     # ==================================================================================================================
     # CHECKS
     def check_pods(self):
-        num_ressources = 0
-        for region in Positions.RESSOURCES_REG:
-            img = pg.screenshot(region=region)
-            img.resize((400, 200))
-            img = Images.change_color(img, min_value=140)
-            value = pytesseract.image_to_string(img, config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
-
-            value = 0 if value == '' else int(value)
-            num_ressources += value
+        num_ressources = self.read_num_ressources()
 
         # security : check that calculated number of ressources is not impossible
         if self.last_num_ressources_checked != 0 \
@@ -209,6 +215,26 @@ class Bot:
             print(f"MAX PODS : {num_ressources}")
             return True
         return False
+
+    @staticmethod
+    def read_num_ressources(debug=False):
+        num_ressources = 0
+        for region in Positions.RESSOURCES_REG:
+            img = pg.screenshot(region=region)
+            img = img.resize((200, 100))
+            img = Images.change_color(img, min_value=140)
+            value = pytesseract.image_to_string(img, config='--psm 8 --oem 3 -c tessedit_char_whitelist=0123456789')
+
+            if debug:
+                print(value)
+                img.show()
+
+            value = 0 if value == '' else int(value)
+            num_ressources += value
+
+        if debug:
+            print(f"num_ressources : {num_ressources}")
+        return num_ressources
 
     def check_is_ghost(self) -> bool:
         start = time.time()
@@ -234,8 +260,9 @@ class Bot:
         time.sleep(1)
 
         # get out of the bank
-        pg.click(*Positions.GET_OUT_BANK_POSITION)
-        self.Movement.check_map_change(do_map_load_check=True)
+        pg.click(*self.Movement.city.GET_OUT_BANK_POSITION)
+        time.sleep(1)
+        check_map_loaded()
 
         # get back to first map location
         self.Movement.get_back_to_first_position()
@@ -245,14 +272,14 @@ class Bot:
 
     def unload_bank(self):
         # click on npc
-        wait_click_on(self.Movement.city.BANK_NPC_IMAGE)
+        wait_click_on(self.Movement.city.BANK_NPC_IMAGE, offset_x=15, offset_y=15)
 
         # click on "accept" to access your bank inventory
         wait_click_on(Images.get_bank(Images.BANK_DIALOG_ACCESS), offset_x=50, offset_y=10)
         time.sleep(1)
 
         # select ressources tab
-        pg.click(*Positions.BANK_PLAYER_INVENTORY_REG)
+        wait_click_on(Images.get_bank(Images.BANK_RESSOURCE_TAB), region=Positions.BANK_PLAYER_INVENTORY_REG, offset_x=5, offset_y=5, confidence=0.99)
         time.sleep(1)
 
         # unload ressources
@@ -270,7 +297,7 @@ class Bot:
     # FIGHT
     def on_death(self):
         # move once left (because death pos is in building)
-        self.Movement.move_left()
+        self.Movement.position = read_map_location()
         self.Movement.get_back_to_first_position()
 
     # ==================================================================================================================
@@ -281,11 +308,19 @@ class Bot:
         return
 
     @staticmethod
-    def test_ocr():
-        img = pg.screenshot(region=Positions.RESSOURCE3_REG)
+    def test_ocr_map():
+        img = pg.screenshot(region=Positions.MAP_LOCATION_REG)
+        value = pytesseract.image_to_string(img, config='--psm 7 --oem 3 -c tessedit_char_whitelist=0123456789,-')
+
+        print(value)
+        img.show()
+
+    @staticmethod
+    def test_ocr_ressources():
+        img = pg.screenshot(region=Positions.RESSOURCE4_REG)
         img = img.resize((200, 100))
         img = Images.change_color(img, min_value=140)
-        value = pytesseract.image_to_string(img, config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789,-')
+        value = pytesseract.image_to_string(img, config='--psm 7 --oem 3 -c tessedit_char_whitelist=0123456789')
 
         print(value)
         img.show()

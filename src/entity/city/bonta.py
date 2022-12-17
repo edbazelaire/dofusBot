@@ -10,8 +10,12 @@ class Bonta(AbstractCity):
     SUB_REGION = ''
 
     BANK_LOCATION = [-31, -57]
-    BANK_CLICK_POSITION = [964, 677]
+    BANK_DOOR_POSITION = [964, 677]
+    GET_OUT_BANK_POSITION = [519, 798]
     BANK_NPC_IMAGE = Images.get_bank(Images.BANK_NPC_BONTA)
+
+    CITY_TOP_CORNER = [-37, -61]
+    CITY_BOTTOM_CORNER = [-26, -50]
 
     @staticmethod
     def get_bank_path(location) -> list:
@@ -28,14 +32,18 @@ class Bonta(AbstractCity):
         return path
 
     @staticmethod
-    # TODO -----------------------------------
     def is_in_city(location):
-        region, sub_region = read_region()
+        return Bonta.CITY_BOTTOM_CORNER[0] >= location[0] >= Bonta.CITY_TOP_CORNER[0] \
+            and Bonta.CITY_BOTTOM_CORNER[1] >= location[1] >= Bonta.CITY_TOP_CORNER[1]
 
     @staticmethod
-    def is_above_city(location):
-        return location[1] < Astrub.ASTRUB_TOP_LEFT[1]
+    def get_path(from_location, to_location):
+        path = []
+        if Bonta.is_in_city(from_location) and not Bonta.is_in_city(to_location):
+            path.append(Actions.TAKE_RECALL_POTION)
 
-    @staticmethod
-    def is_below_city(location):
-        return location[1] > Astrub.ASTRUB_BOTTOM_RIGHT[1]
+        elif Bonta.is_in_city(to_location) and not Bonta.is_in_city(from_location):
+            path.append(Actions.TAKE_BONTA_POTION)
+
+        path.append(to_location)
+        return path

@@ -1,16 +1,40 @@
 from src.entity.city.abstract_city import AbstractCity
+from src.enum.images import Images
 
 
 class Astrub(AbstractCity):
     REGION = 'Astrub'
-    SUB_REGION = ''             # TODO
+    SUB_REGION = ''
 
     BANK_LOCATION = [4, -18]
+    BANK_DOOR_POSITION = [1138, 372]
+    BANK_NPC_IMAGE = Images.get_bank(Images.BANK_NPC_ASTRUB)
+    GET_OUT_BANK_POSITION = [735, 710]
+
     TOP_CITY_CHECKPOINT = [4, -22]
+    BOTTOM_CITY_CHECKPOINT = [5, -17]
     TOP_LEFT_CITY_CHECKPOINT = [2, -22]
 
     ASTRUB_TOP_LEFT = [3, -19]
     ASTRUB_BOTTOM_RIGHT = [6, -17]
+
+    @staticmethod
+    def get_path(from_location, to_location):
+        path = []
+        if Astrub.is_in_city(from_location):
+            if Astrub.is_above_city(to_location):
+                path.append(Astrub.TOP_CITY_CHECKPOINT)
+            elif Astrub.is_below_city(to_location):
+                path.append(Astrub.BOTTOM_CITY_CHECKPOINT)
+
+        elif Astrub.is_above_city(from_location) and Astrub.is_in_city(to_location):
+            path.append(Astrub.TOP_CITY_CHECKPOINT)
+
+        elif Astrub.is_below_city(from_location) and Astrub.is_in_city(to_location):
+            path.append(Astrub.BOTTOM_CITY_CHECKPOINT)
+
+        path.append(to_location)
+        return path
 
     @staticmethod
     def get_bank_path(location) -> list:
@@ -21,6 +45,8 @@ class Astrub(AbstractCity):
         path = []
         if Astrub.is_above_city(location):
             path.append(Astrub.TOP_CITY_CHECKPOINT)
+        if Astrub.is_below_city(location):
+            path.append(Astrub.BOTTOM_CITY_CHECKPOINT)
 
         path.append(Astrub.BANK_LOCATION)
 

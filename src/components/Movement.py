@@ -1,5 +1,4 @@
 import itertools
-import json
 import math
 from typing import List
 
@@ -8,7 +7,6 @@ from src.entity.city.astrub import Astrub
 from src.entity.city.bonta import Bonta
 from src.enum.actions import Actions
 from src.enum.positions import Positions
-from src.enum.images import Images
 from src.enum.locations import Locations
 
 import pyautogui as pg
@@ -55,6 +53,7 @@ class Movement:
             self.path = path
             return
 
+        from_checkpoint = Locations.GATES_LOCATION if self.region == Regions.CHAMP_ASTRUB else Locations.ZAAPS[Regions.PLAINES_CANIA]
         self.path = self.get_best_path(self.path, from_checkpoint=Locations.GATES_LOCATION)
         JsonHandler.save_json_path(ressources, self.region, self.path)
         print(f'Path : {self.path}')
@@ -86,10 +85,18 @@ class Movement:
             path = self.city.get_path(from_location=self.position, to_location=self.next_position)
             self.follow_path(path)
 
-        # TODO : change that in region maybe
-        # BELOW astrub -> ABOVE astrub
-        elif Astrub.is_below_city(self.position) and Astrub.is_above_city(self.next_position):
-            self.go_to(Locations.TOP_CORNER_CITY_LOCATION)
+        elif self.get_distance(self.position, self.next_position) > 15:
+            self.position = read_map_location()
+            success = False
+            for i in range(3):
+                Actions.do(Actions.TAKE_RECALL_POTION)
+                if self.position != read_map_location():
+                    self.position = read_map_location()
+                    success = True
+                    break
+
+            if not success:
+                ErrorHandler.fatal_error("unable to take recall potion")
 
         return self.go_to(self.next_position)
 
@@ -155,6 +162,7 @@ class Movement:
         for value in path:
             if Actions.is_action(value):
                 Actions.do(value)
+                self.position = read_map_location()
             else:
                 self.go_to(value)
 
@@ -194,8 +202,12 @@ class Movement:
         """ go back to first position by getting threw the gates (meaning that we can access this position from either
         in or outside the city) """
 
-        # go to the gates
-        self.go_to(Locations.GATES_LOCATION)
+        if self.region == Regions.CHAMP_ASTRUB:
+            # go to the gates
+            self.go_to(Locations.GATES_LOCATION)
+        else:
+            Actions.do(Actions.TAKE_RECALL_POTION)
+            self.position = read_map_location()
 
         # go to first map and reset all values
         self.go_to(self.path[0])
@@ -219,7 +231,7 @@ class Movement:
 
         # get in the bank
         print(f"{self.position} : Clicking on BANK_DOOR")
-        test = self.enter_building(click_pos=self.city.BANK_CLICK_POSITION, loading_img=self.city.BANK_NPC_IMAGE)
+        test = self.enter_building(click_pos=self.city.BANK_DOOR_POSITION, loading_img=self.city.BANK_NPC_IMAGE)
 
         if not test:
             return

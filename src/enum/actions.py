@@ -5,7 +5,7 @@ from src.utils.ErrorHandler import ErrorHandler
 import pyautogui as pg
 import time
 
-from src.utils.utils_fct import read_map_location
+from src.utils.utils_fct import read_map_location, check_map_change
 
 
 class Actions:
@@ -19,10 +19,7 @@ class Actions:
         if not isinstance(value, str):
             return False
 
-        for name, val in vars(Actions).iteritems():
-            if not name.startswith('_') and name.upper() == name:
-                continue
-
+        for name, val in vars(Actions).items():
             if val == value:
                 return True
 

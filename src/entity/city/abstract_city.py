@@ -3,7 +3,8 @@ class AbstractCity:
     SUB_REGION = ''
 
     BANK_LOCATION = []
-    BANK_CLICK_POSITION = []
+    BANK_DOOR_POSITION = []
+    GET_OUT_BANK_POSITION = []
     BANK_NPC_IMAGE = ''
 
     @staticmethod
