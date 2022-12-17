@@ -85,8 +85,7 @@ class Bot:
                 if self.Fight.check_is_victory():
                     continue
 
-                if self.check_is_ghost():
-                    print("-- is ghost")
+                if self.check_tomb():
                     self.ghost_routine()
                 elif self.Fight.check_is_defeat():
                     self.on_death()
@@ -169,10 +168,11 @@ class Bot:
     # ==================================================================================================================
     # GHOST
     def ghost_routine(self):
+        print("-- is ghost")
         wait_click_on('images/screenshots/yes_button.png')
 
         # wait that map is loaded
-        time.sleep(3)
+        check_map_change(from_location=self.Movement.position)
 
         wait_click_on(Images.get_fight(Images.CANCEL_POPUP), offset_x=5, offset_y=5)
 
@@ -189,11 +189,8 @@ class Bot:
 
         # TODO : check in inventory that is not ghost anymore
 
-        # if self.region == Regions.PLAINES_CANIA:
-        #     Actions.do(Actions.TAKE_RECALL_POTION)
-        #     self.Movement.position = read_map_location()
-        # else:
-        #     self.Movement.go_to(Locations.TOP_CORNER_CITY_LOCATION)
+        if self.region == Regions.CHAMP_ASTRUB:
+            self.Movement.go_to(Locations.TOP_CORNER_CITY_LOCATION)
 
     # ==================================================================================================================
     # CHECKS
@@ -236,7 +233,7 @@ class Bot:
             print(f"num_ressources : {num_ressources}")
         return num_ressources
 
-    def check_is_ghost(self) -> bool:
+    def check_tomb(self) -> bool:
         start = time.time()
         while True:
             if time.time() - start > 5:

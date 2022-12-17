@@ -16,7 +16,7 @@ if __name__ == '__main__':
     )
     bot.run()
 
-    # Bot.read_num_ressources(True)
+    Bot.read_num_ressources(True)
     # Bot.test_ocr_map()
     display_mouse()
 
