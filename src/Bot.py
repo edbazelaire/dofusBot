@@ -49,7 +49,9 @@ class Bot:
         self.make_first_move()
 
     def make_first_move(self):
-        if self.check_pods():
+        if self.check_tomb():
+            self.ghost_routine()
+        elif self.check_pods():
             self.bank_routine()
         else:
             self.Movement.go_to_next_pos()
