@@ -132,7 +132,6 @@ class Bot:
 
         print("\n")
 
-
     def check_all_ressources(self):
         for ressource_name, images in self.images.items():
             # check if this ressource belong to this position
