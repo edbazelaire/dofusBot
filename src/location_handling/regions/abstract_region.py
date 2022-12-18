@@ -44,6 +44,7 @@ class AbstractRegion:
         if path is not None:
             self.path = path
             print(f'Loaded path : {self.path}')
+            return
 
         self.path = self.get_best_path(self.path, from_checkpoint=self.CHECKPOINT)
         JsonHandler.save_json_path(ressources, self.NAME, self.path)
@@ -57,6 +58,8 @@ class AbstractRegion:
         :param from_checkpoint: checkpoint from where the char arrives
         :return:
         """
+
+        print('calculation best path...')
 
         # get index of the position closest to the checkpoint
         start_pos_index = None
