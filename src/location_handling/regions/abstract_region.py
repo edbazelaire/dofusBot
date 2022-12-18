@@ -29,6 +29,9 @@ class AbstractRegion:
         """ get to phoenix statue from requested location """
         return [self.PHOENIX_STATUE_LOCATION]
 
+    def get_path(self, from_location, to_location):
+        return [to_location]
+
     # ==================================================================================================================
     # INITIALIZATION
     def set_path(self, ressources: list):

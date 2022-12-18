@@ -73,7 +73,6 @@ class Movement:
             path = self.city.get_path(from_location=self.location, to_location=self.next_location)
             self.follow_path(path)
 
-        # TODO : put in Region
         elif get_distance(self.location, self.next_location) > 15:
             self.location = read_map_location()
             success = False
@@ -99,12 +98,7 @@ class Movement:
         distance_x = pos[0] - self.location[0]
         distance_y = pos[1] - self.location[1]
 
-        retry_ctr = 0
-        max_retry = 3
-
         while distance_y != 0 or distance_x != 0:
-            success = False
-            last_position = self.location
             if distance_x > 0:
                 success = self.move_right()
 
@@ -117,33 +111,26 @@ class Movement:
             elif distance_y < 0:
                 success = self.move_up()
 
-            if not success:
-                if retry_ctr == max_retry:
-                    print("ERROR : MAX RETRY MOVEMENT")
-                    ErrorHandler.is_error = True
-                    return False
-                retry_ctr += 1
-                time.sleep(2)
+            else:
+                success = True
 
-                if last_position != self.location:
-                    ErrorHandler.error("position changed while movement did not succeed")
+            if ErrorHandler.is_error:
+                return False
 
-                continue
-
-            # sleep (safety) and check position with OCR position
-            time.sleep(1)
             self.location = read_map_location()
+            distance_x = pos[0] - self.location[0]
+            distance_y = pos[1] - self.location[1]
 
-            print(f'     location : {self.location}')
-            retry_ctr = 0
-            print("")
+            if success:
+                # sleep (safety) and check position with OCR position
+                time.sleep(1)
+
+                print(f'     location : {self.location}')
+                print("")
 
             # if during the movement, the bot stumble on a harvesting map, return false to scan the map
             if self.location in self.path:
                 return False
-
-            distance_x = pos[0] - self.location[0]
-            distance_y = pos[1] - self.location[1]
 
         return True
 
@@ -156,29 +143,20 @@ class Movement:
                 self.go_to(value)
 
     def move_left(self):
-        if not self.move(Positions.CHANGE_MAP_LEFT_POS):
-            return False
-        return True
+        return self.move(Positions.CHANGE_MAP_LEFT_POS)
 
     def move_right(self):
-        if not self.move(Positions.CHANGE_MAP_RIGHT_POS):
-            return False
-        return True
+        return self.move(Positions.CHANGE_MAP_RIGHT_POS)
 
     def move_up(self):
-        if not self.move(Positions.CHANGE_MAP_UP_POS):
-            return False
-        return True
+        return self.move(Positions.CHANGE_MAP_UP_POS)
 
     def move_down(self):
-        if not self.move(Positions.CHANGE_MAP_DOWN_POS):
-            return False
-        return True
+        return self.move(Positions.CHANGE_MAP_DOWN_POS)
 
-    @staticmethod
-    def move(click_pos):
+    def move(self, click_pos):
         pg.click(*click_pos)
-        return check_map_change(from_location=read_map_location())
+        return check_map_change(from_location=self.location)
 
     def get_back_to_first_position(self):
         """ go back to first position by getting threw the gates (meaning that we can access this position from either
@@ -278,12 +256,10 @@ class Movement:
     def check_location(self):
         pos = read_map_location()
         if self.location[0] != pos[0] or self.location[1] != pos[1]:
-            ErrorHandler.error(f"position calculated {self.location} is different from OCR position {pos}")
-            ErrorHandler.MAP_POSITION_ERROR += 1
-            if ErrorHandler.MAP_POSITION_ERROR >= ErrorHandler.MAP_POSITION_ERROR_MAX:
-                ErrorHandler.is_error = True
+            ErrorHandler.error(f"position calculated {self.location} is different from OCR position {pos}", ErrorHandler.MAP_POSITION_ERROR)
             return False
 
-        ErrorHandler.MAP_POSITION_ERROR = 0
+        # reset if location check went ok
+        ErrorHandler.ERROR_CTRS[ErrorHandler.MAP_POSITION_ERROR] = 0
         return True
 

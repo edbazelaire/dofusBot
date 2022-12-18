@@ -10,7 +10,7 @@ from src.enum.images import Images
 from src.components.Fight import Fight
 from src.components.Movement import Movement
 from src.utils.ErrorHandler import ErrorHandler
-from src.utils.utils_fct import wait_click_on, check_map_change, check_map_loaded, read_map_location, check_is_ghost
+from src.utils.utils_fct import wait_click_on, check_map_loaded, read_map_location, check_is_ghost
 
 
 class Bot:
@@ -110,13 +110,8 @@ class Bot:
         """ scan the map for ressources """
         print('Scanning', end='')
 
-        if self.Movement.location not in self.Movement.region.path:
-            ErrorHandler.error('current scanning position not in requested scanned maps')
-            ErrorHandler.is_error = True
-
         start = time.time()
         isAny = True
-        found_one = False
         while isAny:
             print('.', end='')
             isAny = self.check_all_ressources()
@@ -124,11 +119,6 @@ class Bot:
                 break
             found_one = True
             time.sleep(self.HARVEST_TIME)
-
-        # if we do not find any ressource on the map and that the OCR location is not ok with the calculated location
-        if not found_one and not self.Movement.check_location():
-            ErrorHandler.error("Scanning on wrong location -> reset")
-            ErrorHandler.is_error = True
 
         print("\n")
 
@@ -254,7 +244,9 @@ class Bot:
         # get out of the bank
         pg.click(*self.Movement.city.GET_OUT_BANK_POSITION)
         time.sleep(1)
-        check_map_loaded()
+        success = check_map_loaded()
+        if not success:
+            ErrorHandler.error("unable to get out of bank")
 
         # reset
         self.reset()

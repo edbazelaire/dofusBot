@@ -86,13 +86,14 @@ def check_map_change(from_location, do_map_load_check=True) -> bool:
     map_location = read_map_location()
     while from_location == map_location or map_location is None:
         if time.time() - start > ErrorHandler.TRAVEL_MAP_TIME:
-            print("WARNING !! MAP NOT CHANGED")
+            ErrorHandler.warning("MAP NOT CHANGED", ErrorHandler.MAP_NOT_CHANGED_ERROR)
             return False
         time.sleep(0.5)
 
         map_location = read_map_location()
 
     print("     MAP CHANGED")
+    ErrorHandler.ERROR_CTRS[ErrorHandler.MAP_NOT_CHANGED_ERROR] = False
 
     if do_map_load_check:
         check_map_loaded()

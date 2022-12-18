@@ -11,7 +11,7 @@ class ChampAstrub(AbstractRegion):
 
     # LOCATIONS
     PHOENIX_STATUE_LOCATION: list = [2, -14]
-    CHECKPOINT: list = None         # TODO
+    CHECKPOINT: list = Astrub.TOP_CITY_CHECKPOINT
     RESSOURCES_LOCATIONS = {
             Ressources.HOUBLON: [
                 [6, -22],
@@ -61,3 +61,13 @@ class ChampAstrub(AbstractRegion):
     # IMAGES
     PHOENIX_STATUE_IMAGE: str = Images.get_screenshot(Images.PHOENIX_STATUE)
 
+    def get_path(self, from_location, to_location):
+        """ get path from a position to another (add special locations to go to if there is obstacle in between) """
+        path = []
+        if Astrub.is_above_city(to_location) \
+                and not Astrub.is_in_city(from_location) \
+                and from_location[1] > Astrub.TOP_LEFT_CITY_CHECKPOINT[1]:
+            path.append(Astrub.TOP_LEFT_CITY_CHECKPOINT)
+
+        path.append(to_location)
+        return path
