@@ -72,7 +72,7 @@ def read_region():
     img = Images.change_color(img, 210)
     value = pytesseract.image_to_string(img, config="-c tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyz, -psm 7")
 
-    if value is '':
+    if value == '':
         ErrorHandler.error("unable to read region")
         return None
 
@@ -133,5 +133,14 @@ def check_map_loaded() -> bool:
 
 def check_is_ghost():
     """ open inventory to check if player is in ghost form """
-    # TODO
+    # open_inventory()
+    # success = wait_image()
+    # open_inventory()
+    # return success
     return False
+
+
+def open_inventory():
+    pg.click(*Positions.INVENTORY_CLICK_POS)
+
+

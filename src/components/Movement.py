@@ -11,6 +11,7 @@ import time
 from src.enum.regions import Regions
 from src.location_handling.city.abstract_city import AbstractCity
 from src.location_handling.regions.abstract_region import AbstractRegion
+from src.location_handling.utils import get_region, get_city
 from src.utils.ErrorHandler import ErrorHandler
 from src.utils.utils_fct import read_map_location, wait_click_on, check_map_change, get_distance
 
@@ -26,10 +27,10 @@ class Movement:
         :param city_name:   name of the city where the ressources are unloaded to the bank. If not provided, use default
                             city of the region
         """
-        self.region = AbstractRegion.get_region(region_name, ressources)
+        self.region = get_region(region_name, ressources)
         if city_name is None:
             city_name = self.region.CITY
-        self.city = AbstractCity.get_city(city_name)
+        self.city = get_city(city_name)
         self.path = self.region.path
 
         self.clicked_pos = []
@@ -131,9 +132,9 @@ class Movement:
 
             # sleep (safety) and check position with OCR position
             time.sleep(1)
-            self.check_location()
+            self.location = read_map_location()
 
-            print(f'     position : {self.location}')
+            print(f'     location : {self.location}')
             retry_ctr = 0
             print("")
 
@@ -157,29 +158,21 @@ class Movement:
     def move_left(self):
         if not self.move(Positions.CHANGE_MAP_LEFT_POS):
             return False
-
-        self.location[0] -= 1
         return True
 
     def move_right(self):
         if not self.move(Positions.CHANGE_MAP_RIGHT_POS):
             return False
-
-        self.location[0] += 1
         return True
 
     def move_up(self):
         if not self.move(Positions.CHANGE_MAP_UP_POS):
             return False
-
-        self.location[1] -= 1
         return True
 
     def move_down(self):
         if not self.move(Positions.CHANGE_MAP_DOWN_POS):
             return False
-
-        self.location[1] += 1
         return True
 
     @staticmethod
@@ -278,7 +271,7 @@ class Movement:
         wait_click_on(self.region.PHOENIX_STATUE_IMAGE, offset_x=10)
 
         # wait until reaching phoenix statue
-        time.sleep(5)
+        time.sleep(3)
 
     # ==================================================================================================================
     # CHECKS

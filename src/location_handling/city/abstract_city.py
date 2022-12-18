@@ -1,8 +1,3 @@
-from src.location_handling.city.astrub import Astrub
-from src.location_handling.city.bonta import Bonta
-from src.utils.ErrorHandler import ErrorHandler
-
-
 class AbstractCity:
     """ static class that handles all the specific information of a city (bank location, zaap location, specific images, ...)"""
 
@@ -13,17 +8,6 @@ class AbstractCity:
     BANK_DOOR_POSITION = []     # screen position (x, y) to click in order to get in the bank
     GET_OUT_BANK_POSITION = []  # screen position to click to get out the bank
     BANK_NPC_IMAGE = ''         # image of the NPC in the bank to talk to
-
-    @staticmethod
-    def get_city(city_name: str):
-        """ get the city class from its name """
-        if city_name == Bonta.NAME:
-            return Bonta()
-        elif city_name == Astrub.NAME:
-            return Astrub()
-
-        else:
-            ErrorHandler.fatal_error("unknown city {city_name}")
 
     @staticmethod
     def is_in_city(location) -> bool:

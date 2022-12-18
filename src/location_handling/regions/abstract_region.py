@@ -3,10 +3,6 @@ import math
 from typing import List
 
 from src.location_handling.city.abstract_city import AbstractCity
-from src.location_handling.regions.champ_astrub import ChampAstrub
-from src.location_handling.regions.planies_cania import PlainesCania
-from src.enum.regions import Regions
-from src.utils.ErrorHandler import ErrorHandler
 from src.utils.JsonHandler import JsonHandler
 from src.utils.utils_fct import get_distance
 
@@ -24,39 +20,31 @@ class AbstractRegion:
     PHOENIX_STATUE_IMAGE: str
 
     def __init__(self, ressources):
-        self.path = self.get_path(ressources)
+        self.path = []
         self.ressources = ressources
 
-    @staticmethod
-    def get_region(region_name: str, ressources: List[str]):
-        if region_name == Regions.PLAINES_CANIA:
-            return PlainesCania(ressources)
-        elif region_name == Regions.CHAMP_ASTRUB:
-            return ChampAstrub(ressources)
-        else:
-            ErrorHandler.fatal_error(f"unknown region {region_name}")
+        self.set_path(ressources)
 
-    def get_phoenix_path(self, location):
+    def get_phoenix_path(self):
         """ get to phoenix statue from requested location """
         return [self.PHOENIX_STATUE_LOCATION]
 
     # ==================================================================================================================
     # INITIALIZATION
-    def get_path(self, ressources: list):
+    def set_path(self, ressources: list):
         """ get unique position of each ressources """
         for ressource_name in ressources:
-            pos = self.RESSOURCES_LOCATIONS[self.NAME][ressource_name]
+            pos = self.RESSOURCES_LOCATIONS[ressource_name]
             [self.path.append(pos[i]) for i in range(len(pos)) if pos[i] not in self.path]
 
         path = JsonHandler.get_json_path(ressources, self.NAME)
         if path is not None and len(path) == len(self.path):
+            self.path = path
             print(f'Loaded path : {self.path}')
-            return path
 
-        path = self.get_best_path(path, from_checkpoint=self.CHECKPOINT)
-        JsonHandler.save_json_path(ressources, self.NAME, path)
+        self.path = self.get_best_path(path, from_checkpoint=self.CHECKPOINT)
+        JsonHandler.save_json_path(ressources, self.NAME, self.path)
         print(f'Path : {path}')
-        return path
 
     @staticmethod
     def get_best_path(all_pos: List[List[int]], from_checkpoint: List[int]) -> List[List[int]]:

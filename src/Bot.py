@@ -16,7 +16,7 @@ from src.utils.utils_fct import wait_click_on, check_map_change, check_map_loade
 class Bot:
     MAX_TIME_SCANNING = 60
     HARVEST_TIME = 1
-    CONFIDENCE = 0.6
+    CONFIDENCE = 0.7
     MAX_ALLOWED_RESSOURCES = 3000
 
     def __init__(self, region_name: str, ressources: List[str], city_name: str = None):
@@ -150,7 +150,11 @@ class Bot:
         return False
 
     def check_ressource(self, image) -> bool:
-        all_pos = list(pg.locateAllOnScreen(image, confidence=self.CONFIDENCE))
+        all_pos = list(pg.locateAllOnScreen(
+            image,
+            confidence=self.CONFIDENCE,
+            region=Positions.WINDOW_REG
+        ))
 
         for pos in all_pos:
             if (pos[0], pos[1]) in self.clicked_pos:
