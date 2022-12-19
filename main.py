@@ -6,11 +6,9 @@ from src.utils.utils_fct import display_mouse
 
 if __name__ == '__main__':
     bot = Bot(
-        region_name=Regions.PLAINES_CANIA,
+        region_name=Regions.CHAMP_ASTRUB,
         ressources=[
-            Ressources.MALT,
-            Ressources.CHANVRE,
-            Ressources.SEIGLE,
+            Ressources.FRENE,
         ]
     )
     bot.run()
