@@ -1,15 +1,19 @@
 from src.Bot import Bot
+from src.enum.positions import Positions
 from src.enum.regions import Regions
 from src.enum.ressources import Ressources
 
 from src.utils.utils_fct import display_mouse
 
 if __name__ == '__main__':
+    # init positions from window size
+    Positions()
+
     bot = Bot(
         region_name=Regions.PLAINES_CANIA,
         ressources=[
-            Ressources.MALT,
             Ressources.CHANVRE,
+            Ressources.MALT,
             Ressources.SEIGLE,
         ]
     )

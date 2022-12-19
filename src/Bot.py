@@ -187,7 +187,7 @@ class Bot:
     def read_num_ressources(debug=False):
         """ read number of ressources displayed on quick inventory """
         num_ressources = 0
-        for region in Positions.RESSOURCES_REG:
+        for region in Positions.get_ressource_regions():
             img = pg.screenshot(region=region)
             img = img.resize((200, 100))
             img = Images.change_color(img, min_value=140)

@@ -2,6 +2,12 @@ import win32gui
 
 
 def callback(hwnd, extra):
+    name = win32gui.GetWindowText(hwnd)
+    if 'Dofus' in name:
+        return hwnd
+    else:
+        return
+
     rect = win32gui.GetWindowRect(hwnd)
     x = rect[0]
     y = rect[1]
@@ -13,10 +19,11 @@ def callback(hwnd, extra):
 
 
 def main():
-    # win32gui.EnumWindows(callback, None)
-    test = win32gui.FindWindow(None, "Parsec")
-    win32gui.GetWindow(test)
-    print(test)
+    win32gui.EnumWindows(callback, None)
+
+    # test = win32gui.FindWindow(None, "Parsec")
+    # win32gui.GetWindow(test)
+    # print(test)
 
 
 if __name__ == '__main__':
