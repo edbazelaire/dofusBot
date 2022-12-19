@@ -4,6 +4,7 @@ class Positions:
     X_MAX = 1560
     Y_MIN = 45
     Y_MAX = 900
+    WINDOW_REG = (X_MIN, Y_MIN, X_MAX - X_MIN, Y_MAX - Y_MIN)
 
     # CHANGE MAP
     X_BAND_OFFSET = 20
@@ -22,7 +23,8 @@ class Positions:
     CLOSE_BANK_BUTTON_POSITION = (1564, 111)    # position of closing bank button
     GET_OUT_BANK_POSITION = (735, 710)          # position of closing bank button
 
-    INVENTORY_POS = (1412, 949)
+    # PERSONAL TABS
+    INVENTORY_CLICK_POS = (1412, 949)           # position to click to open inventory
 
     # RESSOURCES
     RESSOURCE1_REG = (1218, 934, 34, 16)

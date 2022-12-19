@@ -21,6 +21,7 @@ def wait_click_on(image: str, confidence: float = 0.8, region=None, max_timer: f
     pg.click(pos[0] + offset_x, pos[1] + offset_y)
     return True
 
+
 def wait_image(image: str, confidence: float = 0.8, region=None, max_timer: float = 5):
     pos = None
     start = time.time()
@@ -38,6 +39,10 @@ def wait_image(image: str, confidence: float = 0.8, region=None, max_timer: floa
 def display_mouse():
     while True:
         print(pg.position(), end='\r')
+
+
+def get_distance(pos1: list, pos2: list):
+    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
 
 def read_map_location():
@@ -67,7 +72,7 @@ def read_region():
     img = Images.change_color(img, 210)
     value = pytesseract.image_to_string(img, config="-c tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyz, -psm 7")
 
-    if value is '':
+    if value == '':
         ErrorHandler.error("unable to read region")
         return None
 
@@ -81,13 +86,14 @@ def check_map_change(from_location, do_map_load_check=True) -> bool:
     map_location = read_map_location()
     while from_location == map_location or map_location is None:
         if time.time() - start > ErrorHandler.TRAVEL_MAP_TIME:
-            print("WARNING !! MAP NOT CHANGED")
+            ErrorHandler.warning("MAP NOT CHANGED", ErrorHandler.MAP_NOT_CHANGED_ERROR)
             return False
         time.sleep(0.5)
 
         map_location = read_map_location()
 
     print("     MAP CHANGED")
+    ErrorHandler.ERROR_CTRS[ErrorHandler.MAP_NOT_CHANGED_ERROR] = False
 
     if do_map_load_check:
         check_map_loaded()
@@ -124,3 +130,18 @@ def check_map_loaded() -> bool:
             return True
 
         time.sleep(0.1)
+
+
+def check_is_ghost():
+    """ open inventory to check if player is in ghost form """
+    # open_inventory()
+    # success = wait_image()
+    # open_inventory()
+    # return success
+    return False
+
+
+def open_inventory():
+    pg.click(*Positions.INVENTORY_CLICK_POS)
+
+

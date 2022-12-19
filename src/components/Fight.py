@@ -23,7 +23,7 @@ class Fight:
         self.forfait()
         return
 
-        self.equipe_stuff(Images.FIGHT_STUFF)
+        Actions.do(Actions.EQUIP_FIGHT_STUFF)
 
         # while True:
         #     print("\n====================================================")
