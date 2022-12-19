@@ -1,5 +1,18 @@
 class Positions:
     """ contains all screen positions """
+
+    ### DO NOT CHANGE ###
+    WINDOW_DEFAULT_SIZE = [1900, 1035]       # size of the default screen, on which the positions where calculated
+    ### DO NOT CHANGE ###
+
+    # ==================================================================================================================
+    # GAME WINDOW SCREEN CONFIGURATION
+    WINDOW_POS = [0, 0]         # base position (in pixels) of the game window for this screen
+    WINDOW_SIZE = [0, 0]        # size of the game window for this screen
+    WINDOW_SIZE_PERC = [1, 1]   # percentage of size changes from default size (WINDOW_DEFAULT_SIZE)
+
+    # ==================================================================================================================
+    # GAME WINDOW
     X_MIN = 370
     X_MAX = 1560
     Y_MIN = 45
@@ -12,11 +25,14 @@ class Positions:
     CHANGE_MAP_UP_POS = (1000, Y_MIN - Y_BAND_OFFSET)
     CHANGE_MAP_DOWN_POS = (1000, Y_MAX + Y_BAND_OFFSET)
 
+    # ==================================================================================================================
     # BANK
     BANK_DOOR_POSITION = (1145, 343)                 # position to click in order to enter the bank
     CLOSE_BANK_BUTTON_POSITION = (1564, 111)         # position of closing bank button
-    GET_OUT_BANK_POSITION = (735, 710)         # position of closing bank button
+    GET_OUT_BANK_POSITION = (735, 710)               # position of closing bank button
 
+    # ==================================================================================================================
+    # TABS (inventory, spells, ...)
     INVENTORY_POS = (1412, 949)
 
     RESSOURCE_REG = (1218, 934, 34, 16)
@@ -31,3 +47,6 @@ class Positions:
     IS_MY_TURN_REG = (895, 1020, 5, 2)
     PM_REG = (795, 1006, 20, 22)
     PA_REG = (744, 1010, 20, 22)
+
+    def __init__(self, window_size):
+        Positions.WINDOW_POS = window_size

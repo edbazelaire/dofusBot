@@ -1,2 +1,4 @@
 pytesseract
 pyautogui
+opencv-python
+pywin32

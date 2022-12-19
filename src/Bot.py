@@ -238,8 +238,6 @@ class Bot:
 
     # ==================================================================================================================
     # FIGHT
-
-
     def on_death(self):
         # move once left (because death pos is in building)
         self.Movement.move_left()
