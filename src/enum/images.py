@@ -3,17 +3,27 @@ import os
 
 class Images:
     IMAGES_DIR = 'images'
+
     SCREENSHOTS_DIR = 'screenshots'
+    PHOENIX_STATUE = 'phoenix_statue.png'
+    PHOENIX_STATUE_2 = 'phoenix_statue_2.png'
+    GHOST_FORM = 'ghost_form.png'   # TODO
 
     BANK_DIR = 'bank'
-    BANK_NPC = 'bank_npc.png'
+    BANK_NPC_ASTRUB = 'bank_npc.png'
+    BANK_NPC_BONTA = 'bank_npc_bonta.png'
     BANK_DIALOG_ACCESS = 'dialog_access_bank_button.png'
+    BANK_RESSOURCE_TAB = 'bank_ressource_tab.png'
     BANK_TRANSFER_BUTTON = 'bank_transfer_button.png'
     BANK_TRANSFER_VISIBLE_OBJ_BTN = 'transfer_visible_ressources_button.png'
 
     STUFFS_DIR = 'stuffs'
     FIGHT_STUFF = 'fight_stuff.png'
     PODS_STUFF = 'pods_stuff.png'
+
+    QUICK_INV_DIR = 'quick_inv'
+    BONTA_POTION = 'bonta_potion.png'
+    RECALL_POTION = 'recall_potion.png'
 
     FIGHT_DIR = 'fight'
     READY_BUTTON = 'ready.png'
@@ -28,12 +38,20 @@ class Images:
     CHAR_DIR = 'char'
 
     @staticmethod
+    def get_screenshot(image: str):
+        return Images.IMAGES_DIR + '/' + Images.SCREENSHOTS_DIR + '/' + image
+
+    @staticmethod
     def get_bank(image: str):
         return Images.IMAGES_DIR + '/' + Images.BANK_DIR + '/' + image
 
     @staticmethod
     def get_stuff(image: str):
         return Images.IMAGES_DIR + '/' + Images.STUFFS_DIR + '/' + image
+
+    @staticmethod
+    def get_quick_inv(image: str):
+        return Images.IMAGES_DIR + '/' + Images.QUICK_INV_DIR + '/' + image
 
     @staticmethod
     def get_fight(image: str):

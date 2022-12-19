@@ -1,11 +1,13 @@
 from pytesseract import pytesseract
 
-from src.enum import Images, Positions
+from src.enum.images import Images
+from src.enum.positions import Positions
 
 import pyautogui as pg
 import time
 
 from src.utils.ErrorHandler import ErrorHandler
+from src.utils.utils_fct import wait_click_on
 
 
 class Fight:
@@ -21,7 +23,7 @@ class Fight:
         self.forfait()
         return
 
-        self.equipe_stuff(Images.FIGHT_STUFF)
+        Actions.do(Actions.EQUIP_FIGHT_STUFF)
 
         # while True:
         #     print("\n====================================================")
@@ -48,19 +50,6 @@ class Fight:
         pg.click(pos[0] + 5, pos[1] + 5)
 
         self.equipe_stuff(Images.PODS_STUFF)
-
-
-    @staticmethod
-    def equipe_stuff(image: str, offset_x=5, offset_y=5):
-        pos = None
-        start = time.time()
-        while pos is None:
-            if time.time() -start >= 8:
-                ErrorHandler.error("unable to find stuff")
-                return
-            pos = pg.locateOnScreen(Images.get_stuff(image), confidence=0.7)
-
-        pg.doubleClick(pos[0] + offset_x, pos[1] + offset_y)
 
     @staticmethod
     def press_ready_button():
@@ -144,21 +133,11 @@ class Fight:
 
     def forfait(self):
         # click ff button
-        start = time.time()
-        pos = None
-        while pos is None:
-            if time.time() - start > 5:
-                ErrorHandler.error("unable to forfait")
-                ErrorHandler.is_error = True
-                exit()
-                return
-            pos = pg.locateOnScreen(Images.get_fight(Images.FF_BUTTON), confidence=0.7)
-        pg.click(pos[0] + 5, pos[1] + 5)
+        wait_click_on(Images.get_fight(Images.FF_BUTTON), confidence=0.7, offset_x=5, offset_y=5)
         time.sleep(1)
 
         # validate ff
-        pos = pg.locateOnScreen(Images.get_fight(Images.OK_FF_BUTTON), confidence=0.7)
-        pg.click(pos[0], pos[1])
+        wait_click_on(Images.get_fight(Images.OK_FF_BUTTON), confidence=0.7)
 
     # ==================================================================================================================
     # CHECK
