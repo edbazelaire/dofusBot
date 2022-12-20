@@ -15,9 +15,9 @@ from src.utils.utils_fct import wait_click_on, check_map_loaded, read_map_locati
 
 class Bot:
     MAX_TIME_SCANNING = 60
-    HARVEST_TIME = 1
-    CONFIDENCE = 0.7
-    MAX_ALLOWED_RESSOURCES = 3000
+    HARVEST_TIME = 2
+    CONFIDENCE = 0.75
+    MAX_ALLOWED_RESSOURCES = 800
 
     def __init__(self, region_name: str, ressources: List[str], city_name: str = None):
         self.images = {}
@@ -141,7 +141,7 @@ class Bot:
 
     def check_ressource(self, image) -> bool:
         all_pos = list(pg.locateAllOnScreen(
-            image,
+            Images.get(image),
             confidence=self.CONFIDENCE,
             region=Positions.WINDOW_REG
         ))
@@ -153,9 +153,9 @@ class Bot:
             if Positions.X_MAX > pos[0] > Positions.X_MIN and Positions.Y_MAX > pos[1] > Positions.Y_MIN:
                 pg.moveTo(pos[0], pos[1])
                 time.sleep(0.5)
-                pg.click(pos[0], pos[1])
+                pg.click(pos[0] + 5, pos[1] + 5)
                 self.clicked_pos.append((pos[0], pos[1]))
-                pg.moveTo(10, 10)   # move mouse to prevent overs
+                pg.moveTo(50, 50)   # move mouse to prevent overs
                 return True
 
         return False
@@ -187,7 +187,7 @@ class Bot:
     def read_num_ressources(debug=False):
         """ read number of ressources displayed on quick inventory """
         num_ressources = 0
-        for region in Positions.RESSOURCES_REG:
+        for region in Positions.get_ressource_regions():
             img = pg.screenshot(region=region)
             img = img.resize((200, 100))
             img = Images.change_color(img, min_value=140)
@@ -217,7 +217,7 @@ class Bot:
     # ==================================================================================================================
     # ROUTINES
     def fight_routine(self):
-        """ routine of actions to take when a fight occures """
+        """ routine of actions to take when a fight occurs """
         self.Fight.fight()
         if self.Fight.check_is_victory():
             return
@@ -254,22 +254,22 @@ class Bot:
     def unload_bank(self):
         """ unload ressources in the bank """
         # click on npc
-        wait_click_on(self.Movement.city.BANK_NPC_IMAGE, offset_x=15, offset_y=15)
+        wait_click_on(self.Movement.city.BANK_NPC_IMAGE)
 
         # click on "accept" to access your bank inventory
-        wait_click_on(Images.get_bank(Images.BANK_DIALOG_ACCESS), offset_x=50, offset_y=10)
+        wait_click_on(Images.get(Images.BANK_DIALOG_ACCESS))
         time.sleep(1)
 
         # select ressources tab
-        wait_click_on(Images.get_bank(Images.BANK_RESSOURCE_TAB), region=Positions.BANK_PLAYER_INVENTORY_REG, offset_x=5, offset_y=5, confidence=0.99)
+        wait_click_on(Images.get(Images.BANK_RESSOURCE_TAB), region=Positions.BANK_PLAYER_INVENTORY_REG, offset_x=5, offset_y=5, confidence=0.99)
         time.sleep(1)
 
         # unload ressources
-        wait_click_on(Images.get_bank(Images.BANK_TRANSFER_BUTTON), offset_x=5, offset_y=5, confidence=0.99)
+        wait_click_on(Images.get(Images.BANK_TRANSFER_BUTTON), confidence=0.99)
         time.sleep(1)
 
         # validate ressources unloading
-        wait_click_on(Images.get_bank(Images.BANK_TRANSFER_VISIBLE_OBJ_BTN))
+        wait_click_on(Images.get(Images.BANK_TRANSFER_VISIBLE_OBJ_BTN))
         time.sleep(1)
 
         # close bank

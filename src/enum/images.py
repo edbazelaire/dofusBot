@@ -1,4 +1,9 @@
+import math
 import os
+from PIL import Image
+
+from src.enum.positions import Positions
+from src.utils.ErrorHandler import ErrorHandler
 
 
 class Images:
@@ -38,34 +43,18 @@ class Images:
     CHAR_DIR = 'char'
 
     @staticmethod
-    def get_screenshot(image: str):
-        return Images.IMAGES_DIR + '/' + Images.SCREENSHOTS_DIR + '/' + image
+    def get(img: str):
+        for r, d, f in os.walk('images'):
+            for filename in f:
+                if filename == img:
+                    img = Image.open(os.path.join(r, filename))
+                    return img.resize((
+                        math.floor(img.size[0] * Positions.WINDOW_SIZE_PERC[0]),
+                        math.floor(img.size[1] * Positions.WINDOW_SIZE_PERC[1]),
+                    ))
 
-    @staticmethod
-    def get_bank(image: str):
-        return Images.IMAGES_DIR + '/' + Images.BANK_DIR + '/' + image
-
-    @staticmethod
-    def get_stuff(image: str):
-        return Images.IMAGES_DIR + '/' + Images.STUFFS_DIR + '/' + image
-
-    @staticmethod
-    def get_quick_inv(image: str):
-        return Images.IMAGES_DIR + '/' + Images.QUICK_INV_DIR + '/' + image
-
-    @staticmethod
-    def get_fight(image: str):
-        return Images.IMAGES_DIR + '/' + Images.FIGHT_DIR + '/' + image
-
-    @staticmethod
-    def get_enemy_images():
-        base_dir = Images.IMAGES_DIR + '/' + Images.FIGHT_DIR + '/' + Images.ENEMIES_DIR
-        return [base_dir + '/' + filename for filename in os.listdir(base_dir)]
-
-    @staticmethod
-    def get_char_images():
-        base_dir = Images.IMAGES_DIR + '/' + Images.FIGHT_DIR + '/' + Images.CHAR_DIR
-        return [base_dir + '/' + filename for filename in os.listdir(base_dir)]
+        ErrorHandler.fatal_error("unkown image " + img)
+        return None
 
     @staticmethod
     def change_color(img, min_value=210):

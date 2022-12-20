@@ -46,7 +46,7 @@ class AbstractRegion:
             print(f'Loaded path : {self.path}')
             return
 
-        self.path = self.get_best_path(self.path, from_checkpoint=self.CHECKPOINT)
+        # self.path = self.get_best_path(self.path, from_checkpoint=self.CHECKPOINT)
         JsonHandler.save_json_path(ressources, self.NAME, self.path)
         print(f'Path : {path}')
 
@@ -59,7 +59,10 @@ class AbstractRegion:
         :return:
         """
 
-        print('calculation best path...')
+        print('calculating best path... ', end='')
+        n_factorial = 1
+        for i in range(1, len(all_pos)):
+            n_factorial = n_factorial * i
 
         # get index of the position closest to the checkpoint
         start_pos_index = None
@@ -73,7 +76,10 @@ class AbstractRegion:
         # from remaining positions, calculate the shortest path
         best_distance = math.inf
         best_path = []
+        i = 0
         for path in itertools.permutations(all_pos, len(all_pos)):
+            print(f"{i} / {n_factorial}", end='\r')
+            i += 1
             distance = 0
             last_pos = start_pos
             for pos in path:
@@ -98,4 +104,5 @@ class AbstractRegion:
                 best_path = list(path)
                 best_distance = distance
 
+        print("done !")
         return [start_pos] + best_path

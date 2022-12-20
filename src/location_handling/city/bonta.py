@@ -10,9 +10,9 @@ class Bonta(AbstractCity):
     SUB_REGION = ''
 
     BANK_LOCATION = [-31, -57]
-    BANK_DOOR_POSITION = [964, 677]
-    GET_OUT_BANK_POSITION = [519, 798]
-    BANK_NPC_IMAGE = Images.get_bank(Images.BANK_NPC_BONTA)
+    BANK_DOOR_POSITION = (964, 677)
+    GET_OUT_BANK_POSITION = (519, 798)
+    BANK_NPC_IMAGE = Images.BANK_NPC_BONTA
 
     CITY_TOP_CORNER = [-37, -61]
     CITY_BOTTOM_CORNER = [-26, -50]

@@ -14,20 +14,25 @@ class Actions:
     EQUIP_FIGHT_STUFF = 'equip_fight_stuff'
     EQUIP_PODS_STUFF = 'equip_pods_stuff'
 
+    CLICK_ON = 'click_on'
+    WAIT = 'click_on'
+
     @staticmethod
     def is_action(value: str):
-        if not isinstance(value, str):
-            return False
+        if isinstance(value, str):
+            for name, val in vars(Actions).items():
+                if val == value:
+                    return True
 
-        for name, val in vars(Actions).items():
-            if val == value:
+        elif isinstance(value, tuple):
+            if Actions.is_action(value[0]):
                 return True
 
         return False
 
     # __________________________________________________________________________________________________________________
     @staticmethod
-    def do(action: str):
+    def do(action: str, *args):
         if not Actions.is_action(action):
             ErrorHandler.fatal_error(f"requested action ({action}) is not an action")
             return
@@ -46,6 +51,9 @@ class Actions:
         elif action == Actions.EQUIP_PODS_STUFF:
             Actions.equip_stuff(Images.PODS_STUFF)
 
+        elif action == Actions.CLICK_ON:
+            Actions.click_on(args[0])
+
         else:
             ErrorHandler.fatal_error(f"not implemented action {action}")
 
@@ -59,7 +67,7 @@ class Actions:
                 ErrorHandler.error("unable to find potion")
                 ErrorHandler.is_error = True
                 return False
-            pos = pg.locateOnScreen(Images.get_quick_inv(img), confidence=0.8)
+            pos = pg.locateOnScreen(Images.get(img), confidence=0.8)
 
         # to check with ocr that map was loaded
         current_location = read_map_location()
@@ -88,6 +96,16 @@ class Actions:
             if time.time() - start >= 6:
                 ErrorHandler.error("unable to find stuff")
                 return
-            pos = pg.locateOnScreen(Images.get_stuff(img), confidence=0.7)
+            pos = pg.locateOnScreen(Images.get(img), confidence=0.7)
 
         pg.doubleClick(pos[0] + offset_x, pos[1] + offset_y)
+
+    # __________________________________________________________________________________________________________________
+    @staticmethod
+    def click_on(pos):
+        pg.click(pos[0], pos[1])
+
+    # __________________________________________________________________________________________________________________
+    @staticmethod
+    def wait(n):
+        time.sleep(n)
