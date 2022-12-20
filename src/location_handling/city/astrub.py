@@ -13,7 +13,7 @@ class Astrub(AbstractCity):
 
     TOP_CITY_CHECKPOINT = [4, -22]
     BOTTOM_CITY_CHECKPOINT = [5, -17]
-    LEFT_CITY_CHECKPOINT = [2, -17]
+    LEFT_CITY_CHECKPOINT = [3, -18]
     TOP_LEFT_CITY_CHECKPOINT = [2, -22]
 
     ASTRUB_TOP_LEFT = [3, -19]
@@ -28,10 +28,10 @@ class Astrub(AbstractCity):
                 path.append(Astrub.TOP_CITY_CHECKPOINT)
             elif Astrub.is_left_city(to_location):
                 path.append(Astrub.LEFT_CITY_CHECKPOINT)
-                path.append(Astrub.LEFT_CITY_CHECKPOINT + [-1, 0])
+                path.append([Astrub.LEFT_CITY_CHECKPOINT[0] - 1, Astrub.LEFT_CITY_CHECKPOINT[1]])
             elif Astrub.is_below_city(to_location):
                 path.append(Astrub.BOTTOM_CITY_CHECKPOINT)
-                path.append(Astrub.BOTTOM_CITY_CHECKPOINT + [0, 1])
+                path.append([Astrub.BOTTOM_CITY_CHECKPOINT[0], Astrub.BOTTOM_CITY_CHECKPOINT[1] + 1])
 
         # GOING IN the city
         elif Astrub.is_in_city(to_location):
@@ -39,12 +39,12 @@ class Astrub(AbstractCity):
                 path.append(Astrub.TOP_CITY_CHECKPOINT)
 
             elif Astrub.is_left_city(from_location):
-                path.append(Astrub.LEFT_CITY_CHECKPOINT + [-1, 0])
+                path.append([Astrub.LEFT_CITY_CHECKPOINT[0] - 1, Astrub.LEFT_CITY_CHECKPOINT[1]])
                 path.append(Astrub.LEFT_CITY_CHECKPOINT)
 
             elif Astrub.is_below_city(from_location):
                 path.append(Astrub.BOTTOM_CITY_CHECKPOINT + [0, 1])
-                path.append(Astrub.BOTTOM_CITY_CHECKPOINT)
+                path.append([Astrub.BOTTOM_CITY_CHECKPOINT[0], Astrub.BOTTOM_CITY_CHECKPOINT[1] + 1])
 
         path.append(to_location)
         return path

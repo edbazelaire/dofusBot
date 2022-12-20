@@ -17,7 +17,7 @@ class Bot:
     MAX_TIME_SCANNING = 60
     HARVEST_TIME = 2
     CONFIDENCE = 0.75
-    MAX_ALLOWED_RESSOURCES = 800
+    MAX_ALLOWED_RESSOURCES = 350
 
     def __init__(self, region_name: str, ressources: List[str], city_name: str = None):
         self.images = {}
