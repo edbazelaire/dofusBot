@@ -15,9 +15,9 @@ from src.utils.utils_fct import wait_click_on, check_map_loaded, read_map_locati
 
 class Bot:
     MAX_TIME_SCANNING = 60
-    HARVEST_TIME = 1
-    CONFIDENCE = 0.7
-    MAX_ALLOWED_RESSOURCES = 3000
+    HARVEST_TIME = 2
+    CONFIDENCE = 0.75
+    MAX_ALLOWED_RESSOURCES = 350
 
     def __init__(self, region_name: str, ressources: List[str], city_name: str = None):
         self.images = {}
@@ -153,9 +153,9 @@ class Bot:
             if Positions.X_MAX > pos[0] > Positions.X_MIN and Positions.Y_MAX > pos[1] > Positions.Y_MIN:
                 pg.moveTo(pos[0], pos[1])
                 time.sleep(0.5)
-                pg.click(pos[0], pos[1])
+                pg.click(pos[0] + 5, pos[1] + 5)
                 self.clicked_pos.append((pos[0], pos[1]))
-                pg.moveTo(10, 10)   # move mouse to prevent overs
+                pg.moveTo(50, 50)   # move mouse to prevent overs
                 return True
 
         return False

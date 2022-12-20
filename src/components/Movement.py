@@ -61,32 +61,19 @@ class Movement:
     def go_to_next_pos(self):
         """ return True if reaches next pos, False if stop during movement """
         # security, if a None pos is provided
-        if self.next_location is None:
-            self.get_next_position()
+        self.location = read_map_location()
 
-        # get to next map
-        if self.location == self.next_location:
+        if self.next_location is None or self.location == self.next_location:
             self.get_next_position()
 
         # ANYWHERE -> IN CITY or IN CITY -> ANYWHERE
         if self.city.is_in_city(self.next_location) or self.city.is_in_city(self.location):
             path = self.city.get_path(from_location=self.location, to_location=self.next_location)
             self.follow_path(path)
+            return
 
-        elif get_distance(self.location, self.next_location) > 15:
-            self.location = read_map_location()
-            success = False
-            for i in range(3):
-                Actions.do(Actions.TAKE_RECALL_POTION)
-                if self.location != read_map_location():
-                    self.location = read_map_location()
-                    success = True
-                    break
-
-            if not success:
-                ErrorHandler.fatal_error("unable to take recall potion")
-
-        return self.go_to(self.next_location)
+        path = self.region.get_path(self.location, self.next_location)
+        self.follow_path(path)
 
     def go_to(self, pos) -> bool:
         """ go to a position, if bot is stopping for any reason, return false. Return True if reaches max position """
