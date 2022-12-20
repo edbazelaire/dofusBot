@@ -10,6 +10,7 @@ if __name__ == '__main__':
         ressources=[
             Ressources.FRENE,
             Ressources.CHATAIGNER,
+            Ressources.NOYER,
         ]
     )
     bot.run()
