@@ -10,11 +10,10 @@ if __name__ == '__main__':
     Positions()
 
     bot = Bot(
-        region_name=Regions.PLAINES_CANIA,
+        region_name=Regions.CHAMP_ASTRUB,
         ressources=[
-            Ressources.CHANVRE,
-            Ressources.MALT,
-            Ressources.SEIGLE,
+            Ressources.FRENE,
+            Ressources.CHATAIGNER,
         ]
     )
     bot.run()

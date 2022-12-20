@@ -1,13 +1,18 @@
+import math
 import time
 import pyautogui as pg
 import pytesseract
+from PIL import Image
 
 from src.enum.images import Images
 from src.enum.positions import Positions
 from src.utils.ErrorHandler import ErrorHandler
 
 
-def wait_click_on(image: str, confidence: float = 0.8, region=None, max_timer: float = 5, offset_x=0, offset_y=0):
+def wait_click_on(image: (str, Image), confidence: float = 0.8, region=None, max_timer: float = 5, offset_x=0, offset_y=0):
+    if isinstance(image, str):
+        image = Images.get(image)
+
     pos = None
     start = time.time()
     while pos is None:
@@ -17,6 +22,11 @@ def wait_click_on(image: str, confidence: float = 0.8, region=None, max_timer: f
             pos = pg.locateOnScreen(image, confidence=confidence, region=region)
         else:
             pos = pg.locateOnScreen(image, confidence=confidence)
+
+    if offset_x is None:
+        offset_x = math.floor(pos.width / 2)
+    if offset_y is None:
+        offset_y = math.floor(pos.height / 2)
 
     pg.click(pos[0] + offset_x, pos[1] + offset_y)
     return True

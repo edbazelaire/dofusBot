@@ -1,13 +1,24 @@
+from src.enum.positions import Positions
+
+
 class AbstractCity:
     """ static class that handles all the specific information of a city (bank location, zaap location, specific images, ...)"""
 
     NAME = ''                   # name of the city
     SUB_REGION = ''             # (unused) name of the city's sub-region in the map
+    RESIZED = False             # has been resized already
 
     BANK_LOCATION = []          # location of the bank in the city
-    BANK_DOOR_POSITION = []     # screen position (x, y) to click in order to get in the bank
-    GET_OUT_BANK_POSITION = []  # screen position to click to get out the bank
+    BANK_DOOR_POSITION = ()     # screen position (x, y) to click in order to get in the bank
+    GET_OUT_BANK_POSITION = ()  # screen position to click to get out the bank
     BANK_NPC_IMAGE = ''         # image of the NPC in the bank to talk to
+
+    def __init__(self):
+        if not self.RESIZED:
+            self.BANK_DOOR_POSITION = Positions.resize(self.BANK_DOOR_POSITION)
+            self.GET_OUT_BANK_POSITION = Positions.resize(self.GET_OUT_BANK_POSITION)
+
+            self.RESIZED = True
 
     @staticmethod
     def is_in_city(location) -> bool:

@@ -46,7 +46,7 @@ class AbstractRegion:
             print(f'Loaded path : {self.path}')
             return
 
-        self.path = self.get_best_path(self.path, from_checkpoint=self.CHECKPOINT)
+        # self.path = self.get_best_path(self.path, from_checkpoint=self.CHECKPOINT)
         JsonHandler.save_json_path(ressources, self.NAME, self.path)
         print(f'Path : {path}')
 

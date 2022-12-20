@@ -89,19 +89,30 @@ class Positions:
             if not isinstance(val, tuple):
                 continue
 
-            new_val = (0, 0) if len(val) == 2 else (0, 0, 0, 0)
-            x = math.floor(val[0] / Positions.WINDOW_SIZE_PERC[0]) + Positions.WINDOW_POS_OFFSET[0]
-            y = math.floor(val[1] / Positions.WINDOW_SIZE_PERC[1]) + Positions.WINDOW_POS_OFFSET[1]
+            setattr(self, name, self.resize(val))
 
-            if len(val) == 2:
-                new_val = (x, y)
-            elif len(val) == 4:
-                reg_size_x = math.floor(val[2] / Positions.WINDOW_SIZE_PERC[0])
-                reg_size_y = math.floor(val[3] / Positions.WINDOW_SIZE_PERC[1])
-                new_val = (x, y, reg_size_x, reg_size_y)
+        # update GameWindow X & Y from WindowRegion
+        self.X_MIN = self.WINDOW_REG[0]
+        self.Y_MIN = self.WINDOW_REG[1]
+        self.X_MAX = self.X_MIN + self.WINDOW_REG[2]
+        self.Y_MAX = self.Y_MAX + self.WINDOW_REG[3]
 
-            setattr(self, name, new_val)
+    @staticmethod
+    def resize(pos: tuple):
+        x = math.floor(pos[0] / Positions.WINDOW_SIZE_PERC[0]) + Positions.WINDOW_POS_OFFSET[0]
+        y = math.floor(pos[1] / Positions.WINDOW_SIZE_PERC[1]) + Positions.WINDOW_POS_OFFSET[1]
 
+        if len(pos) == 2:
+            new_val = (x, y)
+        elif len(pos) == 4:
+            reg_size_x = math.floor(pos[2] / Positions.WINDOW_SIZE_PERC[0])
+            reg_size_y = math.floor(pos[3] / Positions.WINDOW_SIZE_PERC[1])
+            new_val = (x, y, reg_size_x, reg_size_y)
+        else:
+            ErrorHandler.error(f'trying to set resize a tuple that is neither a pos nore a region {pos}')
+            return pos
+
+        return new_val
     @staticmethod
     def get_ressource_regions():
         return [Positions.RESSOURCE1_REG, Positions.RESSOURCE2_REG, Positions.RESSOURCE3_REG, Positions.RESSOURCE4_REG]

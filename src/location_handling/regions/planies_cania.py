@@ -11,10 +11,11 @@ from src.utils.ErrorHandler import ErrorHandler
 class PlainesCania(AbstractRegion):
     NAME = Regions.PLAINES_CANIA
     CITY = Bonta.NAME
+
     PHOENIX_STATUE_LOCATION: list = [-10, -54]
     CHECKPOINT: list = Locations.ZAAPS[Regions.PLAINES_CANIA]
 
-    PHOENIX_STATUE_IMAGE = Images.get_screenshot(Images.PHOENIX_STATUE_2)
+    PHOENIX_STATUE_IMAGE = Images.PHOENIX_STATUE_2
 
     RESSOURCES_LOCATIONS: dict = {
             Ressources.MALT: [

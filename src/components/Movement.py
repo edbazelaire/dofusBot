@@ -46,8 +46,10 @@ class Movement:
 
     # ==================================================================================================================
     # INITIALIZATION
-    def reset(self):
+    def reset(self, with_current_index=False):
         self.location = read_map_location()
+        if with_current_index:
+            self.current_path_index = 0
 
     # ==================================================================================================================
     def get_next_position(self):
@@ -61,32 +63,19 @@ class Movement:
     def go_to_next_pos(self):
         """ return True if reaches next pos, False if stop during movement """
         # security, if a None pos is provided
-        if self.next_location is None:
-            self.get_next_position()
+        self.location = read_map_location()
 
-        # get to next map
-        if self.location == self.next_location:
+        if self.next_location is None or self.location == self.next_location:
             self.get_next_position()
 
         # ANYWHERE -> IN CITY or IN CITY -> ANYWHERE
         if self.city.is_in_city(self.next_location) or self.city.is_in_city(self.location):
             path = self.city.get_path(from_location=self.location, to_location=self.next_location)
             self.follow_path(path)
+            return
 
-        elif get_distance(self.location, self.next_location) > 15:
-            self.location = read_map_location()
-            success = False
-            for i in range(3):
-                Actions.do(Actions.TAKE_RECALL_POTION)
-                if self.location != read_map_location():
-                    self.location = read_map_location()
-                    success = True
-                    break
-
-            if not success:
-                ErrorHandler.fatal_error("unable to take recall potion")
-
-        return self.go_to(self.next_location)
+        path = self.region.get_path(self.location, self.next_location)
+        self.follow_path(path)
 
     def go_to(self, pos) -> bool:
         """ go to a position, if bot is stopping for any reason, return false. Return True if reaches max position """
@@ -238,7 +227,7 @@ class Movement:
         # wait that map is loaded
         check_map_change(from_location=self.location)
 
-        wait_click_on(Images.get_fight(Images.CANCEL_POPUP), offset_x=5, offset_y=5)
+        wait_click_on(Images.get(Images.CANCEL_POPUP), offset_x=5, offset_y=5)
 
         self.go_to_phoenix()
 
@@ -246,7 +235,7 @@ class Movement:
         self.location = read_map_location()
         self.follow_path(self.region.get_phoenix_path())
 
-        wait_click_on(self.region.PHOENIX_STATUE_IMAGE, offset_x=10)
+        wait_click_on(Images.get(self.region.PHOENIX_STATUE_IMAGE), offset_x=10)
 
         # wait until reaching phoenix statue
         time.sleep(3)
