@@ -10,3 +10,7 @@ class Ressources:
 
     # WOOD
     FRENE = 'frene'
+    CHATAIGNER = 'chataigner'
+
+    # METALS
+    FER = 'fer'

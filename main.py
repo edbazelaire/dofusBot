@@ -9,6 +9,7 @@ if __name__ == '__main__':
         region_name=Regions.CHAMP_ASTRUB,
         ressources=[
             Ressources.FRENE,
+            Ressources.CHATAIGNER,
         ]
     )
     bot.run()
