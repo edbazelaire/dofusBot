@@ -4,6 +4,7 @@ import pyautogui as pg
 import time
 import os
 import pytesseract
+from PIL.Image import Image
 
 from src.enum.positions import Positions
 from src.enum.images import Images
@@ -65,9 +66,9 @@ class Bot:
 
     def get_ressources_images(self, ressources: list):
         """ get only images of requested ressources """
-        dir = 'images'
+        dir = 'images/ressources'
         for ressource_name in ressources:
-            self.images[ressource_name] = [dir + '/' + filename for filename in os.listdir(dir) if filename.startswith(ressource_name)]
+            self.images[ressource_name] = [Images.load(dir + '/' + filename) for filename in os.listdir(dir) if filename.startswith(ressource_name)]
 
     # ==================================================================================================================
     # RUN
@@ -139,9 +140,9 @@ class Bot:
 
         return False
 
-    def check_ressource(self, image) -> bool:
+    def check_ressource(self, image: Image) -> bool:
         all_pos = list(pg.locateAllOnScreen(
-            Images.get(image),
+            image,
             confidence=self.CONFIDENCE,
             region=Positions.WINDOW_REG
         ))

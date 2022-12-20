@@ -119,23 +119,23 @@ def check_map_loaded() -> bool:
             return False
 
         confidence = 0.7
-        pg.moveTo(*Positions.CHANGE_MAP_LEFT_POS)
-        if pg.locateOnScreen('images/screenshots/cursor_left.png', confidence=confidence) is not None:
+        pg.moveTo(*Positions.CHANGE_MAP_LEFT_POS())
+        if pg.locateOnScreen(Images.get(Images.CURSOR_LEFT), confidence=confidence) is not None:
             print("     -- map loaded ")
             return True
 
-        pg.moveTo(*Positions.CHANGE_MAP_RIGHT_POS)
-        if pg.locateOnScreen('images/screenshots/cursor_right.png', confidence=confidence) is not None:
+        pg.moveTo(*Positions.CHANGE_MAP_RIGHT_POS())
+        if pg.locateOnScreen(Images.get(Images.CURSOR_RIGHT), confidence=confidence) is not None:
             print("     -- map loaded")
             return True
 
-        pg.moveTo(*Positions.CHANGE_MAP_UP_POS)
-        if pg.locateOnScreen('images/screenshots/cursor_up.png', confidence=confidence) is not None:
+        pg.moveTo(*Positions.CHANGE_MAP_UP_POS())
+        if pg.locateOnScreen(Images.get(Images.CURSOR_UP), confidence=confidence) is not None:
             print("     -- map loaded")
             return True
 
-        pg.moveTo(*Positions.CHANGE_MAP_DOWN_POS)
-        if pg.locateOnScreen('images/screenshots/cursor_down.png', confidence=confidence) is not None:
+        pg.moveTo(*Positions.CHANGE_MAP_DOWN_POS())
+        if pg.locateOnScreen(Images.get(Images.CURSOR_DOWN), confidence=confidence) is not None:
             print("     -- map loaded")
             return True
 

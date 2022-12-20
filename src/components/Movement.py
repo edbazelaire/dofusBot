@@ -132,16 +132,16 @@ class Movement:
                 self.go_to(value)
 
     def move_left(self):
-        return self.move(Positions.CHANGE_MAP_LEFT_POS)
+        return self.move(Positions.CHANGE_MAP_LEFT_POS())
 
     def move_right(self):
-        return self.move(Positions.CHANGE_MAP_RIGHT_POS)
+        return self.move(Positions.CHANGE_MAP_RIGHT_POS())
 
     def move_up(self):
-        return self.move(Positions.CHANGE_MAP_UP_POS)
+        return self.move(Positions.CHANGE_MAP_UP_POS())
 
     def move_down(self):
-        return self.move(Positions.CHANGE_MAP_DOWN_POS)
+        return self.move(Positions.CHANGE_MAP_DOWN_POS())
 
     def move(self, click_pos):
         pg.click(*click_pos)
@@ -222,12 +222,12 @@ class Movement:
     def ghost_routine(self):
         """ get back to phoenix statue and then to the farming locations """
         print("-- is ghost")
-        wait_click_on('images/screenshots/yes_button.png')
+        wait_click_on(Images.YES_BUTTON)
 
         # wait that map is loaded
         check_map_change(from_location=self.location)
 
-        wait_click_on(Images.get(Images.CANCEL_POPUP), offset_x=5, offset_y=5)
+        wait_click_on(Images.CANCEL_POPUP)
 
         self.go_to_phoenix()
 
@@ -235,7 +235,7 @@ class Movement:
         self.location = read_map_location()
         self.follow_path(self.region.get_phoenix_path())
 
-        wait_click_on(Images.get(self.region.PHOENIX_STATUE_IMAGE), offset_x=10)
+        wait_click_on(self.region.PHOENIX_STATUE_IMAGE)
 
         # wait until reaching phoenix statue
         time.sleep(3)

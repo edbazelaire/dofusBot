@@ -14,8 +14,8 @@ class Fight:
     CASE_SIZE = [80, 40]
 
     def __init__(self):
-        self.char_images = Images.get()
-        self.enemy_images = Images.get()
+        self.char_images = Images.get_char_images()
+        self.enemy_images = Images.get_enemy_images()
 
     def fight(self):
         print("COMBAT STARTED")
