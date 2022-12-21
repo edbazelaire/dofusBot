@@ -35,7 +35,8 @@ class Movement:
 
         self.clicked_pos = []
 
-        self.current_path_index = 0     # index in the farming path (
+        self.current_path_index = 0     # index in the farming path
+        self.current_path_index_modificator = 1
         self.location = (0, 0)          # current position of the bot
         self.next_location = None       # location that the bot is currently heading to
 
@@ -55,7 +56,13 @@ class Movement:
             self.next_location = self.path[self.current_path_index]
 
         elif self.next_location == self.location:
-            self.current_path_index = (self.current_path_index + 1) % len(self.path)
+            if self.current_path_index % (len(self.path) - 1) == 0:
+                if self.region.IS_REVERSE_PATH:
+                    self.current_path_index_modificator *= -1
+                else:
+                    self.current_path_index = 0
+
+            self.current_path_index += self.current_path_index_modificator
             self.next_location = self.path[self.current_path_index]
 
     def go_to_next_pos(self):
@@ -75,21 +82,27 @@ class Movement:
         path = self.region.get_path(self.location, self.next_location)
         self.follow_path(path)
 
-    def go_to(self, pos) -> bool:
+    def go_to(self, pos, force=False) -> bool:
         """ go to a position, if bot is stopping for any reason, return false. Return True if reaches max position """
 
         print('=' * 100)
         print(f'Going to : {pos}')
+
+        if pos == [-76, -47]:
+            print('')
 
         self.clicked_pos = []
         distance_x = pos[0] - self.location[0]
         distance_y = pos[1] - self.location[1]
 
         while distance_y != 0 or distance_x != 0:
-            if distance_x > 0:
+            # check movement priority between x and y
+            starts_with_x = distance_y == 0 or self.current_path_index_modificator != -1
+
+            if distance_x > 0 and starts_with_x:
                 success = self.move_right()
 
-            elif distance_x < 0:
+            elif distance_x < 0  and starts_with_x:
                 success = self.move_left()
 
             elif distance_y > 0:
@@ -116,7 +129,7 @@ class Movement:
                 print("")
 
             # if during the movement, the bot stumble on a harvesting map, return false to scan the map
-            if self.location in self.path:
+            if self.location in self.path and not force:
                 return False
 
         return True
@@ -127,7 +140,7 @@ class Movement:
                 Actions.do(value)
                 self.location = read_map_location()
             else:
-                self.go_to(value)
+                self.go_to(value, force=True)
 
     def move_left(self):
         return self.move(Positions.CHANGE_MAP_LEFT_POS)

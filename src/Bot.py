@@ -17,7 +17,7 @@ class Bot:
     MAX_TIME_SCANNING = 60
     HARVEST_TIME = 2
     CONFIDENCE = 0.75
-    MAX_ALLOWED_RESSOURCES = 350
+    MAX_ALLOWED_RESSOURCES = 3000
 
     def __init__(self, region_name: str, ressources: List[str], city_name: str = None):
         self.images = {}
@@ -168,20 +168,36 @@ class Bot:
         num_ressources = self.read_num_ressources()
 
         # security : check that calculated number of ressources is not impossible
-        if self.last_num_ressources_checked != 0 \
-                and num_ressources != 0 \
-                and abs(num_ressources - self.last_num_ressources_checked) > 500:
-            ErrorHandler.warning("OCR ressource bad ressource recognition : "
-                                 + f"\n    - num ressources checked {num_ressources}"
-                                 + f"\n    - last num ressources checked {self.last_num_ressources_checked}"
-                                 )
-            # return False
-
-        self.last_num_ressources_checked = num_ressources
         if num_ressources >= self.MAX_ALLOWED_RESSOURCES:
-            print(f"MAX PODS : {num_ressources}")
-            return True
+            if self.check_inventory_pods():
+                print(f"MAX PODS : {num_ressources}")
+                return True
         return False
+
+    @staticmethod
+    def check_inventory_pods():
+        test = False
+
+        pg.click(*Positions.INVENTORY_CLICK_POS)
+        time.sleep(1)
+
+        img = pg.screenshot(region=Positions.INVENTORY_PODS_REG)
+        height, width = img.size
+        image_data = img.load()
+        min_value = 150
+
+        for loop1 in range(height):
+            for loop2 in range(width):
+                r, g, b = image_data[loop1, loop2]
+                if r >= min_value or g >= min_value or b >= min_value:
+                    test = True
+                    break
+
+        # close inventory
+        pg.click(*Positions.INVENTORY_CLICK_POS)
+        time.sleep(1)
+
+        return test
 
     @staticmethod
     def read_num_ressources(debug=False):
@@ -190,7 +206,7 @@ class Bot:
         for region in Positions.RESSOURCES_REG:
             img = pg.screenshot(region=region)
             img = img.resize((200, 100))
-            img = Images.change_color(img, min_value=140)
+            img = Images.change_color(img, min_value=150)
             value = pytesseract.image_to_string(img, config='--psm 8 --oem 3 -c tessedit_char_whitelist=0123456789')
 
             if debug:

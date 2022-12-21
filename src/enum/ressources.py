@@ -7,6 +7,7 @@ class Ressources:
     SEIGLE = "seigle"
     CHANVRE = "chanvre"
     MALT = "malt"
+    FROSTIZ = "frostiz"
 
     # WOOD
     FRENE = 'frene'
