@@ -95,8 +95,8 @@ class Positions:
 
     @staticmethod
     def resize(pos: tuple):
-        x = math.floor(pos[0] * Positions.WINDOW_SIZE_PERC) + Positions.WINDOW_POS_OFFSET[0]
-        y = math.floor(pos[1] * Positions.WINDOW_SIZE_PERC) + Positions.WINDOW_POS_OFFSET[1]
+        x = math.floor((pos[0] - Positions.GAME_WINDOW_DEFAULT_POS[0]) * Positions.WINDOW_SIZE_PERC) + Positions.WINDOW_REG[0]
+        y = math.floor((pos[1] - Positions.GAME_WINDOW_DEFAULT_POS[1]) * Positions.WINDOW_SIZE_PERC) + Positions.WINDOW_REG[1]
 
         if len(pos) == 2:
             new_val = (x, y)
@@ -194,19 +194,14 @@ class Positions:
             rect = win32gui.GetWindowRect(hwnd)
             window_x = rect[0] + 8
             window_y = rect[1] + 30        # add 30px because of window tab
-            size_x = rect[2] - window_x - 8
-            size_y = rect[3] - window_y - 8
+            window_size_x = rect[2] - window_x - 8
+            window_size_y = rect[3] - window_y - 8
 
             # get size of the GAME WINDOW
-            Positions.WINDOW_REG = check_game_window_size(window_x, window_y, size_x, size_y)
+            Positions.WINDOW_REG = check_game_window_size(window_x, window_y, window_size_x, window_size_y)
 
             # set RELATIVE VALUES
             Positions.WINDOW_SIZE_PERC = Positions.WINDOW_REG[2] / Positions.GAME_WINDOW_DEFAULT_SIZE[0]
-
-            Positions.WINDOW_POS_OFFSET = [
-                Positions.WINDOW_REG[0] - Positions.GAME_WINDOW_DEFAULT_POS[0],
-                Positions.WINDOW_REG[1] - Positions.GAME_WINDOW_DEFAULT_POS[1]
-            ]
 
             # adjust size_y
             Positions.WINDOW_REG[3] = math.floor(Positions.WINDOW_SIZE_PERC * Positions.GAME_WINDOW_DEFAULT_SIZE[1])
