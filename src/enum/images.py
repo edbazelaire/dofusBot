@@ -12,6 +12,11 @@ class Images:
     SCREENSHOTS_DIR = 'screenshots'
     PHOENIX_STATUE = 'phoenix_statue.png'
     PHOENIX_STATUE_2 = 'phoenix_statue_2.png'
+    YES_BUTTON = 'yes_button.png'
+    CURSOR_LEFT = 'cursor_left.png'
+    CURSOR_RIGHT = 'cursor_right.png'
+    CURSOR_UP = 'cursor_up.png'
+    CURSOR_DOWN = 'cursor_down.png'
     GHOST_FORM = 'ghost_form.png'   # TODO
 
     BANK_DIR = 'bank'
@@ -44,17 +49,35 @@ class Images:
 
     @staticmethod
     def get(img: str):
-        for r, d, f in os.walk('images'):
-            for filename in f:
-                if filename == img:
-                    img = Image.open(os.path.join(r, filename))
-                    return img.resize((
-                        math.floor(img.size[0] * Positions.WINDOW_SIZE_PERC[0]),
-                        math.floor(img.size[1] * Positions.WINDOW_SIZE_PERC[1]),
-                    ))
+        # check if already has path
+        if img.startswith(Images.IMAGES_DIR + '/'):
+            return Images.load(img_path=img)
 
-        ErrorHandler.fatal_error("unkown image " + img)
-        return None
+        # else find image in images dir
+        for r, d, f in os.walk(Images.IMAGES_DIR):
+            for filename in f:
+                if filename.lower() == img.lower():
+                    return Images.load(os.path.join(r, filename))
+
+        ErrorHandler.fatal_error('unkown image ' + img)
+
+    @staticmethod
+    def load(img_path: str):
+        img = Image.open(img_path)
+        return img.resize((
+            math.floor(img.size[0] * Positions.WINDOW_SIZE_PERC),
+            math.floor(img.size[1] * Positions.WINDOW_SIZE_PERC),
+        ))
+
+    @staticmethod
+    def get_enemy_images():
+        base_dir = Images.IMAGES_DIR + '/' + Images.FIGHT_DIR + '/' + Images.ENEMIES_DIR
+        return [base_dir + '/' + filename for filename in os.listdir(base_dir)]
+
+    @staticmethod
+    def get_char_images():
+        base_dir = Images.IMAGES_DIR + '/' + Images.FIGHT_DIR + '/' + Images.CHAR_DIR
+        return [base_dir + '/' + filename for filename in os.listdir(base_dir)]
 
     @staticmethod
     def change_color(img, min_value=210):
