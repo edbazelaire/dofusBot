@@ -17,7 +17,7 @@ class Bot:
     MAX_TIME_SCANNING = 60
     HARVEST_TIME = 2
     CONFIDENCE = 0.75
-    MAX_ALLOWED_RESSOURCES = 3000
+    MAX_ALLOWED_RESSOURCES = 350
 
     def __init__(self, region_name: str, ressources: List[str], city_name: str = None):
         self.images = {}
@@ -270,7 +270,7 @@ class Bot:
     def unload_bank(self):
         """ unload ressources in the bank """
         # click on npc
-        wait_click_on(self.Movement.city.BANK_NPC_IMAGE, offset_x=15, offset_y=15)
+        wait_click_on(self.Movement.city.BANK_NPC_IMAGE, offset_x=15, offset_y=15, max_timer=10)
 
         # click on "accept" to access your bank inventory
         wait_click_on(Images.get_bank(Images.BANK_DIALOG_ACCESS), offset_x=50, offset_y=10)

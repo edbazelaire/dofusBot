@@ -13,6 +13,7 @@ class Ressources:
     FRENE = 'frene'
     CHATAIGNER = 'chataigner'
     NOYER = 'noyer'
+    CHENE = 'chene'
 
     # METALS
     FER = 'fer'
