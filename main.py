@@ -8,9 +8,8 @@ if __name__ == '__main__':
     bot = Bot(
         region_name=Regions.CHAMP_ASTRUB,
         ressources=[
-            Ressources.FRENE,
-            Ressources.CHATAIGNER,
             Ressources.NOYER,
+            Ressources.CHENE,
         ]
     )
     bot.run()
