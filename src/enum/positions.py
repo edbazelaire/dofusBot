@@ -113,6 +113,7 @@ class Positions:
             return pos
 
         return new_val
+
     @staticmethod
     def get_ressource_regions():
         return [Positions.RESSOURCE1_REG, Positions.RESSOURCE2_REG, Positions.RESSOURCE3_REG, Positions.RESSOURCE4_REG]
