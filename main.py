@@ -9,8 +9,8 @@ if __name__ == '__main__':
         region_name=Regions.CHAMP_ASTRUB,
         ressources=[
             Ressources.CHENE,
-            Ressources.FRENE,
-            Ressources.CHATAIGNER,
+            # Ressources.FRENE,
+            # Ressources.CHATAIGNER,
             Ressources.NOYER,
         ]
     )
