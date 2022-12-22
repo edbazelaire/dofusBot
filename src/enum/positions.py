@@ -11,7 +11,7 @@ class Positions:
     ### DO NOT CHANGE ###
     WINDOW_DEFAULT_POS = [-8, -8]
     GAME_WINDOW_DEFAULT_POS = [325, 22]  # default screen position
-    GAME_WINDOW_DEFAULT_SIZE = [1200, 855]  # size of the default screen, on which the positions where calculated
+    GAME_WINDOW_DEFAULT_SIZE = [1271, 905]  # size of the default screen, on which the positions where calculated
     ### DO NOT CHANGE ###
 
     # ==================================================================================================================
@@ -51,9 +51,9 @@ class Positions:
     RESSOURCE4_REG = (1092, 934, 34, 16)
 
     # LOCATION (location / zone / region...)
-    MAP_LOCATION_REG = (0, 70, 100, 30)
-    MAP_ZONE_NAME_REG = (0, 45, 320, 25)
-    MAP_REGION_NAME_REG = (0, 45, 320, 25)
+    MAP_LOCATION_REG = (-20, 70, 100, 30)
+    MAP_ZONE_NAME_REG = (-20, 45, 320, 25)
+    MAP_REGION_NAME_REG = (-20, 45, 320, 25)    # TODO
 
     # FIGHT
     READY_BUTTON_REG = (1340, 950, 110, 35)
@@ -99,16 +99,15 @@ class Positions:
         y = math.floor((pos[1] - Positions.GAME_WINDOW_DEFAULT_POS[1]) * Positions.WINDOW_SIZE_PERC) + Positions.WINDOW_REG[1]
 
         if len(pos) == 2:
-            new_val = (x, y)
+            return x, y
         elif len(pos) == 4:
-            reg_size_x = math.floor(pos[2] / Positions.WINDOW_SIZE_PERC)
-            reg_size_y = math.floor(pos[3] / Positions.WINDOW_SIZE_PERC)
-            new_val = (x, y, reg_size_x, reg_size_y)
+            reg_size_x = math.floor(pos[2] * Positions.WINDOW_SIZE_PERC)
+            reg_size_y = math.floor(pos[3] * Positions.WINDOW_SIZE_PERC)
+            return x, y, reg_size_x, reg_size_y
         else:
             ErrorHandler.error(f'trying to set resize a tuple that is neither a pos nore a region {pos}')
-            return pos
 
-        return new_val
+        return None
 
     @staticmethod
     def get_ressource_regions():
@@ -220,16 +219,16 @@ class Positions:
 
     @staticmethod
     def CHANGE_MAP_LEFT_POS() -> tuple:
-        return Positions.WINDOW_REG[0] + Positions.X_BAND_OFFSET / 2, Positions.WINDOW_REG[3] / 2
+        return Positions.WINDOW_REG[0] + Positions.X_BAND_OFFSET / 2, Positions.WINDOW_REG[1] + Positions.WINDOW_REG[3] / 2
 
     @staticmethod
     def CHANGE_MAP_RIGHT_POS() -> tuple:
-        return Positions.WINDOW_REG[0] + Positions.WINDOW_REG[2] - Positions.X_BAND_OFFSET / 2, Positions.WINDOW_REG[3] / 2
+        return Positions.WINDOW_REG[0] + Positions.WINDOW_REG[2] - Positions.X_BAND_OFFSET / 2,  Positions.WINDOW_REG[1] + Positions.WINDOW_REG[3] / 2
 
     @staticmethod
     def CHANGE_MAP_UP_POS() -> tuple:
-        return Positions.WINDOW_REG[2] / 2, Positions.WINDOW_REG[1] + Positions.Y_BAND_OFFSET / 2
+        return Positions.WINDOW_REG[0] + Positions.WINDOW_REG[2] / 2, Positions.WINDOW_REG[1] + Positions.Y_BAND_OFFSET / 2
 
     @staticmethod
     def CHANGE_MAP_DOWN_POS() -> tuple:
-        return Positions.WINDOW_REG[2] / 2, Positions.WINDOW_REG[1] + Positions.WINDOW_REG[3] - Positions.Y_BAND_OFFSET / 2
+        return Positions.WINDOW_REG[0] + Positions.WINDOW_REG[2] / 2, Positions.WINDOW_REG[1] + Positions.WINDOW_REG[3] - Positions.Y_BAND_OFFSET / 2

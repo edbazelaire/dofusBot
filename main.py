@@ -19,8 +19,8 @@ if __name__ == '__main__':
     bot.run()
 
     # DEBUG (not working if run() is active)
-    Bot.read_num_ressources(True)
-    # Bot.test_ocr_map()
+    # Bot.read_num_ressources(True)
+    Bot.test_ocr_map()
     display_mouse()
 
 
