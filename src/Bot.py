@@ -11,26 +11,29 @@ from src.enum.images import Images
 from src.components.Fight import Fight
 from src.components.Movement import Movement
 from src.utils.ErrorHandler import ErrorHandler
-from src.utils.utils_fct import wait_click_on, check_map_loaded, read_map_location, check_is_ghost
+from src.utils.utils_fct import wait_click_on, check_map_loaded, read_map_location, check_is_ghost, open_inventory, \
+    wait_image
 
 
 class Bot:
     MAX_TIME_SCANNING = 60
     HARVEST_TIME = 2
     CONFIDENCE = 0.75
-    MAX_ALLOWED_RESSOURCES = 800
 
-    def __init__(self, region_name: str, ressources: List[str], city_name: str = None):
+    def __init__(self, region_name: str, ressources: List[str], city_name: str = None, max_allowed_ressources=0):
         self.images = {}
 
         self.ressources = ressources
         self.get_ressources_images(ressources)
-        self.last_num_ressources_checked = 0
+        self.max_allowed_ressources = max_allowed_ressources
 
         self.clicked_pos = []
 
         self.Movement = Movement(region_name, ressources, city_name)
         self.Fight = Fight()
+
+        if Positions.WINDOW_SIZE_PERC <= 0.5:
+            Bot.CONFIDENCE = 0.7
 
     # ==================================================================================================================
     # INITIALIZATION
@@ -58,7 +61,8 @@ class Bot:
         elif check_is_ghost():
             self.Movement.go_to_phoenix()
 
-        elif self.check_pods():
+        # elif self.check_pods():
+        elif self.check_inventory_pods():
             self.bank_routine()
 
         else:
@@ -151,12 +155,12 @@ class Bot:
             if (pos[0], pos[1]) in self.clicked_pos:
                 continue
 
+            self.clicked_pos.append((pos[0], pos[1]))
+
             if Positions.X_MAX > pos[0] > Positions.X_MIN and Positions.Y_MAX > pos[1] > Positions.Y_MIN:
-                pg.moveTo(pos[0], pos[1])
-                time.sleep(0.5)
-                pg.click(pos[0] + 5, pos[1] + 5)
-                self.clicked_pos.append((pos[0], pos[1]))
-                pg.moveTo(50, 50)   # move mouse to prevent overs
+                x = min(pos[0] + pos.width / 2, Positions.X_MAX)
+                y = min(pos[1] + pos.height / 2, Positions.Y_MAX)
+                pg.click(x, y)
                 return True
 
         return False
@@ -169,20 +173,39 @@ class Bot:
         num_ressources = self.read_num_ressources()
 
         # security : check that calculated number of ressources is not impossible
-        if self.last_num_ressources_checked != 0 \
-                and num_ressources != 0 \
-                and abs(num_ressources - self.last_num_ressources_checked) > 500:
-            ErrorHandler.warning("OCR ressource bad ressource recognition : "
-                                 + f"\n    - num ressources checked {num_ressources}"
-                                 + f"\n    - last num ressources checked {self.last_num_ressources_checked}"
-                                 )
-            # return False
-
-        self.last_num_ressources_checked = num_ressources
-        if num_ressources >= self.MAX_ALLOWED_RESSOURCES:
-            print(f"MAX PODS : {num_ressources}")
-            return True
+        if num_ressources >= self.max_allowed_ressources:
+            if self.check_inventory_pods():
+                print(f"MAX PODS : {num_ressources}")
+                return True
         return False
+
+    @staticmethod
+    def check_inventory_pods():
+        test = False
+
+        open_inventory()
+        wait_image(Images.INVENTORY_LOADED_ICON)
+        time.sleep(1)
+
+        img = pg.screenshot(region=Positions.INVENTORY_PODS_REG)
+        height, width = img.size
+        image_data = img.load()
+        min_value = 150
+
+        for loop1 in range(height):
+            for loop2 in range(width):
+                r, g, b = image_data[loop1, loop2]
+                if r >= min_value or g >= min_value or b >= min_value:
+                    test = True
+                    break
+
+            if test:
+                break
+        # close inventory
+        open_inventory()
+        time.sleep(1)
+
+        return test
 
     @staticmethod
     def read_num_ressources(debug=False):
@@ -191,7 +214,7 @@ class Bot:
         for region in Positions.get_ressource_regions():
             img = pg.screenshot(region=region)
             img = img.resize((200, 100))
-            img = Images.change_color(img, min_value=140)
+            img = Images.change_color(img, min_value=100)
             value = pytesseract.image_to_string(img, config='--psm 8 --oem 3 -c tessedit_char_whitelist=0123456789')
 
             if debug:
@@ -234,6 +257,7 @@ class Bot:
 
         # go to the bank
         self.Movement.go_to_bank()
+        time.sleep(2)
 
         if ErrorHandler.is_error:
             return
@@ -255,22 +279,22 @@ class Bot:
     def unload_bank(self):
         """ unload ressources in the bank """
         # click on npc
-        wait_click_on(self.Movement.city.BANK_NPC_IMAGE)
+        wait_click_on(self.Movement.city.BANK_NPC_IMAGE, confidence=0.6)
 
         # click on "accept" to access your bank inventory
-        wait_click_on(Images.get(Images.BANK_DIALOG_ACCESS))
+        wait_click_on(Images.get(Images.BANK_DIALOG_ACCESS), confidence=0.6)
         time.sleep(1)
 
         # select ressources tab
-        wait_click_on(Images.get(Images.BANK_RESSOURCE_TAB), region=Positions.BANK_PLAYER_INVENTORY_REG, offset_x=5, offset_y=5, confidence=0.99)
+        wait_click_on(Images.get(Images.BANK_RESSOURCE_TAB), region=Positions.BANK_PLAYER_INVENTORY_REG, confidence=0.6)
         time.sleep(1)
 
         # unload ressources
-        wait_click_on(Images.get(Images.BANK_TRANSFER_BUTTON), confidence=0.99)
+        wait_click_on(Images.get(Images.BANK_TRANSFER_BUTTON), region=Positions.BANK_PLAYER_INVENTORY_REG, confidence=0.7)
         time.sleep(1)
 
         # validate ressources unloading
-        wait_click_on(Images.get(Images.BANK_TRANSFER_VISIBLE_OBJ_BTN))
+        wait_click_on(Images.get(Images.BANK_TRANSFER_VISIBLE_OBJ_BTN), confidence=0.6)
         time.sleep(1)
 
         # close bank
@@ -291,6 +315,7 @@ class Bot:
     @staticmethod
     def test_ocr_map():
         img = pg.screenshot(region=Positions.MAP_LOCATION_REG)
+        img = img.resize((150, 30))
         value = pytesseract.image_to_string(img, config='--psm 7 --oem 3 -c tessedit_char_whitelist=0123456789,-')
 
         print(value)

@@ -12,11 +12,13 @@ class Images:
     SCREENSHOTS_DIR = 'screenshots'
     PHOENIX_STATUE = 'phoenix_statue.png'
     PHOENIX_STATUE_2 = 'phoenix_statue_2.png'
+    PHOENIX_STATUE_3 = 'phoenix_statue_3.png'
     YES_BUTTON = 'yes_button.png'
     CURSOR_LEFT = 'cursor_left.png'
     CURSOR_RIGHT = 'cursor_right.png'
     CURSOR_UP = 'cursor_up.png'
     CURSOR_DOWN = 'cursor_down.png'
+    INVENTORY_LOADED_ICON = 'inventory_loaded_icon.png'
     GHOST_FORM = 'ghost_form.png'   # TODO
 
     BANK_DIR = 'bank'

@@ -9,7 +9,7 @@ from src.enum.positions import Positions
 from src.utils.ErrorHandler import ErrorHandler
 
 
-def wait_click_on(image: (str, Image), confidence: float = 0.8, region=None, max_timer: float = 5, offset_x=0, offset_y=0):
+def wait_click_on(image: (str, Image), confidence: float = 0.8, region=None, max_timer: float = 5, offset_x=None, offset_y=None):
     if isinstance(image, str):
         image = Images.get(image)
 
@@ -33,6 +33,9 @@ def wait_click_on(image: (str, Image), confidence: float = 0.8, region=None, max
 
 
 def wait_image(image: str, confidence: float = 0.8, region=None, max_timer: float = 5):
+    if isinstance(image, str):
+        image = Images.get(image)
+
     pos = None
     start = time.time()
     while pos is None:
@@ -59,6 +62,7 @@ def read_map_location():
     """ get map location from GUID reading """
 
     img = pg.screenshot(region=Positions.MAP_LOCATION_REG)
+    img = img.resize((150, 30))
     value = pytesseract.image_to_string(img, config='--psm 7 --oem 3 -c tessedit_char_whitelist=0123456789,-')
 
     try:

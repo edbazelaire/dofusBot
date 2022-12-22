@@ -6,6 +6,8 @@ from src.utils.ErrorHandler import ErrorHandler
 
 class Positions:
     """ contains all screen positions """
+    GAME_WINDOW_ID = 0
+    CURRENT_WINDOW = 0
     DONE = False
 
     ### DO NOT CHANGE ###
@@ -16,7 +18,6 @@ class Positions:
 
     # ==================================================================================================================
     # GAME WINDOW SCREEN CONFIGURATION
-    WINDOW_POS_OFFSET = [0, 0]      # offset to add to compensate the window position from default (WINDOW_DEFAULT_POS)
     WINDOW_SIZE_PERC: float = 1     # percentage of size changes from default size (WINDOW_DEFAULT_SIZE)
 
     # ==================================================================================================================
@@ -42,7 +43,8 @@ class Positions:
     GET_OUT_BANK_POSITION = (735, 710)  # position to click to get out of the bank
 
     # PERSONAL TABS
-    INVENTORY_CLICK_POS = (1412, 949)  # position to click to open inventory
+    INVENTORY_CLICK_POS = (1412, 949)           # position to click to open inventory
+    INVENTORY_PODS_REG = (1365, 855, 10, 6)
 
     # RESSOURCES
     RESSOURCE1_REG = (1218, 934, 34, 16)
@@ -51,7 +53,7 @@ class Positions:
     RESSOURCE4_REG = (1092, 934, 34, 16)
 
     # LOCATION (location / zone / region...)
-    MAP_LOCATION_REG = (-20, 70, 100, 30)
+    MAP_LOCATION_REG = (-20, 70, 150, 30)
     MAP_ZONE_NAME_REG = (-20, 45, 320, 25)
     MAP_REGION_NAME_REG = (-20, 45, 320, 25)    # TODO
 
@@ -65,7 +67,8 @@ class Positions:
     PM_REG = (795, 1006, 20, 22)
     PA_REG = (744, 1010, 20, 22)
 
-    def __init__(self):
+    def __init__(self, game_window_id):
+        self.GAME_WINDOW_ID = game_window_id
         self.set_window_size()
 
         for name, val in vars(Positions).items():
@@ -78,7 +81,7 @@ class Positions:
                 continue
 
             # do not change settings
-            if name == 'WINDOW_SIZE_PERC' or name == 'WINDOW_POS_OFFSET' or name == 'WINDOW_SIZE' or name == 'WINDOW_POS':
+            if name == 'WINDOW_SIZE_PERC' or name == 'WINDOW_REG' or name == 'WINDOW_POS':
                 continue
 
             # filter
@@ -88,10 +91,10 @@ class Positions:
             setattr(Positions, name, self.resize(val))
 
         # update GameWindow X & Y from WindowRegion
-        self.X_MIN = self.WINDOW_REG[0]
-        self.Y_MIN = self.WINDOW_REG[1]
-        self.X_MAX = self.X_MIN + self.WINDOW_REG[2]
-        self.Y_MAX = self.Y_MAX + self.WINDOW_REG[3]
+        Positions.X_MIN = Positions.WINDOW_REG[0] + Positions.X_BAND_OFFSET
+        Positions.Y_MIN = Positions.WINDOW_REG[1] + Positions.Y_BAND_OFFSET
+        Positions.X_MAX = Positions.X_MIN + Positions.WINDOW_REG[2] - 2 * Positions.X_BAND_OFFSET
+        Positions.Y_MAX = Positions.Y_MAX + Positions.WINDOW_REG[3] - 2 * Positions.Y_BAND_OFFSET
 
     @staticmethod
     def resize(pos: tuple):
@@ -115,6 +118,10 @@ class Positions:
 
     @staticmethod
     def set_window_size():
+        """ resize all position values according to the game window size/position
+        :param id: id of the game window
+        :return:
+        """
         def check_game_window_size(x, y, size_x, size_y):
             import pyautogui as pg
 
@@ -187,6 +194,10 @@ class Positions:
         def callback(hwnd, extra):
             name = win32gui.GetWindowText(hwnd)
             if 'Dofus' not in name or Positions.DONE:
+                return
+
+            if Positions.GAME_WINDOW_ID != Positions.CURRENT_WINDOW:
+                Positions.GAME_WINDOW_ID += 1
                 return
 
             # get size of the ALL window
