@@ -19,7 +19,8 @@ class Images:
     CURSOR_UP = 'cursor_up.png'
     CURSOR_DOWN = 'cursor_down.png'
     INVENTORY_LOADED_ICON = 'inventory_loaded_icon.png'
-    GHOST_FORM = 'ghost_form.png'   # TODO
+    JOIN_FIGHT_IMG = 'join_fight.png'   # TODO
+    GHOST_FORM = 'ghost_form.png'       # TODO
 
     BANK_DIR = 'bank'
     BANK_NPC_ASTRUB = 'bank_npc.png'

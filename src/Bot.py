@@ -1,5 +1,4 @@
 from typing import List
-
 import pyautogui as pg
 import time
 import os
@@ -11,8 +10,7 @@ from src.enum.images import Images
 from src.components.Fight import Fight
 from src.components.Movement import Movement
 from src.utils.ErrorHandler import ErrorHandler
-from src.utils.utils_fct import wait_click_on, check_map_loaded, read_map_location, check_is_ghost, open_inventory, \
-    wait_image
+from src.utils.utils_fct import wait_click_on, check_map_loaded, read_map_location, check_is_ghost, open_inventory, wait_image
 
 
 class Bot:
@@ -20,8 +18,9 @@ class Bot:
     HARVEST_TIME = 2
     CONFIDENCE = 0.75
 
-    def __init__(self, region_name: str, ressources: List[str], city_name: str = None, max_allowed_ressources=0):
+    def __init__(self, region_name: str, ressources: List[str], window = None, city_name: str = None, max_allowed_ressources=0):
         self.images = {}
+        self.window = window
 
         self.ressources = ressources
         self.get_ressources_images(ressources)
@@ -304,6 +303,10 @@ class Bot:
 
     # ==================================================================================================================
     # FIGHT
+    @staticmethod
+    def join_fight():
+        wait_click_on(Images.JOIN_FIGHT_IMG)
+
     def on_death(self):
         self.Movement.location = read_map_location()
 
