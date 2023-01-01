@@ -9,11 +9,9 @@ import pyautogui as pg
 import time
 
 from src.enum.regions import Regions
-from src.location_handling.city.abstract_city import AbstractCity
-from src.location_handling.regions.abstract_region import AbstractRegion
 from src.location_handling.utils import get_region, get_city
 from src.utils.ErrorHandler import ErrorHandler
-from src.utils.utils_fct import read_map_location, wait_click_on, check_map_change, get_distance, wait_image
+from src.utils.utils_fct import read_map_location, wait_click_on, check_map_change, wait_image
 
 
 class Movement:
@@ -53,7 +51,7 @@ class Movement:
             self.current_path_index = 0
 
     # ==================================================================================================================
-    def get_next_position(self):
+    def get_next_location(self):
         if self.next_location is None:
             self.next_location = self.path[self.current_path_index]
 
@@ -67,13 +65,13 @@ class Movement:
             self.current_path_index += self.current_path_index_modificator
             self.next_location = self.path[self.current_path_index]
 
-    def go_to_next_pos(self):
+    def go_to_next_location(self):
         """ return True if reaches next pos, False if stop during movement """
         # security, if a None pos is provided
         self.location = read_map_location()
 
         if self.next_location is None or self.location == self.next_location:
-            self.get_next_position()
+            self.get_next_location()
 
         # ANYWHERE -> IN CITY or IN CITY -> ANYWHERE
         if self.city.is_in_city(self.next_location) or self.city.is_in_city(self.location):

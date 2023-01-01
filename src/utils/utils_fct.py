@@ -9,19 +9,21 @@ from src.enum.positions import Positions
 from src.utils.ErrorHandler import ErrorHandler
 
 
-def wait_click_on(image: (str, Image), confidence: float = 0.8, region=None, max_timer: float = 5, offset_x=None, offset_y=None):
+def wait_click_on(image: (str, Image), confidence: float = 0.8, region=None, max_timer: float = 5, offset_x=None,
+                  offset_y=None):
     if isinstance(image, str):
         image = Images.get(image)
+
+    if region is None:
+        region = Positions.WINDOW_REG
 
     pos = None
     start = time.time()
     while pos is None:
         if time.time() - start >= max_timer:
             return False
-        if region is not None:
-            pos = pg.locateOnScreen(image, confidence=confidence, region=region)
-        else:
-            pos = pg.locateOnScreen(image, confidence=confidence)
+
+        pos = pg.locateOnScreen(image, confidence=confidence, region=region)
 
     if offset_x is None:
         offset_x = math.floor(pos.width / 2)
@@ -36,15 +38,15 @@ def wait_image(image: str, confidence: float = 0.8, region=None, max_timer: floa
     if isinstance(image, str):
         image = Images.get(image)
 
+    if region is None:
+        region = Positions.WINDOW_REG
+
     pos = None
     start = time.time()
     while pos is None:
         if time.time() - start >= max_timer:
             return False
-        if region is not None:
-            pos = pg.locateOnScreen(image, confidence=confidence, region=region)
-        else:
-            pos = pg.locateOnScreen(image, confidence=confidence)
+        pos = pg.locateOnScreen(image, confidence=confidence, region=region)
 
     return True
 
@@ -94,7 +96,7 @@ def read_region():
     return split_val[0], split_val[1]
 
 
-def check_map_change(from_location, do_map_load_check=True) -> bool:
+def check_map_change(from_location, do_map_load_check=False) -> bool:
     """ check if player changed map by looking at map position """
     start = time.time()
     map_location = read_map_location()
@@ -111,6 +113,8 @@ def check_map_change(from_location, do_map_load_check=True) -> bool:
 
     if do_map_load_check:
         check_map_loaded()
+    else:
+        time.sleep(1)
     return True
 
 
@@ -122,24 +126,28 @@ def check_map_loaded() -> bool:
             print(" -- map NOT loaded !!")
             return False
 
-        confidence = 0.7
+        confidence = 0.5
         pg.moveTo(*Positions.CHANGE_MAP_LEFT_POS())
-        if pg.locateOnScreen(Images.get(Images.CURSOR_LEFT), confidence=confidence) is not None:
+        if pg.locateOnScreen(Images.get(Images.CURSOR_LEFT), region=Positions.WINDOW_REG,
+                             confidence=confidence) is not None:
             print("     -- map loaded ")
             return True
 
         pg.moveTo(*Positions.CHANGE_MAP_RIGHT_POS())
-        if pg.locateOnScreen(Images.get(Images.CURSOR_RIGHT), confidence=confidence) is not None:
+        if pg.locateOnScreen(Images.get(Images.CURSOR_RIGHT), region=Positions.WINDOW_REG,
+                             confidence=confidence) is not None:
             print("     -- map loaded")
             return True
 
         pg.moveTo(*Positions.CHANGE_MAP_UP_POS())
-        if pg.locateOnScreen(Images.get(Images.CURSOR_UP), confidence=confidence) is not None:
+        if pg.locateOnScreen(Images.get(Images.CURSOR_UP), region=Positions.WINDOW_REG,
+                             confidence=confidence) is not None:
             print("     -- map loaded")
             return True
 
         pg.moveTo(*Positions.CHANGE_MAP_DOWN_POS())
-        if pg.locateOnScreen(Images.get(Images.CURSOR_DOWN), confidence=confidence) is not None:
+        if pg.locateOnScreen(Images.get(Images.CURSOR_DOWN), region=Positions.WINDOW_REG,
+                             confidence=confidence) is not None:
             print("     -- map loaded")
             return True
 
@@ -152,10 +160,8 @@ def check_is_ghost():
     # success = wait_image()
     # open_inventory()
     # return success
-    return False
+    return
 
 
 def open_inventory():
     pg.click(*Positions.INVENTORY_CLICK_POS)
-
-

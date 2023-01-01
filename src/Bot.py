@@ -66,7 +66,7 @@ class Bot:
             self.bank_routine()
 
         else:
-            self.Movement.go_to_next_pos()
+            self.Movement.go_to_next_location()
 
     def get_ressources_images(self, ressources: list):
         """ get only images of requested ressources """
@@ -87,29 +87,30 @@ class Bot:
                 self.reset()
 
             # scan for ressources
-            self.scan()
+            if self.Movement.location in self.Movement.region.path:
+                self.scan()
+
+                if ErrorHandler.is_error:
+                    continue
+
+                # check if fight has occurred
+                time.sleep(1)
+                if self.Fight.check_combat_started():
+                    self.fight_routine()
+                    continue
+
+                if ErrorHandler.is_error:
+                    continue
+
+                # check if character needs to go unload ressources to the bank
+                if self.check_pods():
+                    self.bank_routine()
+                    continue
 
             if ErrorHandler.is_error:
                 continue
 
-            # check if fight has occurred
-            time.sleep(1)
-            if self.Fight.check_combat_started():
-                self.fight_routine()
-                continue
-
-            if ErrorHandler.is_error:
-                continue
-
-            # check if character needs to go unload ressources to the bank
-            if self.check_pods():
-                self.bank_routine()
-                continue
-
-            if ErrorHandler.is_error:
-                continue
-
-            self.Movement.go_to_next_pos()
+            self.Movement.go_to_next_location()
 
     def scan(self):
         """ scan the map for ressources """
@@ -122,7 +123,6 @@ class Bot:
             isAny = self.check_all_ressources()
             if not isAny or time.time() - start > self.MAX_TIME_SCANNING:
                 break
-            found_one = True
             time.sleep(self.HARVEST_TIME)
 
         print("\n")
@@ -243,11 +243,13 @@ class Bot:
     def fight_routine(self):
         """ routine of actions to take when a fight occurs """
         self.Fight.fight()
+
         if self.Fight.check_is_victory():
             return
 
         if self.check_tomb():
             self.Movement.ghost_routine()
+
         elif self.Fight.check_is_defeat():
             self.on_death()
 

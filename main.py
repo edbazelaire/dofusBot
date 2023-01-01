@@ -1,7 +1,6 @@
 from src.Bot import Bot
 from src.enum.positions import Positions
 from src.enum.regions import Regions
-from src.enum.ressources import Ressources
 from src.utils.utils_fct import display_mouse
 
 import sys
@@ -14,7 +13,7 @@ if __name__ == '__main__':
 
     for i in range(len(sys.argv)):
         if sys.argv[i] == '--id':
-            game_window_id = sys.argv[i+1]
+            game_window_id = int(sys.argv[i+1])
 
         elif sys.argv[i] == '-reg' or sys.argv[i] == '--region':
             region_name = sys.argv[i+1]

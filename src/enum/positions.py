@@ -68,8 +68,8 @@ class Positions:
     PA_REG = (744, 1010, 20, 22)
 
     def __init__(self, game_window_id):
-        self.GAME_WINDOW_ID = game_window_id
-        self.set_window_size()
+        Positions.GAME_WINDOW_ID = game_window_id
+        Positions.set_window_size()
 
         for name, val in vars(Positions).items():
             # filter constants
@@ -197,7 +197,7 @@ class Positions:
                 return
 
             if Positions.GAME_WINDOW_ID != Positions.CURRENT_WINDOW:
-                Positions.GAME_WINDOW_ID += 1
+                Positions.CURRENT_WINDOW += 1
                 return
 
             # get size of the ALL window
