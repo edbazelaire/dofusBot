@@ -6,11 +6,12 @@ import os
 import pytesseract
 from PIL.Image import Image
 
+from src.components.craft.craft import Craft
 from src.enum.positions import Positions
 from src.enum.images import Images
 from src.components.Fight import Fight
 from src.components.Movement import Movement
-from src.utils.ErrorHandler import ErrorHandler
+from src.utils.ErrorHandler import ErrorHandler, ErrorType
 from src.utils.utils_fct import wait_click_on, check_map_loaded, read_map_location, check_is_ghost
 
 
@@ -20,17 +21,17 @@ class Bot:
     CONFIDENCE = 0.75
     MAX_ALLOWED_RESSOURCES = 800
 
-    def __init__(self, region_name: str, ressources: List[str], city_name: str = None):
+    def __init__(self, region_name: str, ressources: List[str], crafts: List[str] = None, city_name: str = None):
         self.images = {}
+        self.clicked_pos = []
 
         self.ressources = ressources
         self.get_ressources_images(ressources)
         self.last_num_ressources_checked = 0
 
-        self.clicked_pos = []
-
         self.Movement = Movement(region_name, ressources, city_name)
         self.Fight = Fight()
+        self.Craft = Craft(max_pods=self.get_max_pods(), crafts=crafts)
 
     # ==================================================================================================================
     # INITIALIZATION
@@ -83,45 +84,49 @@ class Bot:
                 self.reset()
 
             # scan for ressources
-            self.scan()
+            if self.Movement.location in self.Movement.path:
+                found_one = self.scan()
 
-            if ErrorHandler.is_error:
-                continue
+                if ErrorHandler.is_error:
+                    continue
 
-            # check if fight has occurred
-            time.sleep(1)
-            if self.Fight.check_combat_started():
-                self.fight_routine()
-                continue
+                if found_one:
+                    # check if fight has occurred
+                    time.sleep(1)
+                    if self.Fight.check_combat_started():
+                        self.fight_routine()
+                        continue
 
-            if ErrorHandler.is_error:
-                continue
+                    if ErrorHandler.is_error:
+                        continue
 
-            # check if character needs to go unload ressources to the bank
-            if self.check_pods():
-                self.bank_routine()
-                continue
+                    # check if character needs to go unload ressources to the bank
+                    if self.check_pods():
+                        self.bank_routine()
+                        continue
 
             if ErrorHandler.is_error:
                 continue
 
             self.Movement.go_to_next_pos()
 
-    def scan(self):
+    def scan(self) -> bool:
         """ scan the map for ressources """
         print('Scanning', end='')
 
         start = time.time()
-        isAny = True
-        while isAny:
+        found_one = False
+        is_any = True
+        while is_any:
             print('.', end='')
-            isAny = self.check_all_ressources()
-            if not isAny or time.time() - start > self.MAX_TIME_SCANNING:
+            is_any = self.check_all_ressources()
+            if not is_any or time.time() - start > self.MAX_TIME_SCANNING:
                 break
             found_one = True
             time.sleep(self.HARVEST_TIME)
 
         print("\n")
+        return found_one
 
     def check_all_ressources(self):
         for ressource_name, images in self.images.items():
@@ -230,7 +235,7 @@ class Bot:
 
     def bank_routine(self):
         """ go to the bank and unload ressources """
-        print("MAX PODS REACHED -> Going to bank")
+        print("Going to bank")
 
         # go to the bank
         self.Movement.go_to_bank()
@@ -238,43 +243,24 @@ class Bot:
         if ErrorHandler.is_error:
             return
 
-        # unload ressources in the bank
-        self.unload_bank()
+        bank = self.Movement.city.bank
+
+        # unload ressources in bank
+        bank.open()
         time.sleep(1)
+
+        # unload ressources in bank
+        bank.unload_ressources()
+
+        success = self.Craft.get_required_ressources()
+        if success:
+
+
+        # close bank tab
+        bank.close()
 
         # get out of the bank
-        pg.click(*self.Movement.city.GET_OUT_BANK_POSITION)
-        time.sleep(1)
-        success = check_map_loaded()
-        if not success:
-            ErrorHandler.error("unable to get out of bank")
-
-        # reset
-        self.reset()
-
-    def unload_bank(self):
-        """ unload ressources in the bank """
-        # click on npc
-        wait_click_on(self.Movement.city.BANK_NPC_IMAGE)
-
-        # click on "accept" to access your bank inventory
-        wait_click_on(Images.get(Images.BANK_DIALOG_ACCESS))
-        time.sleep(1)
-
-        # select ressources tab
-        wait_click_on(Images.get(Images.BANK_RESSOURCE_TAB), region=Positions.BANK_PLAYER_INVENTORY_REG, offset_x=5, offset_y=5, confidence=0.99)
-        time.sleep(1)
-
-        # unload ressources
-        wait_click_on(Images.get(Images.BANK_TRANSFER_BUTTON), confidence=0.99)
-        time.sleep(1)
-
-        # validate ressources unloading
-        wait_click_on(Images.get(Images.BANK_TRANSFER_VISIBLE_OBJ_BTN))
-        time.sleep(1)
-
-        # close bank
-        pg.click(*Positions.CLOSE_BANK_BUTTON_POSITION)
+        bank.exit()
 
     # ==================================================================================================================
     # FIGHT
@@ -306,7 +292,8 @@ class Bot:
         print(value)
         img.show()
 
-    def take_screeshot(self):
+    @staticmethod
+    def take_screenshot():
         img = pg.screenshot()
         dir = 'images/fight/'
         n_images = len(os.listdir(dir))

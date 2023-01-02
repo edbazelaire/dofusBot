@@ -1,3 +1,4 @@
+from src.buildings.Bank import Bank
 from src.location_handling.city.abstract_city import AbstractCity
 from src.enum.images import Images
 
@@ -6,11 +7,6 @@ class Astrub(AbstractCity):
     NAME = 'Astrub'
     SUB_REGION = ''
 
-    BANK_LOCATION = [4, -18]
-    BANK_DOOR_POSITION = [1138, 372]
-    BANK_NPC_IMAGE = Images.BANK_NPC_ASTRUB
-    GET_OUT_BANK_POSITION = [735, 710]
-
     TOP_CITY_CHECKPOINT = [4, -22]
     BOTTOM_CITY_CHECKPOINT = [5, -17]
     LEFT_CITY_CHECKPOINT = [2, -17]
@@ -18,6 +14,13 @@ class Astrub(AbstractCity):
 
     ASTRUB_TOP_LEFT = [3, -19]
     ASTRUB_BOTTOM_RIGHT = [6, -17]
+
+    bank = Bank(
+        bank_location=[4, -18],
+        bank_door_position=[1138, 372],
+        bank_npc_image=Images.BANK_NPC_ASTRUB,
+        get_out_bank_position=[735, 710]
+    )
 
     @staticmethod
     def get_path(from_location, to_location):
@@ -55,7 +58,7 @@ class Astrub(AbstractCity):
         :param location: location of the player
         :return: list of positions to go to in order to get to the bank
         """
-        return Astrub.get_path(location, Astrub.BANK_LOCATION)
+        return Astrub.get_path(location, Astrub.bank.BANK_LOCATION)
 
     @staticmethod
     def is_in_city(location):

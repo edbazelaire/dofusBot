@@ -1,4 +1,11 @@
 from datetime import datetime as dt
+from enum import Enum
+
+
+class ErrorType(Enum):
+    MAP_NOT_CHANGED_ERROR = 0
+    MAP_POSITION_ERROR = 1
+    RETRY_ACTION_ERROR = 2
 
 
 class ErrorHandler:
@@ -8,20 +15,18 @@ class ErrorHandler:
     LOAD_MAP_TIME = 10
     TRAVEL_MAP_TIME = 10
 
-    # ERROR TYPES :
-    MAP_NOT_CHANGED_ERROR = 0
-    MAP_POSITION_ERROR = 1
-
     # MAX ALLOWED ERRORS BEFORE RESET
     MAX_ERRORS = {
-        MAP_NOT_CHANGED_ERROR: 3,
-        MAP_POSITION_ERROR: 2
+        ErrorType.MAP_NOT_CHANGED_ERROR: 3,
+        ErrorType.MAP_POSITION_ERROR: 2,
+        ErrorType.RETRY_ACTION_ERROR: 3,
     }
 
     # ERROR COUNTERS
     ERROR_CTRS = {
-        MAP_NOT_CHANGED_ERROR: 0,
-        MAP_POSITION_ERROR: 0,
+        ErrorType.MAP_NOT_CHANGED_ERROR: 0,
+        ErrorType.MAP_POSITION_ERROR: 0,
+        ErrorType.RETRY_ACTION_ERROR: 0,
     }
 
     @staticmethod
@@ -31,7 +36,11 @@ class ErrorHandler:
             ErrorHandler.ERROR_CTRS[error_type] = 0
 
     @staticmethod
-    def add_error(msg, error_type=None):
+    def reset_error(error_type: ErrorType):
+        ErrorHandler.ERROR_CTRS[error_type] = 0
+
+    @staticmethod
+    def add_error(msg, error_type: ErrorType = None):
         print(f'[{dt.now().strftime("%Hh%M")}] ' + msg)
         if error_type is None:
             return

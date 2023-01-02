@@ -9,8 +9,6 @@ import pyautogui as pg
 import time
 
 from src.enum.regions import Regions
-from src.location_handling.city.abstract_city import AbstractCity
-from src.location_handling.regions.abstract_region import AbstractRegion
 from src.location_handling.utils import get_region, get_city
 from src.utils.ErrorHandler import ErrorHandler
 from src.utils.utils_fct import read_map_location, wait_click_on, check_map_change, get_distance
@@ -20,6 +18,7 @@ class Movement:
     """
     Handle Bot's movements from a location to another
     """
+
     def __init__(self, region_name: str, ressources: List[str], city_name: str = None):
         """
         :param region_name: name of the region where the ressources are farmed
@@ -35,9 +34,9 @@ class Movement:
 
         self.clicked_pos = []
 
-        self.current_path_index = 0     # index in the farming path (
-        self.location = (0, 0)          # current position of the bot
-        self.next_location = None       # location that the bot is currently heading to
+        self.current_path_index = 0  # index in the farming path (
+        self.location = (0, 0)  # current position of the bot
+        self.next_location = None  # location that the bot is currently heading to
 
         self.location = read_map_location()
 
@@ -147,48 +146,6 @@ class Movement:
         pg.click(*click_pos)
         return check_map_change(from_location=self.location)
 
-    def get_back_to_first_position(self):
-        """ go back to first position by getting threw the gates (meaning that we can access this position from either
-        in or outside the city) """
-
-        if self.region == Regions.CHAMP_ASTRUB:
-            # go to the gates
-            self.go_to(Locations.GATES_LOCATION)
-        else:
-            Actions.do(Actions.TAKE_RECALL_POTION)
-            self.location = read_map_location()
-
-        # go to first map and reset all values
-        self.go_to(self.path[0])
-        self.reset()
-
-    def go_to_bank(self):
-        print(f"{self.location} : Moving to the BANK")
-        success = False
-        while not success:
-            path = self.city.get_bank_path(self.location)
-            self.follow_path(path)
-
-            # SAFETY
-            ocr_location = read_map_location()
-            if ocr_location != self.city.BANK_LOCATION:
-                ErrorHandler.error(f"ocr location ({ocr_location}) is not on bank location ({self.city.BANK_LOCATION})")
-                self.location = ocr_location
-                continue
-
-            success = True
-
-        # get in the bank
-        print(f"{self.location} : Clicking on BANK_DOOR")
-        test = self.enter_building(click_pos=self.city.BANK_DOOR_POSITION, loading_img=self.city.BANK_NPC_IMAGE)
-
-        if not test:
-            return
-
-        time.sleep(1)
-
-        print(f"{self.location} : I am in the bank")
-
     @staticmethod
     def enter_building(click_pos: tuple = None, click_img: str = None, loading_img: str = '') -> bool:
         """ Enter a building by clicking requested position
@@ -231,6 +188,8 @@ class Movement:
 
         self.go_to_phoenix()
 
+    # ==================================================================================================================
+    # GO TO SPECIFIC POSITION
     def go_to_phoenix(self):
         self.location = read_map_location()
         self.follow_path(self.region.get_phoenix_path())
@@ -240,15 +199,57 @@ class Movement:
         # wait until reaching phoenix statue
         time.sleep(3)
 
+    def get_back_to_first_position(self):
+        """ go back to first position by getting threw the gates (meaning that we can access this position from either
+        in or outside the city) """
+
+        if self.region == Regions.CHAMP_ASTRUB:
+            # go to the gates
+            self.go_to(Locations.GATES_LOCATION)
+        else:
+            Actions.do(Actions.TAKE_RECALL_POTION)
+            self.location = read_map_location()
+
+        # go to first map and reset all values
+        self.go_to(self.path[0])
+        self.reset()
+
+    def go_to_bank(self):
+        print(f"{self.location} : Moving to the BANK")
+        success = False
+        while not success:
+            path = self.city.get_bank_path(self.location)
+            self.follow_path(path)
+
+            # SAFETY
+            ocr_location = read_map_location()
+            if ocr_location != self.city.BANK_LOCATION:
+                ErrorHandler.error(f"ocr location ({ocr_location}) is not on bank location ({self.city.BANK_LOCATION})")
+                self.location = ocr_location
+                continue
+
+            success = True
+
+        # get in the bank
+        print(f"{self.location} : Clicking on BANK_DOOR")
+        test = self.enter_building(click_pos=self.city.BANK_DOOR_POSITION, loading_img=self.city.BANK_NPC_IMAGE)
+
+        if not test:
+            return
+
+        time.sleep(1)
+
+        print(f"{self.location} : I am in the bank")
+
     # ==================================================================================================================
     # CHECKS
     def check_location(self):
         pos = read_map_location()
         if self.location[0] != pos[0] or self.location[1] != pos[1]:
-            ErrorHandler.error(f"position calculated {self.location} is different from OCR position {pos}", ErrorHandler.MAP_POSITION_ERROR)
+            ErrorHandler.error(f"position calculated {self.location} is different from OCR position {pos}",
+                               ErrorHandler.MAP_POSITION_ERROR)
             return False
 
         # reset if location check went ok
         ErrorHandler.ERROR_CTRS[ErrorHandler.MAP_POSITION_ERROR] = 0
         return True
-
