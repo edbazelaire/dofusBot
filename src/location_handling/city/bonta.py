@@ -30,7 +30,7 @@ class Bonta(AbstractCity):
         if not Bonta.is_in_city(location):
             path.append(Actions.TAKE_BONTA_POTION)
 
-        path.append(Bonta.bank.BANK_LOCATION)
+        path.append(Bonta.bank.LOCATION)
 
         return path
 

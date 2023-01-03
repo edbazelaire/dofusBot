@@ -9,7 +9,8 @@ from src.enum.positions import Positions
 from src.utils.ErrorHandler import ErrorHandler, ErrorType
 
 
-def wait_click_on(image: (str, Image), confidence: float = 0.8, region=None, max_timer: float = 5, offset_x=0, offset_y=0):
+def wait_click_on(image: (str, Image), confidence: float = 0.8, region=None, max_timer: float = 5, offset_x=0,
+                  offset_y=0):
     if isinstance(image, str):
         image = Images.get(image)
 
@@ -144,14 +145,9 @@ def check_map_loaded() -> bool:
 
 def check_is_ghost():
     """ open inventory to check if player is in ghost form """
+    # TODO
     # open_inventory()
     # success = wait_image()
     # open_inventory()
     # return success
     return False
-
-
-def open_inventory():
-    pg.click(*Positions.INVENTORY_CLICK_POS)
-
-

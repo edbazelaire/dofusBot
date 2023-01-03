@@ -20,13 +20,17 @@ class Images:
     CURSOR_DOWN = 'cursor_down.png'
     GHOST_FORM = 'ghost_form.png'                                   # TODO
     VALIDATE_TRANSFER_BUTTON = 'validate_transfer_button.png'       # TODO
+    INVENTORY_OPENED = 'inventory_opened.png'                       # TODO
 
     # BANK                  ====================================================================
     BANK_DIR = 'bank'
     BANK_NPC_ASTRUB = 'bank_npc.png'
     BANK_NPC_BONTA = 'bank_npc_bonta.png'
     BANK_DIALOG_ACCESS = 'dialog_access_bank_button.png'
-    BANK_RESSOURCE_TAB = 'bank_ressource_tab.png'
+    BANK_ALL_TAB = 'bank_all_tab.png'                           # TODO
+    BANK_ITEM_TAB = 'bank_item_tab.png'                         # TODO
+    BANK_CONSUMABLE_TAB = 'bank_consumable_tab.png'             # TODO
+    BANK_RESSOURCE_TAB = 'bank_ressource_tab.png'               # TODO
     BANK_TRANSFER_BUTTON = 'bank_transfer_button.png'
     BANK_TRANSFER_VISIBLE_OBJ_BTN = 'transfer_visible_ressources_button.png'
     BANK_OPEN = 'bank_open.png'     # TODO : image that validates that bank is open or no

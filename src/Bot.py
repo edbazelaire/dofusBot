@@ -6,13 +6,14 @@ import os
 import pytesseract
 from PIL.Image import Image
 
+from src.components.Inventory import Inventory
 from src.components.craft.craft import Craft
 from src.enum.positions import Positions
 from src.enum.images import Images
 from src.components.Fight import Fight
 from src.components.Movement import Movement
 from src.utils.ErrorHandler import ErrorHandler, ErrorType
-from src.utils.utils_fct import wait_click_on, check_map_loaded, read_map_location, check_is_ghost
+from src.utils.utils_fct import wait_click_on, read_map_location, check_is_ghost
 
 
 class Bot:
@@ -31,7 +32,8 @@ class Bot:
 
         self.Movement = Movement(region_name, ressources, city_name)
         self.Fight = Fight()
-        self.Craft = Craft(max_pods=self.get_max_pods(), crafts=crafts)
+        self.Inventory = Inventory()
+        self.Craft = Craft(max_pods=self.Inventory.max_pods, craft_names=crafts)
 
     # ==================================================================================================================
     # INITIALIZATION
@@ -61,6 +63,9 @@ class Bot:
 
         elif self.check_pods():
             self.bank_routine()
+
+        elif self.check_craft():
+            self.craft_routine()
 
         else:
             self.Movement.go_to_next_pos()
@@ -220,6 +225,10 @@ class Bot:
             if pg.locateOnScreen('images/screenshots/tomb.png', confidence=0.7):
                 return True
 
+    def check_craft(self) -> bool:
+        """ check if a craft order has been sent to the bot """
+        return self.Craft.is_crafting and self.Craft.craft_order is not None
+
     # ==================================================================================================================
     # ROUTINES
     def fight_routine(self):
@@ -233,7 +242,7 @@ class Bot:
         elif self.Fight.check_is_defeat():
             self.on_death()
 
-    def bank_routine(self):
+    def bank_routine(self, unload_ressources: (str, List[str]) = None):
         """ go to the bank and unload ressources """
         print("Going to bank")
 
@@ -250,17 +259,52 @@ class Bot:
         time.sleep(1)
 
         # unload ressources in bank
-        bank.unload_ressources()
+        if unload_ressources is None:
+            bank.unload_ressources()
+        else:
+            if isinstance(unload_ressources, str):
+                unload_ressources = [unload_ressources]
 
-        success = self.Craft.get_required_ressources()
-        if success:
+            for ressource_name in unload_ressources:
+                success = bank.transfer(ressource_name, from_bank=False)
+                if not success:
+                    ErrorHandler.warning(f"unable to transfer {ressource_name}")
 
+        self.Craft.transfer_required_ressources()
 
         # close bank tab
         bank.close()
 
         # get out of the bank
         bank.exit()
+
+    def craft_routine(self):
+        if self.Craft.craft_order is None:
+            ErrorHandler.error("Call for craft routine when craft_order is None")
+            ErrorHandler.is_error = True
+
+        if self.Craft.is_crafting is False:
+            ErrorHandler.error("Call for craft routine when craft_order is None")
+            ErrorHandler.is_error = True
+
+        # enter the requested building for the craft
+        job = self.Craft.get_job(self.Craft.craft_order)
+        building = self.Movement.city.get_craft_building(job)
+        self.Movement.go_to(building.LOCATION)
+
+        # craft the requested ordered
+        building.use_machine()
+        building.craft(self.Craft.craft_order)
+        building.exit_machine()
+
+        # exit building
+        building.exit()
+
+        # go to bank to unload
+        unload_ressource = self.Craft.craft_order
+        self.Craft.craft_order = None
+        self.bank_routine(unload_ressources=unload_ressource)
+
 
     # ==================================================================================================================
     # FIGHT
@@ -270,7 +314,6 @@ class Bot:
     # ==================================================================================================================
     # DEBUG
     def test(self):
-        # self.test_ocr()
         self.Fight.fight()
         return
 
@@ -299,5 +342,7 @@ class Bot:
         n_images = len(os.listdir(dir))
         img.save(dir + f'houblon_{n_images}.png')
         time.sleep(1)
+
+
 
 

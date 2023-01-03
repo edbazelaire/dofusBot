@@ -1,4 +1,6 @@
 from src.buildings.Bank import Bank
+from src.buildings.abstract_building import AbstractBuilding
+from src.buildings.craft_building import CraftBuilding
 from src.enum.positions import Positions
 
 
@@ -30,6 +32,11 @@ class AbstractCity:
 
     @staticmethod
     def get_bank_path(location) -> list:
+        """ get path to the bank from anywhere in the global map """
+        pass
+
+    @staticmethod
+    def get_craft_building(job) -> CraftBuilding:
         """ get path to the bank from anywhere in the global map """
         pass
 

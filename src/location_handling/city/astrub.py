@@ -58,7 +58,7 @@ class Astrub(AbstractCity):
         :param location: location of the player
         :return: list of positions to go to in order to get to the bank
         """
-        return Astrub.get_path(location, Astrub.bank.BANK_LOCATION)
+        return Astrub.get_path(location, Astrub.bank.LOCATION)
 
     @staticmethod
     def is_in_city(location):

@@ -146,34 +146,6 @@ class Movement:
         pg.click(*click_pos)
         return check_map_change(from_location=self.location)
 
-    @staticmethod
-    def enter_building(click_pos: tuple = None, click_img: str = None, loading_img: str = '') -> bool:
-        """ Enter a building by clicking requested position
-        :param click_pos:   position to click to enter the building
-        :param click_img:   image to click in order to get in the building
-        :param loading_img: waiting for this image to confirm map loading
-        :return:
-        """
-
-        if click_pos is not None:
-            pg.click(*click_pos)
-
-        elif click_img is not None:
-            wait_click_on(click_img)
-
-        else:
-            ErrorHandler.fatal_error("BAD CONFIGURATION, neither click_pos or click_img is provided")
-
-        start = time.time()
-        if loading_img != '':
-            while pg.locateOnScreen(loading_img) is None:
-                if time.time() - start > 5:
-                    ErrorHandler.is_error = True
-                    return False
-                time.sleep(0.5)
-
-        return True
-
     # ==================================================================================================================
     # ROUTINES
     def ghost_routine(self):
@@ -223,8 +195,8 @@ class Movement:
 
             # SAFETY
             ocr_location = read_map_location()
-            if ocr_location != self.city.BANK_LOCATION:
-                ErrorHandler.error(f"ocr location ({ocr_location}) is not on bank location ({self.city.BANK_LOCATION})")
+            if ocr_location != self.city.LOCATION:
+                ErrorHandler.error(f"ocr location ({ocr_location}) is not on bank location ({self.city.LOCATION})")
                 self.location = ocr_location
                 continue
 
@@ -232,7 +204,7 @@ class Movement:
 
         # get in the bank
         print(f"{self.location} : Clicking on BANK_DOOR")
-        test = self.enter_building(click_pos=self.city.BANK_DOOR_POSITION, loading_img=self.city.BANK_NPC_IMAGE)
+        test = self.city.bank.enter()
 
         if not test:
             return

@@ -1,8 +1,9 @@
 from pytesseract import pytesseract
 
+from src.buildings.abstract_building import AbstractBuilding
 from src.enum.images import Images
 from src.enum.positions import Positions
-from src.enum.ressources import Ressources
+from src.enum.ressources import Ressources, RessourceType
 from src.utils.ErrorHandler import ErrorHandler, ErrorType
 from src.utils.utils_fct import wait_click_on, wait_image, check_map_loaded
 
@@ -10,26 +11,22 @@ import time
 import pyautogui as pg
 
 
-class Bank:
-    BANK_NPC_IMAGE: str = None
+class Bank(AbstractBuilding):
+    NPC_IMAGE: str = None
 
-    def __init__(self, bank_location, bank_door_position, get_out_bank_position, bank_npc_image):
-        self.BANK_LOCATION = bank_location                      # location of the bank in the city
-        self.BANK_DOOR_POSITION = bank_door_position            # screen position (x, y) to click in order to get in the bank
-        self.GET_OUT_BANK_POSITION = get_out_bank_position      # screen position to click to get out the bank
-        self.BANK_NPC_IMAGE = bank_npc_image                    # image of the NPC in the bank to talk to
+    def __init__(self, location, door_position, exit_position, npc_image):
+        super().__init__(location, door_position, exit_position, npc_image)
+        self.NPC_IMAGE = npc_image                      # image of the NPC in the bank to talk to
 
-    @staticmethod
-    def open():
+    def open(self):
         """ open the bank """
         # click on npc
-        wait_click_on(Bank.BANK_NPC_IMAGE)
+        wait_click_on(self.NPC_IMAGE)
 
         # click on "accept" to access your bank inventory
         wait_click_on(Images.get(Images.BANK_DIALOG_ACCESS))
 
-    @staticmethod
-    def close():
+    def close(self):
         pg.click(*Positions.CLOSE_BANK_BUTTON_POSITION)
 
         while Bank.check_is_opened():
@@ -40,9 +37,12 @@ class Bank:
         ErrorHandler.reset_error(ErrorType.RETRY_ACTION_ERROR)
         time.sleep(1)
 
+    def enter(self) -> bool:
+        return self.enter_building(click_pos=self.DOOR_POSITION, loading_img=self.NPC_IMAGE)
+
     def exit(self) -> bool:
         for i in range(10):
-            pg.click(*self.GET_OUT_BANK_POSITION)
+            pg.click(*self.EXIT_POSITION)
 
             time.sleep(1)
             success = check_map_loaded()
@@ -119,15 +119,20 @@ class Bank:
     # PLAYER TAB
     @staticmethod
     def unload_ressources():
-        if not Bank.check_is_opened():
-            Bank.open()
-            time.sleep(1)
-
         Bank.select_player_ressource_tab()
         time.sleep(1)
 
         Bank.unload_all_visible()
         time.sleep(1)
+
+    def unload(self, ressource_name: str):
+        if not self.check_is_opened():
+            self.open()
+            time.sleep(1)
+
+        ressource = Ressources.get(ressource_name)
+        self.select_tab(RessourceType.All, in_bank=False)
+        self.transfer(ressource.name)
 
     @staticmethod
     def unload_all_visible():
@@ -137,6 +142,31 @@ class Bank:
         # validate ressources unloading
         wait_click_on(Images.get(Images.BANK_TRANSFER_VISIBLE_OBJ_BTN))
 
+    @staticmethod
+    def select_tab(ressource_type, in_bank=True):
+        image = None
+        region = Positions.BANK_INVENTORY_REG if in_bank else Positions.BANK_PLAYER_INVENTORY_REG
+
+        if ressource_type == RessourceType.All:
+            image = Images.get(Images.BANK_ALL_TAB)
+
+        elif ressource_type == RessourceType.Item:
+            image = Images.get(Images.BANK_ITEM_TAB)
+
+        elif ressource_type == RessourceType.Consumable:
+            image = Images.get(Images.BANK_CONSUMABLE_TAB)
+
+        elif ressource_type == RessourceType.Ressource:
+            image = Images.get(Images.BANK_RESSOURCE_TAB)
+
+        else:
+            ErrorHandler.fatal_error(f"unknown ressource type {ressource_type}")
+
+        wait_click_on(
+            image,
+            region=region,
+            confidence=0.8
+        )
     @staticmethod
     def select_player_ressource_tab():
         wait_click_on(
@@ -152,17 +182,14 @@ class Bank:
     @staticmethod
     def search(ressource_name, in_bank=True):
         if in_bank:
-            search_btn_pos = Positions.BANK_SEARCH_BUTTON
             reset_btn_pos = Positions.BANK_SEARCH_BAR_RESET_BUTTON
             search_bar_pos = Positions.BANK_SEARCH_BAR
         else:
-            search_btn_pos = Positions.BANK_PLAYER_SEARCH_BUTTON
             reset_btn_pos = Positions.BANK_PLAYER_SEARCH_BAR_RESET_BUTTON
             search_bar_pos = Positions.BANK_PLAYER_SEARCH_BAR
 
-        # open search bar
-        pg.click(*search_btn_pos)
-        time.sleep(1)
+        # select "ALL" tab (since we are searching in the bank)
+        Bank.select_tab(RessourceType.All)
 
         # reset search bar
         pg.click(*reset_btn_pos)
