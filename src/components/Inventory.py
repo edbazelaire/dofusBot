@@ -15,7 +15,7 @@ class Inventory:
     @staticmethod
     def get_max_pods() -> int:
         Inventory.open()
-        # TODO
+        pg.moveTo(*Positions.IN)
         pods = read_pods()
         Inventory.close()
 
@@ -40,7 +40,6 @@ class Inventory:
             return False
 
         return True
-
 
     @staticmethod
     def is_opened(max_timer=2) -> bool:

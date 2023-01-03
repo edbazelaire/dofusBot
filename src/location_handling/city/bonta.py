@@ -14,10 +14,10 @@ class Bonta(AbstractCity):
     CITY_BOTTOM_CORNER = [-26, -50]
 
     bank = Bank(
-        bank_location=[-31, -57],
-        bank_door_position=(964, 677),
-        bank_npc_image=Images.BANK_NPC_BONTA,
-        get_out_bank_position=(519, 798)
+        location=[-31, -57],
+        door_position=(964, 677),
+        exit_position=(519, 798),
+        npc_image=Images.BANK_NPC_BONTA
     )
 
     @staticmethod

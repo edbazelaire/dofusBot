@@ -9,11 +9,11 @@ from src.utils.utils_fct import wait_click_on
 
 
 class CraftBuilding(AbstractBuilding):
-    def __init__(self, location, door_position, exit_position, machine_position):
+    def __init__(self, location, door_position, exit_position, machine_position, use_machine_position):
         super().__init__(location, door_position, exit_position)
 
-        self.MACHINE_POSITION = machine_position
-        self.USE_MACHINE_POSITION = machine_position
+        self.MACHINE_POSITION = Positions.resize(machine_position)
+        self.USE_MACHINE_POSITION = Positions.resize(use_machine_position)  # TODO
 
     def use_machine(self):
         pg.click(*self.MACHINE_POSITION)

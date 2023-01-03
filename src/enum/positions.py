@@ -34,18 +34,18 @@ class Positions:
     # ==================================================================================================================
     # BANK
     BANK_DOOR_POSITION = (1145, 343)                    # position to click in order to enter the bank
-    BANK_SEARCH_BAR = ()                                # TODO : positions to click to use the search bar
-    BANK_SEARCH_BAR_RESET_BUTTON = ()                   # TODO : positions to click to reset the search bar
-    BANK_PLAYER_SEARCH_BAR = ()                         # TODO : positions to click to use the search bar on player's side
-    BANK_PLAYER_SEARCH_BAR_RESET_BUTTON = ()            # TODO : positions to click to reset the search bar on player's side
+    BANK_SEARCH_BAR = (518, 823)                        # positions to click to use the search bar
+    BANK_SEARCH_BAR_RESET_BUTTON = (370, 823)           # positions to click to reset the search bar
+    BANK_PLAYER_SEARCH_BAR = (1445, 823)                # positions to click to use the search bar on player's side
+    BANK_PLAYER_SEARCH_BAR_RESET_BUTTON = (1560, 823)   # positions to click to reset the search bar on player's side
     BANK_PLAYER_INVENTORY_REG = (1241, 96, 345, 800)    # region of the player's inventory when the bank is opened
-    BANK_INVENTORY_REG = (352, 96, 345, 800)       # region of the bank's inventory when the bank is opened
+    BANK_INVENTORY_REG = (352, 96, 345, 800)            # region of the bank's inventory when the bank is opened
     BANK_PLAYER_RESSOURCE_POS = (1464, 155)             # button to click to open the ressources part of the player inventory
     BANK_BANK_RESSOURCE_POS = (578, 155)                # button to click to open the ressources part of the player inventory
-    BANK_FIRST_RESSOURCE_POSITION = ()                  # TODO : position of the bank's first ressource
-    BANK_PLAYER_FIRST_RESSOURCE_POSITION = ()           # TODO : position of the player's first ressource
-    BANK_FIRST_RESSOURCE_QUANTITY_REG = ()              # TODO : region of the bank's first ressource
-    BANK_PLAYER_FIRST_RESSOURCE_QUANTITY_REG = ()       # TODO : position of the bank's first ressource
+    BANK_FIRST_RESSOURCE_POSITION = (397, 230)          # position of the bank's first ressource
+    BANK_PLAYER_FIRST_RESSOURCE_POSITION = (1286, 230)  # position of the player's first ressource
+    BANK_FIRST_RESSOURCE_QUANTITY_REG = (372, 203, 54, 10)          # region of the bank's first ressource
+    BANK_PLAYER_FIRST_RESSOURCE_QUANTITY_REG = (1261, 203, 54, 10)  # position of the bank's first ressource
     CLOSE_BANK_BUTTON_POSITION = (1564, 111)            # position of closing bank button
     GET_OUT_BANK_POSITION = (735, 710)                  # position to click to get out of the bank
 
@@ -100,6 +100,9 @@ class Positions:
 
             # filter
             if not isinstance(val, tuple):
+                continue
+
+            if len(val) == 0:
                 continue
 
             setattr(Positions, name, self.resize(val))

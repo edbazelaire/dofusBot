@@ -1,15 +1,16 @@
 import pyautogui as pg
 import time
 
+from src.enum.positions import Positions
 from src.utils.ErrorHandler import ErrorHandler, ErrorType
 from src.utils.utils_fct import wait_click_on, check_map_loaded
 
 
 class AbstractBuilding:
     def __init__(self, location, door_position, exit_position):
-        self.LOCATION = location                        # location of the building in the city
-        self.DOOR_POSITION = door_position              # screen position (x, y) to click in order to enter the building
-        self.EXIT_POSITION = exit_position              # screen position to click to get out the building
+        self.LOCATION = Positions.resize(location)              # location of the building in the city
+        self.DOOR_POSITION = Positions.resize(door_position)    # screen position (x, y) to click in order to enter the building
+        self.EXIT_POSITION = Positions.resize(exit_position)    # screen position to click to get out the building
 
     def enter(self) -> bool:
         return self.enter_building(self.DOOR_POSITION)

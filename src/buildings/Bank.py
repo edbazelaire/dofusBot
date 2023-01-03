@@ -15,7 +15,7 @@ class Bank(AbstractBuilding):
     NPC_IMAGE: str = None
 
     def __init__(self, location, door_position, exit_position, npc_image):
-        super().__init__(location, door_position, exit_position, npc_image)
+        super().__init__(location, door_position, exit_position)
         self.NPC_IMAGE = npc_image                      # image of the NPC in the bank to talk to
 
     def open(self):
@@ -72,17 +72,13 @@ class Bank(AbstractBuilding):
         if not exists:
             return False
 
-        # Press and hold the alt key
-        pg.keyDown('alt')
+        # set transfer from / to the bank
+        from_position = Positions.BANK_FIRST_RESSOURCE_POSITION if from_bank else Positions.BANK_PLAYER_FIRST_RESSOURCE_POSITION
+        to_position = Positions.BANK_PLAYER_FIRST_RESSOURCE_POSITION if from_bank else Positions.BANK_FIRST_RESSOURCE_POSITION
 
-        # Click the left mouse button
-        if from_bank:
-            pg.click(*Positions.BANK_FIRST_RESSOURCE_POSITION)
-        else:
-            pg.click(*Positions.BANK_PLAYER_FIRST_RESSOURCE_POSITION)
-
-        # Release the alt key
-        pg.keyUp('alt')
+        # drag ressource from inv to the other
+        pg.moveTo(*from_position)
+        pg.dragTo(*to_position, button='left', duration='2')
 
         # type quantity of ressources to transfer
         pg.typewrite(str(n))
@@ -215,7 +211,7 @@ class Bank(AbstractBuilding):
     def check_first_slot_empty(in_bank=True) -> bool:
         """ check if first slot is empty """
         pos = Positions.BANK_FIRST_RESSOURCE_POSITION if in_bank else Positions.BANK_PLAYER_FIRST_RESSOURCE_POSITION
-        EXPECTED_COLOR = (0, 0, 0)  # TODO !
+        EXPECTED_COLOR = (64, 66, 59)  # TODO !
         CHECK_REGION = (
             pos[0] - 20,
             pos[1] - 20,
@@ -229,7 +225,8 @@ class Bank(AbstractBuilding):
 
         for y in range(height):
             for x in range(width):
-                if image_data[y, x] != EXPECTED_COLOR:
-                    return False
+                for color in range(len(image_data)):
+                    if not EXPECTED_COLOR[color] + 5 >= image_data[color] >=  EXPECTED_COLOR[color] - 5:
+                        return False
 
         return True

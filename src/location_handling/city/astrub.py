@@ -1,6 +1,9 @@
 from src.buildings.Bank import Bank
+from src.buildings.craft_building import CraftBuilding
+from src.enum.jobs import Jobs
 from src.location_handling.city.abstract_city import AbstractCity
 from src.enum.images import Images
+from src.utils.ErrorHandler import ErrorHandler
 
 
 class Astrub(AbstractCity):
@@ -16,10 +19,10 @@ class Astrub(AbstractCity):
     ASTRUB_BOTTOM_RIGHT = [6, -17]
 
     bank = Bank(
-        bank_location=[4, -18],
-        bank_door_position=[1138, 372],
-        bank_npc_image=Images.BANK_NPC_ASTRUB,
-        get_out_bank_position=[735, 710]
+        location=[4, -18],
+        door_position=[1138, 372],
+        npc_image=Images.BANK_NPC_ASTRUB,
+        exit_position=[735, 710]
     )
 
     @staticmethod
@@ -76,3 +79,16 @@ class Astrub(AbstractCity):
     @staticmethod
     def is_left_city(location):
         return location[0] < Astrub.ASTRUB_TOP_LEFT[0]
+
+    @staticmethod
+    def get_craft_building(job) -> CraftBuilding:
+        """ get craft building for each jobs """
+        if job == Jobs.PAYSAN:
+            return CraftBuilding(
+                location=[],            # TODO
+                door_position=(),       # TODO
+                exit_position=(),       # TODO
+                machine_position=()     # TODO
+            )
+        else:
+            ErrorHandler.fatal_error(f"unhandled job {job}")

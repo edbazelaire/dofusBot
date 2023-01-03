@@ -15,9 +15,6 @@ class AbstractCity:
 
     def __init__(self):
         if not self.RESIZED:
-            self.BANK_DOOR_POSITION = Positions.resize(self.BANK_DOOR_POSITION)
-            self.GET_OUT_BANK_POSITION = Positions.resize(self.GET_OUT_BANK_POSITION)
-
             self.RESIZED = True
 
     @staticmethod
