@@ -34,10 +34,10 @@ if __name__ == '__main__':
         region_name=Regions.CHAMP_ASTRUB,
         # ressources=ressources,
         ressources=[
-            Ressources.ORTIE
+            Ressources.ORGES
         ],
         crafts=[
-            # Ressources.PAIN_D_INCARNAM
+            # Ressources.CARASAU
         ],
         max_allowed_ressources=int(max_allowed_ressources)
 
@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
     # DEBUG (not working if run() is active)
     # Bot.read_num_ressources(True)
-    Bot.check_inventory_pods()
+    bot.check_pods()
     Bot.test_ocr_map()
     display_mouse()
 

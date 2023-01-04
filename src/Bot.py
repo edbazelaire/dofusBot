@@ -66,8 +66,7 @@ class Bot:
         elif self.check_craft():
             self.craft_routine()
 
-        # elif self.check_pods():
-        elif self.check_inventory_pods():
+        elif self.check_pods():
             self.bank_routine()
 
         else:
@@ -183,43 +182,10 @@ class Bot:
     def check_pods(self):
         """ check number of pods by reading number of ressources in the quick inventory (faster than opening inventory
         but more subject to errors)"""
-        num_ressources = self.read_num_ressources()
+        if Inventory.last_time_check_pods is not None and time.time() - Inventory.last_time_check_pods < Inventory.CHECK_PODS_INTERVAL:
+            return False
 
-        # security : check that calculated number of ressources is not impossible
-        if num_ressources >= self.max_allowed_ressources:
-            if self.check_inventory_pods():
-                print(f"MAX PODS : {num_ressources}")
-                return True
-        return False
-
-    def check_inventory_pods(self):
-        test = False
-
-        # open inventory
-        self.Inventory.open()
-        time.sleep(1)
-
-        # check color at the end of the pods bar
-        img = pg.screenshot(region=Positions.INVENTORY_PODS_REG)
-        height, width = img.size
-        image_data = img.load()
-        min_value = 150
-
-        for loop1 in range(height):
-            for loop2 in range(width):
-                r, g, b = image_data[loop1, loop2]
-                if r >= min_value or g >= min_value or b >= min_value:
-                    test = True
-                    break
-
-            if test:
-                break
-
-        # close inventory
-        self.Inventory.close()
-        time.sleep(1)
-
-        return test
+        return self.Inventory.check_pods()
 
     @staticmethod
     def read_num_ressources(debug=False):
@@ -345,7 +311,6 @@ class Bot:
         unload_ressource = self.Craft.craft_order
         self.Craft.craft_order = None
         self.bank_routine(unload_ressources=unload_ressource)
-
 
     # ==================================================================================================================
     # FIGHT

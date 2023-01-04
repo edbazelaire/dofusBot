@@ -32,6 +32,8 @@ class Ressources:
     # CRAFTS
     BRIOCHETTE = 'briochette'
     PAIN_D_INCARNAM = 'pain d\'incarnam'
+    CARASAU = 'carasau'
+    PAIN_AUX_FLOCONS_D_AVOINE = 'pain aux flocons d\'avoine'
 
     # ==================================================================================================================
     # OTHERS
@@ -72,14 +74,28 @@ class Ressources:
 
         # ==============================================================================================================
         # CRAFTS
-        elif ressource_name == Ressources.BRIOCHETTE:
+        elif ressource_name == Ressources.PAIN_D_INCARNAM:
             return RessourceConfig(
                 name=ressource_name,
                 ressource_type=RessourceType.Consumable,
                 pods=2
             )
 
-        elif ressource_name == Ressources.PAIN_D_INCARNAM:
+        elif ressource_name == Ressources.CARASAU:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Consumable,
+                pods=2
+            )
+
+        elif ressource_name == Ressources.PAIN_AUX_FLOCONS_D_AVOINE:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Consumable,
+                pods=2
+            )
+
+        elif ressource_name == Ressources.BRIOCHETTE:
             return RessourceConfig(
                 name=ressource_name,
                 ressource_type=RessourceType.Consumable,

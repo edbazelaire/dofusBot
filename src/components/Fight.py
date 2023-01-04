@@ -132,7 +132,7 @@ class Fight:
 
     def forfait(self):
         # click ff button
-        wait_click_on(Images.get(Images.FF_BUTTON), confidence=0.7, offset_x=5, offset_y=5)
+        wait_click_on(Images.get(Images.FF_BUTTON), confidence=0.6)
         time.sleep(1)
 
         # validate ff

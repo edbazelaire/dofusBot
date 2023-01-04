@@ -1,3 +1,4 @@
+import time
 from typing import List
 
 from src.buildings.Bank import Bank
@@ -7,6 +8,8 @@ from src.utils.ErrorHandler import ErrorHandler
 
 
 class Craft:
+    CRAFT_INTERVAL: int = 30 * 60   # interval between each craft sessions
+
     CRAFTS = {
         Jobs.PAYSAN: {
             Ressources.BRIOCHETTE: {
@@ -17,24 +20,32 @@ class Craft:
 
             Ressources.PAIN_D_INCARNAM: {
                 Ressources.BLE: 4
+            },
+
+            Ressources.CARASAU: {
+                Ressources.ORGES: 4,
+                Ressources.ORTIE: 1
             }
         },
 
         Jobs.BUCHERON: {}
     }
 
-    def __init__(self, craft_names: List[str]):
-        self.crafts = {craft_name: self.get_recipe(craft_name) for craft_name in craft_names}         # list of available crafts
-        self.craft_order = None     # name of the craft to do
+    @property
+    def is_crafting(self):
+        """ can the player craft or not """
+        return len(self.crafts) > 0 and (self.last_craft_time is None or time.time() - self.last_craft_time > self.CRAFT_INTERVAL)
 
-        # say that player has craft requests or not
-        self.is_crafting = craft_names is not None and len(craft_names) > 0
+    def __init__(self, craft_names: List[str]):
+        self.crafts = craft_names           # list of available crafts
+        self.craft_order = None             # name of the craft to do
+        self.last_craft_time = None
 
     def transfer_required_ressources(self):
         """ get ressources from bank necessary to crafts """
         self.craft_order = None
 
-        for craft_name, recipe in self.crafts.items():
+        for craft_name in self.crafts:
             # search recipe
             success = Bank.search_recipe(craft_name)
             if not success:
@@ -51,6 +62,8 @@ class Craft:
             self.craft_order = craft_name
             return True
 
+        # set last craft time
+        self.last_craft_time = time.time()
         return False
 
     @staticmethod
@@ -61,7 +74,8 @@ class Craft:
                 return False
         return True
 
-    def get_n_possible_crafts(self, craft) -> int:
+    @staticmethod
+    def get_n_possible_crafts(craft) -> int:
         # calculate pods requested to craft one item
         req_pods = 0
         for ressource_name, qty in craft.items():

@@ -103,7 +103,7 @@ class Movement:
             if distance_x > 0 and starts_with_x:
                 success = self.move_right()
 
-            elif distance_x < 0  and starts_with_x:
+            elif distance_x < 0 and starts_with_x:
                 success = self.move_left()
 
             elif distance_y > 0:
