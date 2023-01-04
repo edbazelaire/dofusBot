@@ -14,10 +14,16 @@ class Ressources:
     SEIGLE = "seigle"
     CHANVRE = "chanvre"
     MALT = "malt"
+    FROSTIZ = "frostiz"
 
     # WOOD
     FRENE = 'frene'
     CHATAIGNER = 'chataigner'
+    NOYER = 'noyer'
+    CHENE = 'chene'
+
+    # PLANTS
+    ORTIE = 'ortie'
 
     # METALS
     FER = 'fer'
@@ -25,7 +31,7 @@ class Ressources:
     # ==================================================================================================================
     # CRAFTS
     BRIOCHETTE = 'briochette'
-    PAIN_AMAKNA = 'pain d\'amakna'
+    PAIN_D_INCARNAM = 'pain d\'incarnam'
 
     # ==================================================================================================================
     # OTHERS
@@ -43,16 +49,23 @@ class Ressources:
                 pods=2
             )
 
+        elif ressource_name == Ressources.BLE:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Ressource,
+                pods=2
+            )
+
         elif ressource_name == Ressources.CENDRES_ETERNELLES:
             return RessourceConfig(
-                name='cendres éternelles',
+                name='cendres eternelles',
                 ressource_type=RessourceType.Ressource,
                 pods=1
             )
 
         elif ressource_name == Ressources.TREFLES:
             return RessourceConfig(
-                name='trefle à 5 feuilles',
+                name='trefle a 5 feuilles',
                 ressource_type=RessourceType.Ressource,
                 pods=1
             )
@@ -66,7 +79,7 @@ class Ressources:
                 pods=2
             )
 
-        elif ressource_name == Ressources.PAIN_AMAKNA:
+        elif ressource_name == Ressources.PAIN_D_INCARNAM:
             return RessourceConfig(
                 name=ressource_name,
                 ressource_type=RessourceType.Consumable,

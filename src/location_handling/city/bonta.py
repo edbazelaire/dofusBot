@@ -13,12 +13,17 @@ class Bonta(AbstractCity):
     CITY_TOP_CORNER = [-37, -61]
     CITY_BOTTOM_CORNER = [-26, -50]
 
-    bank = Bank(
-        location=[-31, -57],
-        door_position=(964, 677),
-        exit_position=(519, 798),
-        npc_image=Images.BANK_NPC_BONTA
-    )
+    BANK_LOCATION = [-31, -57]
+
+    def __init__(self):
+        super().__init__()
+
+        self.bank = Bank(
+            location=self.BANK_LOCATION,
+            door_position=(964, 677),
+            exit_position=(519, 798),
+            npc_image=Images.BANK_NPC_BONTA
+        )
 
     @staticmethod
     def get_bank_path(location) -> list:
@@ -30,7 +35,7 @@ class Bonta(AbstractCity):
         if not Bonta.is_in_city(location):
             path.append(Actions.TAKE_BONTA_POTION)
 
-        path.append(Bonta.bank.LOCATION)
+        path.append(Bonta.BANK_LOCATION)
 
         return path
 

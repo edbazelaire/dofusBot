@@ -1,6 +1,7 @@
 import pyautogui as pg
 import time
 
+from src.enum.images import Images
 from src.enum.positions import Positions
 from src.utils.ErrorHandler import ErrorHandler, ErrorType
 from src.utils.utils_fct import wait_click_on, check_map_loaded
@@ -8,7 +9,7 @@ from src.utils.utils_fct import wait_click_on, check_map_loaded
 
 class AbstractBuilding:
     def __init__(self, location, door_position, exit_position):
-        self.LOCATION = Positions.resize(location)              # location of the building in the city
+        self.LOCATION = location                                # location of the building in the city
         self.DOOR_POSITION = Positions.resize(door_position)    # screen position (x, y) to click in order to enter the building
         self.EXIT_POSITION = Positions.resize(exit_position)    # screen position to click to get out the building
 
@@ -19,10 +20,11 @@ class AbstractBuilding:
         for i in range(10):
             pg.click(*self.EXIT_POSITION)
 
-            time.sleep(1)
+            time.sleep(2)
             success = check_map_loaded()
             if success:
                 ErrorHandler.reset_error(ErrorType.RETRY_ACTION_ERROR)
+                time.sleep(1)
                 return True
 
             ErrorHandler.error("unable to get out of bank", ErrorType.RETRY_ACTION_ERROR)
@@ -49,10 +51,15 @@ class AbstractBuilding:
 
         start = time.time()
         if loading_img != '':
+            if isinstance(loading_img, str):
+                loading_img = Images.get(loading_img)
+
             while pg.locateOnScreen(loading_img) is None:
-                if time.time() - start > 5:
+                if time.time() - start > 10:
                     ErrorHandler.is_error = True
                     return False
                 time.sleep(0.5)
+        else:
+            time.sleep(1)
 
         return True

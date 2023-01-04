@@ -11,7 +11,7 @@ import time
 from src.enum.regions import Regions
 from src.location_handling.utils import get_region, get_city
 from src.utils.ErrorHandler import ErrorHandler
-from src.utils.utils_fct import read_map_location, wait_click_on, check_map_change, get_distance
+from src.utils.utils_fct import read_map_location, wait_click_on, check_map_change, wait_image
 
 
 class Movement:
@@ -34,9 +34,10 @@ class Movement:
 
         self.clicked_pos = []
 
-        self.current_path_index = 0  # index in the farming path (
-        self.location = (0, 0)  # current position of the bot
-        self.next_location = None  # location that the bot is currently heading to
+        self.current_path_index = 0     # index in the farming path
+        self.current_path_index_modificator = 1
+        self.location = (0, 0)          # current position of the bot
+        self.next_location = None       # location that the bot is currently heading to
 
         self.location = read_map_location()
 
@@ -51,21 +52,27 @@ class Movement:
             self.current_path_index = 0
 
     # ==================================================================================================================
-    def get_next_position(self):
+    def get_next_location(self):
         if self.next_location is None:
             self.next_location = self.path[self.current_path_index]
 
         elif self.next_location == self.location:
-            self.current_path_index = (self.current_path_index + 1) % len(self.path)
+            if self.current_path_index % (len(self.path) - 1) == 0:
+                if self.region.IS_REVERSE_PATH:
+                    self.current_path_index_modificator *= -1
+                else:
+                    self.current_path_index = 0
+
+            self.current_path_index += self.current_path_index_modificator
             self.next_location = self.path[self.current_path_index]
 
-    def go_to_next_pos(self):
+    def go_to_next_location(self):
         """ return True if reaches next pos, False if stop during movement """
         # security, if a None pos is provided
         self.location = read_map_location()
 
         if self.next_location is None or self.location == self.next_location:
-            self.get_next_position()
+            self.get_next_location()
 
         # ANYWHERE -> IN CITY or IN CITY -> ANYWHERE
         if self.city.is_in_city(self.next_location) or self.city.is_in_city(self.location):
@@ -76,21 +83,27 @@ class Movement:
         path = self.region.get_path(self.location, self.next_location)
         self.follow_path(path)
 
-    def go_to(self, pos) -> bool:
+    def go_to(self, pos, force=False) -> bool:
         """ go to a position, if bot is stopping for any reason, return false. Return True if reaches max position """
 
         print('=' * 100)
         print(f'Going to : {pos}')
+
+        if pos == [-76, -47]:
+            print('')
 
         self.clicked_pos = []
         distance_x = pos[0] - self.location[0]
         distance_y = pos[1] - self.location[1]
 
         while distance_y != 0 or distance_x != 0:
-            if distance_x > 0:
+            # check movement priority between x and y
+            starts_with_x = distance_y == 0 or self.current_path_index_modificator != -1
+
+            if distance_x > 0 and starts_with_x:
                 success = self.move_right()
 
-            elif distance_x < 0:
+            elif distance_x < 0  and starts_with_x:
                 success = self.move_left()
 
             elif distance_y > 0:
@@ -117,7 +130,7 @@ class Movement:
                 print("")
 
             # if during the movement, the bot stumble on a harvesting map, return false to scan the map
-            if self.location in self.path:
+            if self.location in self.path and not force:
                 return False
 
         return True
@@ -128,7 +141,7 @@ class Movement:
                 Actions.do(value)
                 self.location = read_map_location()
             else:
-                self.go_to(value)
+                self.go_to(value, force=True)
 
     def move_left(self):
         return self.move(Positions.CHANGE_MAP_LEFT_POS())
@@ -171,21 +184,6 @@ class Movement:
         # wait until reaching phoenix statue
         time.sleep(3)
 
-    def get_back_to_first_position(self):
-        """ go back to first position by getting threw the gates (meaning that we can access this position from either
-        in or outside the city) """
-
-        if self.region == Regions.CHAMP_ASTRUB:
-            # go to the gates
-            self.go_to(Locations.GATES_LOCATION)
-        else:
-            Actions.do(Actions.TAKE_RECALL_POTION)
-            self.location = read_map_location()
-
-        # go to first map and reset all values
-        self.go_to(self.path[0])
-        self.reset()
-
     def go_to_bank(self):
         print(f"{self.location} : Moving to the BANK")
         success = False
@@ -195,14 +193,15 @@ class Movement:
 
             # SAFETY
             ocr_location = read_map_location()
-            if ocr_location != self.city.LOCATION:
-                ErrorHandler.error(f"ocr location ({ocr_location}) is not on bank location ({self.city.LOCATION})")
+            if ocr_location != self.city.bank.LOCATION:
+                ErrorHandler.error(f"ocr location ({ocr_location}) is not on bank location ({self.city.bank.LOCATION})")
                 self.location = ocr_location
                 continue
 
             success = True
 
         # get in the bank
+        time.sleep(2)
         print(f"{self.location} : Clicking on BANK_DOOR")
         test = self.city.bank.enter()
 

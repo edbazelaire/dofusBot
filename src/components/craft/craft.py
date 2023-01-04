@@ -15,7 +15,7 @@ class Craft:
                 Ressources.CENDRES_ETERNELLES: 1
             },
 
-            Ressources.PAIN_AMAKNA: {
+            Ressources.PAIN_D_INCARNAM: {
                 Ressources.BLE: 4
             }
         },
@@ -23,8 +23,7 @@ class Craft:
         Jobs.BUCHERON: {}
     }
 
-    def __init__(self, max_pods, craft_names: List[str]):
-        self.max_pods = max_pods    # max pods of the player
+    def __init__(self, craft_names: List[str]):
         self.crafts = {craft_name: self.get_recipe(craft_name) for craft_name in craft_names}         # list of available crafts
         self.craft_order = None     # name of the craft to do
 
@@ -36,17 +35,19 @@ class Craft:
         self.craft_order = None
 
         for craft_name, recipe in self.crafts.items():
-            n_crafts = self.get_n_possible_crafts(recipe)
+            # search recipe
+            success = Bank.search_recipe(craft_name)
+            if not success:
+                continue
 
-            if not self.has_enough_ressources(recipe, n_crafts):
-                return False
+            # transfer ressources
+            success = Bank.transfer_recipe()
+            if not success:
+                ErrorHandler.error("recipe found but unable to transfer")
+                continue
 
-            for ressource_name, qty in recipe.items():
-                success = Bank.transfer(ressource_name, n=n_crafts * qty, from_bank=True)
-                if not success:
-                    Bank.unload_ressources()
-                    return False
-
+            # set craft order and return
+            print("CRAFT ORDER SET : " + craft_name)
             self.craft_order = craft_name
             return True
 
@@ -67,13 +68,14 @@ class Craft:
             req_pods += qty * Ressources.get(ressource_name).pods
 
         # return max number of craft possible depending on max pods
-        return self.max_pods // req_pods
+        # return self.max_pods // req_pods
+        return 0    # not using max pods for now
 
     @staticmethod
     def get_recipe(craft_name: str):
         for crafts in Craft.CRAFTS.values():
             if craft_name in crafts.keys():
-                return Craft.CRAFTS[craft_name]
+                return crafts[craft_name]
 
         ErrorHandler.fatal_error(f"recipe not found : {craft_name}")
 

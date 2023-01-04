@@ -12,28 +12,30 @@ from src.enum.positions import Positions
 from src.enum.images import Images
 from src.components.Fight import Fight
 from src.components.Movement import Movement
-from src.utils.ErrorHandler import ErrorHandler, ErrorType
-from src.utils.utils_fct import wait_click_on, read_map_location, check_is_ghost
+from src.utils.ErrorHandler import ErrorHandler
+from src.utils.utils_fct import read_map_location, check_is_ghost, wait_image
 
 
 class Bot:
     MAX_TIME_SCANNING = 60
     HARVEST_TIME = 2
     CONFIDENCE = 0.75
-    MAX_ALLOWED_RESSOURCES = 800
 
-    def __init__(self, region_name: str, ressources: List[str], crafts: List[str] = None, city_name: str = None):
+    def __init__(self, region_name: str, ressources: List[str], crafts: List[str] = None, city_name: str = None, max_allowed_ressources=0):
         self.images = {}
         self.clicked_pos = []
 
         self.ressources = ressources
         self.get_ressources_images(ressources)
-        self.last_num_ressources_checked = 0
+        self.max_allowed_ressources = max_allowed_ressources
 
         self.Movement = Movement(region_name, ressources, city_name)
         self.Fight = Fight()
         self.Inventory = Inventory()
-        self.Craft = Craft(max_pods=self.Inventory.max_pods, craft_names=crafts)
+        self.Craft = Craft(craft_names=crafts)
+
+        if Positions.WINDOW_SIZE_PERC <= 0.5:
+            Bot.CONFIDENCE = 0.7
 
     # ==================================================================================================================
     # INITIALIZATION
@@ -61,14 +63,15 @@ class Bot:
         elif check_is_ghost():
             self.Movement.go_to_phoenix()
 
-        elif self.check_pods():
-            self.bank_routine()
-
         elif self.check_craft():
             self.craft_routine()
 
+        # elif self.check_pods():
+        elif self.check_inventory_pods():
+            self.bank_routine()
+
         else:
-            self.Movement.go_to_next_pos()
+            self.Movement.go_to_next_location()
 
     def get_ressources_images(self, ressources: list):
         """ get only images of requested ressources """
@@ -87,6 +90,11 @@ class Bot:
         while True:
             if ErrorHandler.is_error:
                 self.reset()
+
+            # check if has craft order
+            if self.check_craft():
+                self.craft_routine()
+                continue
 
             # scan for ressources
             if self.Movement.location in self.Movement.path:
@@ -113,7 +121,7 @@ class Bot:
             if ErrorHandler.is_error:
                 continue
 
-            self.Movement.go_to_next_pos()
+            self.Movement.go_to_next_location()
 
     def scan(self) -> bool:
         """ scan the map for ressources """
@@ -127,7 +135,6 @@ class Bot:
             is_any = self.check_all_ressources()
             if not is_any or time.time() - start > self.MAX_TIME_SCANNING:
                 break
-            found_one = True
             time.sleep(self.HARVEST_TIME)
 
         print("\n")
@@ -161,12 +168,12 @@ class Bot:
             if (pos[0], pos[1]) in self.clicked_pos:
                 continue
 
+            self.clicked_pos.append((pos[0], pos[1]))
+
             if Positions.X_MAX > pos[0] > Positions.X_MIN and Positions.Y_MAX > pos[1] > Positions.Y_MIN:
-                pg.moveTo(pos[0], pos[1])
-                time.sleep(0.5)
-                pg.click(pos[0] + 5, pos[1] + 5)
-                self.clicked_pos.append((pos[0], pos[1]))
-                pg.moveTo(50, 50)   # move mouse to prevent overs
+                x = min(pos[0] + pos.width / 2, Positions.X_MAX)
+                y = min(pos[1] + pos.height / 2, Positions.Y_MAX)
+                pg.click(x, y)
                 return True
 
         return False
@@ -179,20 +186,40 @@ class Bot:
         num_ressources = self.read_num_ressources()
 
         # security : check that calculated number of ressources is not impossible
-        if self.last_num_ressources_checked != 0 \
-                and num_ressources != 0 \
-                and abs(num_ressources - self.last_num_ressources_checked) > 500:
-            ErrorHandler.warning("OCR ressource bad ressource recognition : "
-                                 + f"\n    - num ressources checked {num_ressources}"
-                                 + f"\n    - last num ressources checked {self.last_num_ressources_checked}"
-                                 )
-            # return False
-
-        self.last_num_ressources_checked = num_ressources
-        if num_ressources >= self.MAX_ALLOWED_RESSOURCES:
-            print(f"MAX PODS : {num_ressources}")
-            return True
+        if num_ressources >= self.max_allowed_ressources:
+            if self.check_inventory_pods():
+                print(f"MAX PODS : {num_ressources}")
+                return True
         return False
+
+    def check_inventory_pods(self):
+        test = False
+
+        # open inventory
+        self.Inventory.open()
+        time.sleep(1)
+
+        # check color at the end of the pods bar
+        img = pg.screenshot(region=Positions.INVENTORY_PODS_REG)
+        height, width = img.size
+        image_data = img.load()
+        min_value = 150
+
+        for loop1 in range(height):
+            for loop2 in range(width):
+                r, g, b = image_data[loop1, loop2]
+                if r >= min_value or g >= min_value or b >= min_value:
+                    test = True
+                    break
+
+            if test:
+                break
+
+        # close inventory
+        self.Inventory.close()
+        time.sleep(1)
+
+        return test
 
     @staticmethod
     def read_num_ressources(debug=False):
@@ -201,7 +228,7 @@ class Bot:
         for region in Positions.get_ressource_regions():
             img = pg.screenshot(region=region)
             img = img.resize((200, 100))
-            img = Images.change_color(img, min_value=140)
+            img = Images.change_color(img, min_value=100)
             value = pytesseract.image_to_string(img, config='--psm 8 --oem 3 -c tessedit_char_whitelist=0123456789')
 
             if debug:
@@ -234,11 +261,13 @@ class Bot:
     def fight_routine(self):
         """ routine of actions to take when a fight occurs """
         self.Fight.fight()
+
         if self.Fight.check_is_victory():
             return
 
         if self.check_tomb():
             self.Movement.ghost_routine()
+
         elif self.Fight.check_is_defeat():
             self.on_death()
 
@@ -248,6 +277,7 @@ class Bot:
 
         # go to the bank
         self.Movement.go_to_bank()
+        time.sleep(2)
 
         if ErrorHandler.is_error:
             return
@@ -270,6 +300,7 @@ class Bot:
                 if not success:
                     ErrorHandler.warning(f"unable to transfer {ressource_name}")
 
+        # transfer ressources for requested crafts if possible (success -> craft order is set)
         self.Craft.transfer_required_ressources()
 
         # close bank tab
@@ -287,15 +318,25 @@ class Bot:
             ErrorHandler.error("Call for craft routine when craft_order is None")
             ErrorHandler.is_error = True
 
-        # enter the requested building for the craft
+        print(f"\nCraft ordered : {self.Craft.craft_order}")
+
+        # init job/building
         job = self.Craft.get_job(self.Craft.craft_order)
         building = self.Movement.city.get_craft_building(job)
-        self.Movement.go_to(building.LOCATION)
+
+        # go to the craft building
+        self.Movement.follow_path(self.Movement.city.get_path(self.Movement.location, building.LOCATION))
+
+        # enter the requested building for the craft
+        building.enter()
+        time.sleep(3)
 
         # craft the requested ordered
         building.use_machine()
         building.craft(self.Craft.craft_order)
         building.exit_machine()
+
+        time.sleep(1)
 
         # exit building
         building.exit()
@@ -320,6 +361,7 @@ class Bot:
     @staticmethod
     def test_ocr_map():
         img = pg.screenshot(region=Positions.MAP_LOCATION_REG)
+        img = img.resize((150, 30))
         value = pytesseract.image_to_string(img, config='--psm 7 --oem 3 -c tessedit_char_whitelist=0123456789,-')
 
         print(value)

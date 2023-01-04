@@ -1,25 +1,33 @@
 import time
+import pyautogui as pg
+import pytesseract
 
 from src.enum.images import Images
 from src.enum.positions import Positions
-
-import pyautogui as pg
-
+from src.utils.ErrorHandler import ErrorHandler
 from src.utils.utils_fct import wait_image
 
 
 class Inventory:
-    def __init__(self):
-        self.max_pods = self.get_max_pods()
 
     @staticmethod
     def get_max_pods() -> int:
+        """ read max pods from inventory """
         Inventory.open()
-        pg.moveTo(*Positions.IN)
-        pods = read_pods()
+
+        pg.moveTo(*Positions.INVENTORY_PODS_BAR_MIDDLE, 1)
+        time.sleep(1.5)
+        img = pg.screenshot(region=Positions.INVENTORY_PODS_VALUE_REG)
+
+        pods = pytesseract.image_to_string(img, config='--psm 8 --oem 3 -c tessedit_char_whitelist=0123456789')
+
         Inventory.close()
 
-        return pods
+        if pods is None or pods == '':
+            ErrorHandler.error(f"unable to read pods : {pods}")
+            return 0
+
+        return int(pods)
 
     @staticmethod
     def open() -> bool:

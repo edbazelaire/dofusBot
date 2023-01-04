@@ -28,6 +28,7 @@ class Bank(AbstractBuilding):
 
     def close(self):
         pg.click(*Positions.CLOSE_BANK_BUTTON_POSITION)
+        time.sleep(1)
 
         while Bank.check_is_opened():
             ErrorHandler.error('bank not closed', ErrorType.RETRY_ACTION_ERROR)
@@ -48,6 +49,7 @@ class Bank(AbstractBuilding):
             success = check_map_loaded()
             if success:
                 ErrorHandler.reset_error(ErrorType.RETRY_ACTION_ERROR)
+                time.sleep(1)
                 return True
 
             ErrorHandler.error("unable to get out of bank", ErrorType.RETRY_ACTION_ERROR)
@@ -57,14 +59,14 @@ class Bank(AbstractBuilding):
     # ==================================================================================================================
     # BANK TAB
     @staticmethod
-    def transfer(ressource_name, n, from_bank=True) -> bool:
+    def transfer(ressource_name, n=None, from_bank=True) -> bool:
         """
             transfer ressource from/to the bank
         :param ressource_name:  name of the ressource to transfer
         :param n:               number to transfer
         :param from_bank:       if True, transfer FROM bank TO player. Otherwise, the opposite
         """
-        if n <= 0:
+        if n is not None and n <= 0:
             ErrorHandler.warning(f"bad transfer request quantity : {n}")
             return True
 
@@ -78,15 +80,17 @@ class Bank(AbstractBuilding):
 
         # drag ressource from inv to the other
         pg.moveTo(*from_position)
-        pg.dragTo(*to_position, button='left', duration='2')
+        pg.dragTo(*to_position, button='left', duration=1)
 
         # type quantity of ressources to transfer
-        pg.typewrite(str(n))
+        if n is not None and n > 0:
+            pg.typewrite(str(n), interval=0.1)
+
+        time.sleep(2)
 
         # validate transfer from bank
-        if not wait_click_on(Images.get(Images.VALIDATE_TRANSFER_BUTTON)):
-            ErrorHandler.error(f"Unable to transfer ressource {ressource_name} in Bank")
-            return False
+        pg.press('enter')
+        time.sleep(1)
 
         return True
 
@@ -132,7 +136,7 @@ class Bank(AbstractBuilding):
 
     @staticmethod
     def unload_all_visible():
-        wait_click_on(Images.get(Images.BANK_TRANSFER_BUTTON), confidence=0.99)
+        wait_click_on(Images.get(Images.BANK_PLAYER_TRANSFER_BUTTON), confidence=0.99)
         time.sleep(1)
 
         # validate ressources unloading
@@ -161,7 +165,7 @@ class Bank(AbstractBuilding):
         wait_click_on(
             image,
             region=region,
-            confidence=0.8
+            confidence=0.7
         )
     @staticmethod
     def select_player_ressource_tab():
@@ -172,6 +176,49 @@ class Bank(AbstractBuilding):
             offset_y=5,
             confidence=0.99
         )
+
+    # ==================================================================================================================
+    # RECIPES
+    @staticmethod
+    def search_recipe(craft_name) -> bool:
+        # open recipes (if not done)
+        success = Bank.open_recipes()
+        if not success:
+            ErrorHandler.error("unable to open recipes in bank")
+            return False
+
+        # check recipe in the search bar
+        pg.click(*Positions.BANK_RECIPES_SEARCH_BAR)
+        time.sleep(0.5)
+        pg.typewrite(craft_name, interval=0.15)
+        time.sleep(1)
+
+        # check if transfer image is in the recipe region
+        return wait_image(Images.BANK_TRANSFER_BUTTON, region=Positions.BANK_RECIPES_REG, max_timer=2)
+
+    @staticmethod
+    def transfer_recipe() -> bool:
+        success = wait_click_on(Images.BANK_TRANSFER_BUTTON, region=Positions.BANK_RECIPES_REG, max_timer=2)
+        if not success:
+            return False
+
+        time.sleep(1)
+        pg.press('enter')
+
+        return True
+
+    @staticmethod
+    def open_recipes():
+        if not Bank.is_recipes_open(max_timer=0.5):
+            pg.click(*Positions.BANK_RECIPES_BTN)
+            return Bank.is_recipes_open(max_timer=5)
+
+        return True
+
+    @staticmethod
+    def is_recipes_open(max_timer: float = 2):
+        return wait_image(Images.RECIPES_OPEN, max_timer=max_timer)
+
 
     # ==================================================================================================================
     # UTILS
@@ -185,7 +232,7 @@ class Bank(AbstractBuilding):
             search_bar_pos = Positions.BANK_PLAYER_SEARCH_BAR
 
         # select "ALL" tab (since we are searching in the bank)
-        Bank.select_tab(RessourceType.All)
+        Bank.select_tab(RessourceType.All, in_bank=in_bank)
 
         # reset search bar
         pg.click(*reset_btn_pos)
@@ -219,14 +266,15 @@ class Bank(AbstractBuilding):
             40
         )
 
-        img = pg.screenshot(CHECK_REGION)
+        img = pg.screenshot(region=CHECK_REGION)
         height, width = img.size
         image_data = img.load()
 
         for y in range(height):
             for x in range(width):
-                for color in range(len(image_data)):
-                    if not EXPECTED_COLOR[color] + 5 >= image_data[color] >=  EXPECTED_COLOR[color] - 5:
+                pixel = image_data[y, x]
+                for color in range(len(pixel)):
+                    if not (EXPECTED_COLOR[color] + 5 >= pixel[color] >= EXPECTED_COLOR[color] - 5):
                         return False
 
         return True
