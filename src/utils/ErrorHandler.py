@@ -18,7 +18,7 @@ class ErrorHandler:
     # MAX ALLOWED ERRORS BEFORE RESET
     MAX_ERRORS = {
         ErrorType.MAP_NOT_CHANGED_ERROR: 3,
-        ErrorType.MAP_POSITION_ERROR: 2,
+        ErrorType.MAP_POSITION_ERROR: 1,
         ErrorType.RETRY_ACTION_ERROR: 3,
     }
 

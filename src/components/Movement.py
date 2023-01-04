@@ -10,13 +10,13 @@ import time
 
 from src.enum.regions import Regions
 from src.location_handling.utils import get_region, get_city
-from src.utils.ErrorHandler import ErrorHandler
+from src.utils.ErrorHandler import ErrorHandler, ErrorType
 from src.utils.utils_fct import read_map_location, wait_click_on, check_map_change, wait_image
 
 
 class Movement:
     """
-    Handle Bot's movements from a location to another
+    Handle Bot movements from a location to another
     """
 
     def __init__(self, region_name: str, ressources: List[str], city_name: str = None):
@@ -32,7 +32,7 @@ class Movement:
         self.city = get_city(city_name)
         self.path = self.region.path
 
-        self.clicked_pos = []
+        self.path_taken: dict = {}      # path already taken recently
 
         self.current_path_index = 0     # index in the farming path
         self.current_path_index_modificator = 1
@@ -66,6 +66,9 @@ class Movement:
             self.current_path_index += self.current_path_index_modificator
             self.next_location = self.path[self.current_path_index]
 
+        print('=' * 100)
+        print(f'Next Location : {self.next_location}')
+
     def go_to_next_location(self):
         """ return True if reaches next pos, False if stop during movement """
         # security, if a None pos is provided
@@ -76,62 +79,50 @@ class Movement:
 
         # ANYWHERE -> IN CITY or IN CITY -> ANYWHERE
         if self.city.is_in_city(self.next_location) or self.city.is_in_city(self.location):
-            path = self.city.get_path(from_location=self.location, to_location=self.next_location)
-            self.follow_path(path)
-            return
+            aiming_location = self.city.get_path(from_location=self.location, to_location=self.next_location)
 
-        path = self.region.get_path(self.location, self.next_location)
-        self.follow_path(path)
+        # REGION DECIDES : where aiming to get to next_location
+        else:
+            aiming_location = self.region.get_aiming_location(self.location, self.next_location)
 
-    def go_to(self, pos, force=False) -> bool:
-        """ go to a position, if bot is stopping for any reason, return false. Return True if reaches max position """
+        self.move_towards(aiming_location)
 
-        print('=' * 100)
-        print(f'Going to : {pos}')
+    def move_towards(self, pos) -> bool:
+        """ take one step towards the requested position """
+        if Actions.is_action(pos):
+            Actions.take_potion(pos)
 
-        if pos == [-76, -47]:
-            print('')
-
-        self.clicked_pos = []
         distance_x = pos[0] - self.location[0]
         distance_y = pos[1] - self.location[1]
 
-        while distance_y != 0 or distance_x != 0:
-            # check movement priority between x and y
-            starts_with_x = distance_y == 0 or self.current_path_index_modificator != -1
+        # check movement priority between x and y
+        starts_with_x = distance_y == 0 or self.current_path_index_modificator != -1
 
-            if distance_x > 0 and starts_with_x:
-                success = self.move_right()
+        if distance_x > 0 and starts_with_x:
+            success = self.move_right()
 
-            elif distance_x < 0 and starts_with_x:
-                success = self.move_left()
+        elif distance_x < 0 and starts_with_x:
+            success = self.move_left()
 
-            elif distance_y > 0:
-                success = self.move_down()
+        elif distance_y > 0:
+            success = self.move_down()
 
-            elif distance_y < 0:
-                success = self.move_up()
+        elif distance_y < 0:
+            success = self.move_up()
 
-            else:
-                success = True
+        else:
+            success = True
 
-            if ErrorHandler.is_error:
-                return False
+        if ErrorHandler.is_error:
+            return False
 
-            self.location = read_map_location()
-            distance_x = pos[0] - self.location[0]
-            distance_y = pos[1] - self.location[1]
+        self.location = read_map_location()
 
-            if success:
-                # sleep (safety) and check position with OCR position
-                time.sleep(1)
-
-                print(f'     location : {self.location}')
-                print("")
-
-            # if during the movement, the bot stumble on a harvesting map, return false to scan the map
-            if self.location in self.path and not force:
-                return False
+        if success:
+            # sleep (safety) and check position with OCR position
+            time.sleep(1)
+            print(f'     location : {self.location}')
+            print("")
 
         return True
 
@@ -141,7 +132,11 @@ class Movement:
                 Actions.do(value)
                 self.location = read_map_location()
             else:
-                self.go_to(value, force=True)
+                self.go_to(value)
+
+    def go_to(self, location):
+        while self.location != location:
+            self.move_towards(location)
 
     def move_left(self):
         return self.move(Positions.CHANGE_MAP_LEFT_POS())
@@ -217,10 +212,9 @@ class Movement:
     def check_location(self):
         pos = read_map_location()
         if self.location[0] != pos[0] or self.location[1] != pos[1]:
-            ErrorHandler.error(f"position calculated {self.location} is different from OCR position {pos}",
-                               ErrorHandler.MAP_POSITION_ERROR)
+            ErrorHandler.error(f"position calculated {self.location} is different from OCR position {pos}", ErrorType.MAP_POSITION_ERROR)
             return False
 
         # reset if location check went ok
-        ErrorHandler.ERROR_CTRS[ErrorHandler.MAP_POSITION_ERROR] = 0
+        ErrorHandler.ERROR_CTRS[ErrorType.MAP_POSITION_ERROR] = 0
         return True
