@@ -32,7 +32,7 @@ class Bot:
         self.Movement = Movement(region_name, ressources, city_name)
         self.Fight = Fight()
         self.Inventory = Inventory()
-        self.Craft = Craft(craft_names=crafts)
+        self.Craft = Craft(craft_names=crafts, max_pods=Inventory.get_max_pods())
 
         if Positions.WINDOW_SIZE_PERC <= 0.5:
             Bot.CONFIDENCE = 0.7

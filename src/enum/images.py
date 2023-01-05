@@ -22,6 +22,7 @@ class Images:
     GHOST_FORM = 'ghost_form.png'                                   # TODO
     OK_TRANSFER_BUTTON = 'ok_transfer.png'
     INVENTORY_OPENED = 'inventory_opened.png'
+    CRAFT_MACHINE_LOADED = 'craft_machine_loaded.png'
 
     # BANK                  ====================================================================
     BANK_DIR = 'bank'

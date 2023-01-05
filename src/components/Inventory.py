@@ -18,7 +18,8 @@ class Inventory:
         """ read max pods from inventory """
         Inventory.open()
 
-        pg.moveTo(*Positions.INVENTORY_PODS_BAR_MIDDLE, 1)
+        time.sleep(0.5)
+        pg.moveTo(*Positions.INVENTORY_PODS_BAR_MIDDLE, 0.5)
         time.sleep(1.5)
         img = pg.screenshot(region=Positions.INVENTORY_PODS_VALUE_REG)
 
@@ -30,7 +31,10 @@ class Inventory:
             ErrorHandler.error(f"unable to read pods : {pods}")
             return 0
 
-        return int(pods)
+        pods = int(pods)
+        print(f"MAX PODS : {pods}")
+
+        return pods
 
     @staticmethod
     def open() -> bool:

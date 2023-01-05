@@ -100,5 +100,14 @@ class Astrub(AbstractCity):
                 exit_position=(758, 725),
                 machine_position=(1120, 394)
             )
+
+        elif job == Jobs.ALCHIMIST:
+            return CraftBuilding(
+                location=[3, -21],
+                door_position=(990, 580),
+                exit_position=(714, 662),
+                machine_position=(806, 347)
+            )
+
         else:
             ErrorHandler.fatal_error(f"unhandled job {job}")

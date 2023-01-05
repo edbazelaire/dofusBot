@@ -32,12 +32,12 @@ if __name__ == '__main__':
 
     bot = Bot(
         region_name=Regions.CHAMP_ASTRUB,
-        # ressources=ressources,
         ressources=[
-            Ressources.ORGES
+            Ressources.ORTIE,
+            Ressources.SAUGE
         ],
         crafts=[
-            # Ressources.CARASAU
+            Ressources.CARASAU
         ],
         max_allowed_ressources=int(max_allowed_ressources)
 

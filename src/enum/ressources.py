@@ -24,6 +24,7 @@ class Ressources:
 
     # PLANTS
     ORTIE = 'ortie'
+    SAUGE = 'sauge'
 
     # METALS
     FER = 'fer'
@@ -34,6 +35,7 @@ class Ressources:
     PAIN_D_INCARNAM = 'pain d\'incarnam'
     CARASAU = 'carasau'
     PAIN_AUX_FLOCONS_D_AVOINE = 'pain aux flocons d\'avoine'
+    POTION_DE_SOUVENIR = 'potion de souvenir'
 
     # ==================================================================================================================
     # OTHERS
@@ -58,6 +60,13 @@ class Ressources:
                 pods=2
             )
 
+        elif ressource_name == Ressources.ORGES:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Ressource,
+                pods=2
+            )
+
         elif ressource_name == Ressources.CENDRES_ETERNELLES:
             return RessourceConfig(
                 name='cendres eternelles',
@@ -72,8 +81,24 @@ class Ressources:
                 pods=1
             )
 
+        elif ressource_name == Ressources.ORTIE:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Ressource,
+                pods=1
+            )
+
+        elif ressource_name == Ressources.SAUGE:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Ressource,
+                pods=1
+            )
+
         # ==============================================================================================================
         # CRAFTS
+        # ------------------------------------------------
+        # PAYSAN
         elif ressource_name == Ressources.PAIN_D_INCARNAM:
             return RessourceConfig(
                 name=ressource_name,
@@ -99,6 +124,22 @@ class Ressources:
             return RessourceConfig(
                 name=ressource_name,
                 ressource_type=RessourceType.Consumable,
+                pods=2
+            )
+
+        # ------------------------------------------------
+        # ALCHIMIST
+        elif ressource_name == Ressources.BRIOCHETTE:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Consumable,
+                pods=2
+            )
+
+        elif ressource_name == Ressources.POTION_DE_SOUVENIR:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Ressource,
                 pods=2
             )
 

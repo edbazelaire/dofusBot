@@ -174,7 +174,8 @@ class Bank(AbstractBuilding):
             region=Positions.BANK_PLAYER_INVENTORY_REG,
             offset_x=5,
             offset_y=5,
-            confidence=0.99
+            confidence=0.99,
+            max_timer=3
         )
 
     # ==================================================================================================================
@@ -197,12 +198,17 @@ class Bank(AbstractBuilding):
         return wait_image(Images.BANK_TRANSFER_BUTTON, region=Positions.BANK_RECIPES_REG, max_timer=2)
 
     @staticmethod
-    def transfer_recipe() -> bool:
+    def transfer_recipe(n: int = 0) -> bool:
         success = wait_click_on(Images.BANK_TRANSFER_BUTTON, region=Positions.BANK_RECIPES_REG, max_timer=2)
         if not success:
             return False
 
         time.sleep(1)
+
+        if n > 0:
+            pg.typewrite(str(n), interval=0.1)
+            time.sleep(0.5)
+
         pg.press('enter')
 
         return True

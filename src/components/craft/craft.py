@@ -28,7 +28,14 @@ class Craft:
             }
         },
 
-        Jobs.BUCHERON: {}
+        Jobs.BUCHERON: {},
+
+        Jobs.ALCHIMIST: {
+            Ressources.POTION_DE_SOUVENIR: {
+                Ressources.ORTIE: 20,
+                Ressources.SAUGE: 10
+            }
+        }
     }
 
     @property
@@ -36,10 +43,12 @@ class Craft:
         """ can the player craft or not """
         return len(self.crafts) > 0 and (self.last_craft_time is None or time.time() - self.last_craft_time > self.CRAFT_INTERVAL)
 
-    def __init__(self, craft_names: List[str]):
+    def __init__(self, craft_names: List[str], max_pods):
         self.crafts = craft_names           # list of available crafts
         self.craft_order = None             # name of the craft to do
         self.last_craft_time = None
+
+        self.max_pods = max_pods
 
     def transfer_required_ressources(self):
         """ get ressources from bank necessary to crafts """
@@ -52,7 +61,7 @@ class Craft:
                 continue
 
             # transfer ressources
-            success = Bank.transfer_recipe()
+            success = Bank.transfer_recipe(n=self.get_n_possible_crafts(craft_name))
             if not success:
                 ErrorHandler.error("recipe found but unable to transfer")
                 continue
@@ -74,19 +83,17 @@ class Craft:
                 return False
         return True
 
-    @staticmethod
-    def get_n_possible_crafts(craft) -> int:
+    def get_n_possible_crafts(self, craft: str) -> int:
         # calculate pods requested to craft one item
         req_pods = 0
-        for ressource_name, qty in craft.items():
+        for ressource_name, qty in self.get_recipe(craft).items():
             req_pods += qty * Ressources.get(ressource_name).pods
 
         # return max number of craft possible depending on max pods
-        # return self.max_pods // req_pods
-        return 0    # not using max pods for now
+        return self.max_pods // req_pods
 
     @staticmethod
-    def get_recipe(craft_name: str):
+    def get_recipe(craft_name: str) -> dict:
         for crafts in Craft.CRAFTS.values():
             if craft_name in crafts.keys():
                 return crafts[craft_name]
