@@ -79,7 +79,7 @@ class Movement:
 
         # ANYWHERE -> IN CITY or IN CITY -> ANYWHERE
         if self.city.is_in_city(self.next_location) or self.city.is_in_city(self.location):
-            aiming_location = self.city.get_path(from_location=self.location, to_location=self.next_location)
+            aiming_location = self.city.get_path(from_location=self.location, to_location=self.next_location)[0]
 
         # REGION DECIDES : where aiming to get to next_location
         else:
@@ -91,6 +91,7 @@ class Movement:
         """ take one step towards the requested position """
         if Actions.is_action(pos):
             Actions.take_potion(pos)
+            return True
 
         distance_x = pos[0] - self.location[0]
         distance_y = pos[1] - self.location[1]
