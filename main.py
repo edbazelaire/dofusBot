@@ -8,14 +8,18 @@ if __name__ == '__main__':
     bot = Bot(
         region_name=Regions.CHAMP_ASTRUB,
         ressources=[
-            Ressources.NOYER,
+            Ressources.FRENE,
             Ressources.CHENE,
+            # Ressources.IF,
+            # Ressources.ERABLE,
+            # Ressources.BOMBU,
         ]
     )
     bot.run()
 
     # DEBUG (not working if run() is active)
-    Bot.read_num_ressources(True)
+    # Bot.read_num_ressources(True)
+    print(Bot.check_inventory_pods())
     # Bot.test_ocr_map()
     display_mouse()
 

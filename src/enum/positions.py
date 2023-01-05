@@ -25,6 +25,7 @@ class Positions:
 
     # PERSONAL TABS
     INVENTORY_CLICK_POS = (1412, 949)           # position to click to open inventory
+    INVENTORY_PODS_REG = (1375, 842, 5, 3)
 
     # RESSOURCES
     RESSOURCE1_REG = (1218, 934, 34, 16)
