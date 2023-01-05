@@ -40,7 +40,7 @@ if __name__ == '__main__':
             # Ressources.BOMBU,
         ],
         crafts=[
-            Ressources.CARASAU
+            Ressources.PLANCHE_DE_SURF
         ],
         max_allowed_ressources=int(max_allowed_ressources)
 

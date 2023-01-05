@@ -13,9 +13,9 @@ class Craft:
     CRAFTS = {
         Jobs.PAYSAN: {
             Ressources.BRIOCHETTE: {
-                Ressources.HOUBLON: 5,
-                Ressources.TREFLES: 1,
-                Ressources.CENDRES_ETERNELLES: 1
+                Ressources.HOUBLON:              5,
+                Ressources.TREFLES_A_5_FEUILLES: 1,
+                Ressources.CENDRES_ETERNELLES:   1
             },
 
             Ressources.PAIN_D_INCARNAM: {
@@ -28,7 +28,14 @@ class Craft:
             }
         },
 
-        Jobs.BUCHERON: {},
+        Jobs.BUCHERON: {
+            Ressources.PLANCHE_DE_SURF: {
+                Ressources.FRENE,
+                Ressources.CHATAIGNER,
+                Ressources.NOYER,
+                Ressources.CHENE,
+            }
+        },
 
         Jobs.ALCHIMIST: {
             Ressources.POTION_DE_SOUVENIR: {

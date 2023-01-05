@@ -101,6 +101,14 @@ class Astrub(AbstractCity):
                 machine_position=(1120, 394)
             )
 
+        elif job == Jobs.BUCHERON:
+            return CraftBuilding(
+                location=[2, -16],
+                door_position=(1066, 363),
+                exit_position=(711, 608),
+                machine_position=(1091, 484)
+            )
+
         elif job == Jobs.ALCHIMIST:
             return CraftBuilding(
                 location=[3, -21],
