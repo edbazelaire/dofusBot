@@ -41,8 +41,7 @@ if __name__ == '__main__':
         ],
         crafts=[
             Ressources.PLANCHE_DE_SURF
-        ],
-        max_allowed_ressources=int(max_allowed_ressources)
+        ]
 
     )
     bot.run()

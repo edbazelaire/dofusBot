@@ -167,7 +167,7 @@ def check_ok_button(click=False):
     """ check if there is a "ok" button popup
      :param click: if True, click the button
      """
-    pos = pg.locateOnScreen(Images.OK_FF_BUTTON, confidence=0.6)
+    pos = pg.locateOnScreen(Images.get(Images.OK_BUTTON), confidence=0.6)
     if pos is None:
         return False
 

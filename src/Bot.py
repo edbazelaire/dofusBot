@@ -21,13 +21,12 @@ class Bot:
     HARVEST_TIME = 2
     CONFIDENCE = 0.75
 
-    def __init__(self, region_name: str, ressources: List[str], crafts: List[str] = None, city_name: str = None, max_allowed_ressources=0):
+    def __init__(self, region_name: str, ressources: List[str], crafts: List[str] = None, city_name: str = None):
         self.images = {}
         self.clicked_pos = []
 
         self.ressources = ressources
         self.get_ressources_images(ressources)
-        self.max_allowed_ressources = max_allowed_ressources
 
         self.Movement = Movement(region_name, ressources, city_name)
         self.Fight = Fight()
@@ -259,9 +258,8 @@ class Bot:
         time.sleep(1)
 
         # unload ressources in bank
-        if unload_ressources is None:
-            bank.unload_ressources()
-        else:
+        bank.unload_ressources()
+        if unload_ressources is not None:
             if isinstance(unload_ressources, str):
                 unload_ressources = [unload_ressources]
 
