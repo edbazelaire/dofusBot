@@ -108,7 +108,7 @@ def check_map_loaded() -> bool:
             print(" -- map NOT loaded !!")
             return False
 
-        confidence = 0.7
+        confidence = 0.5
         pg.moveTo(*Positions.CHANGE_MAP_LEFT_POS)
         if pg.locateOnScreen('images/screenshots/cursor_left.png', confidence=confidence) is not None:
             print("     -- map loaded ")

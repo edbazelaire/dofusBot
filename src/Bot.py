@@ -15,9 +15,9 @@ from src.utils.utils_fct import wait_click_on, check_map_loaded, read_map_locati
 
 class Bot:
     MAX_TIME_SCANNING = 60
-    HARVEST_TIME = 1
-    CONFIDENCE = 0.7
-    MAX_ALLOWED_RESSOURCES = 3000
+    HARVEST_TIME = 2
+    CONFIDENCE = 0.75
+    MAX_ALLOWED_RESSOURCES = 350
 
     def __init__(self, region_name: str, ressources: List[str], city_name: str = None):
         self.images = {}
@@ -54,6 +54,9 @@ class Bot:
         elif self.check_tomb():
             self.Movement.ghost_routine()
 
+        elif self.check_ok_button():
+            wait_click_on(Images.get_screenshot(Images.OK_BUTTON), confidence=0.7)
+
         elif check_is_ghost():
             self.Movement.go_to_phoenix()
 
@@ -67,7 +70,8 @@ class Bot:
         """ get only images of requested ressources """
         dir = 'images'
         for ressource_name in ressources:
-            self.images[ressource_name] = [dir + '/' + filename for filename in os.listdir(dir) if filename.startswith(ressource_name)]
+            self.images[ressource_name] = [dir + '/' + filename for filename in os.listdir(dir) if
+                                           filename.startswith(ressource_name)]
 
     # ==================================================================================================================
     # RUN
@@ -153,9 +157,9 @@ class Bot:
             if Positions.X_MAX > pos[0] > Positions.X_MIN and Positions.Y_MAX > pos[1] > Positions.Y_MIN:
                 pg.moveTo(pos[0], pos[1])
                 time.sleep(0.5)
-                pg.click(pos[0], pos[1])
+                pg.click(pos[0] + 5, pos[1] + 5)
                 self.clicked_pos.append((pos[0], pos[1]))
-                pg.moveTo(10, 10)   # move mouse to prevent overs
+                pg.moveTo(50, 50)  # move mouse to prevent overs
                 return True
 
         return False
@@ -168,20 +172,36 @@ class Bot:
         num_ressources = self.read_num_ressources()
 
         # security : check that calculated number of ressources is not impossible
-        if self.last_num_ressources_checked != 0 \
-                and num_ressources != 0 \
-                and abs(num_ressources - self.last_num_ressources_checked) > 500:
-            ErrorHandler.warning("OCR ressource bad ressource recognition : "
-                                 + f"\n    - num ressources checked {num_ressources}"
-                                 + f"\n    - last num ressources checked {self.last_num_ressources_checked}"
-                                 )
-            # return False
-
-        self.last_num_ressources_checked = num_ressources
         if num_ressources >= self.MAX_ALLOWED_RESSOURCES:
-            print(f"MAX PODS : {num_ressources}")
-            return True
+            if self.check_inventory_pods():
+                print(f"MAX PODS : {num_ressources}")
+                return True
         return False
+
+    @staticmethod
+    def check_inventory_pods():
+        test = False
+
+        pg.click(*Positions.INVENTORY_CLICK_POS)
+        time.sleep(1)
+
+        img = pg.screenshot(region=Positions.INVENTORY_PODS_REG)
+        height, width = img.size
+        image_data = img.load()
+        min_value = 150
+
+        for loop1 in range(height):
+            for loop2 in range(width):
+                r, g, b = image_data[loop1, loop2]
+                if r >= min_value or g >= min_value or b >= min_value:
+                    test = True
+                    break
+
+        # close inventory
+        pg.click(*Positions.INVENTORY_CLICK_POS)
+        time.sleep(1)
+
+        return test
 
     @staticmethod
     def read_num_ressources(debug=False):
@@ -190,7 +210,7 @@ class Bot:
         for region in Positions.get_ressource_regions():
             img = pg.screenshot(region=region)
             img = img.resize((200, 100))
-            img = Images.change_color(img, min_value=140)
+            img = Images.change_color(img, min_value=150)
             value = pytesseract.image_to_string(img, config='--psm 8 --oem 3 -c tessedit_char_whitelist=0123456789')
 
             if debug:
@@ -214,6 +234,16 @@ class Bot:
             if pg.locateOnScreen('images/screenshots/tomb.png', confidence=0.7):
                 return True
 
+    @staticmethod
+    def check_ok_button() -> bool:
+        """ check if TOMB image is on screen"""
+        start = time.time()
+        while True:
+            if time.time() - start > 5:
+                return False
+            if pg.locateOnScreen(Images.get_screenshot(Images.OK_BUTTON), confidence=0.7):
+                return True
+
     # ==================================================================================================================
     # ROUTINES
     def fight_routine(self):
@@ -222,6 +252,7 @@ class Bot:
         if self.Fight.check_is_victory():
             return
 
+        self.Movement.current_path_index = 0
         if self.check_tomb():
             self.Movement.ghost_routine()
         elif self.Fight.check_is_defeat():
@@ -250,18 +281,20 @@ class Bot:
 
         # reset
         self.reset()
+        self.Movement.current_path_index = 0
 
     def unload_bank(self):
         """ unload ressources in the bank """
         # click on npc
-        wait_click_on(self.Movement.city.BANK_NPC_IMAGE, offset_x=15, offset_y=15)
+        wait_click_on(self.Movement.city.BANK_NPC_IMAGE, offset_x=15, offset_y=15, max_timer=10)
 
         # click on "accept" to access your bank inventory
         wait_click_on(Images.get_bank(Images.BANK_DIALOG_ACCESS), offset_x=50, offset_y=10)
         time.sleep(1)
 
         # select ressources tab
-        wait_click_on(Images.get_bank(Images.BANK_RESSOURCE_TAB), region=Positions.BANK_PLAYER_INVENTORY_REG, offset_x=5, offset_y=5, confidence=0.99)
+        wait_click_on(Images.get_bank(Images.BANK_RESSOURCE_TAB), region=Positions.BANK_PLAYER_INVENTORY_REG,
+                      offset_x=5, offset_y=5, confidence=0.99)
         time.sleep(1)
 
         # unload ressources
@@ -311,5 +344,3 @@ class Bot:
         n_images = len(os.listdir(dir))
         img.save(dir + f'houblon_{n_images}.png')
         time.sleep(1)
-
-

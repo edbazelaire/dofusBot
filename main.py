@@ -10,17 +10,20 @@ if __name__ == '__main__':
     Positions()
 
     bot = Bot(
-        region_name=Regions.PLAINES_CANIA,
+        region_name=Regions.CHAMP_ASTRUB,
         ressources=[
-            Ressources.CHANVRE,
-            Ressources.MALT,
-            Ressources.SEIGLE,
+            Ressources.FRENE,
+            Ressources.CHENE,
+            # Ressources.IF,
+            # Ressources.ERABLE,
+            # Ressources.BOMBU,
         ]
     )
     bot.run()
 
     # DEBUG (not working if run() is active)
-    Bot.read_num_ressources(True)
+    # Bot.read_num_ressources(True)
+    print(Bot.check_inventory_pods())
     # Bot.test_ocr_map()
     display_mouse()
 

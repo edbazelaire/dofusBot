@@ -7,6 +7,8 @@ class Images:
     SCREENSHOTS_DIR = 'screenshots'
     PHOENIX_STATUE = 'phoenix_statue.png'
     PHOENIX_STATUE_2 = 'phoenix_statue_2.png'
+    PHOENIX_STATUE_3 = 'phoenix_statue_3.png'
+    OK_BUTTON = 'ok_button.png'
     GHOST_FORM = 'ghost_form.png'   # TODO
 
     BANK_DIR = 'bank'

@@ -5,8 +5,8 @@ class AbstractCity:
     SUB_REGION = ''             # (unused) name of the city's sub-region in the map
 
     BANK_LOCATION = []          # location of the bank in the city
-    BANK_DOOR_POSITION = []     # screen position (x, y) to click in order to get in the bank
-    GET_OUT_BANK_POSITION = []  # screen position to click to get out the bank
+    BANK_DOOR_POSITION = ()     # screen position (x, y) to click in order to get in the bank
+    GET_OUT_BANK_POSITION = ()  # screen position to click to get out the bank
     BANK_NPC_IMAGE = ''         # image of the NPC in the bank to talk to
 
     @staticmethod

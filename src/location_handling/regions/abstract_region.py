@@ -9,7 +9,8 @@ from src.utils.utils_fct import get_distance
 
 class AbstractRegion:
     NAME: str
-    CITY: AbstractCity
+    CITY: str
+    IS_REVERSE_PATH = False
 
     # LOCATIONS
     PHOENIX_STATUE_LOCATION: list
@@ -46,7 +47,7 @@ class AbstractRegion:
             print(f'Loaded path : {self.path}')
             return
 
-        self.path = self.get_best_path(self.path, from_checkpoint=self.CHECKPOINT)
+        # self.path = self.get_best_path(self.path, from_checkpoint=self.CHECKPOINT)
         JsonHandler.save_json_path(ressources, self.NAME, self.path)
         print(f'Path : {path}')
 
@@ -106,3 +107,9 @@ class AbstractRegion:
 
         print("done !")
         return [start_pos] + best_path
+
+
+    @staticmethod
+    def in_between(location, top_corner, bottom_corner):
+        return bottom_corner[0] >= location[0] >= top_corner[0] \
+            and bottom_corner[1] >= location[1] >= top_corner[1]
