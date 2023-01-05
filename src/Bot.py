@@ -258,9 +258,8 @@ class Bot:
         time.sleep(1)
 
         # unload ressources in bank
-        if unload_ressources is None:
-            bank.unload_ressources()
-        else:
+        bank.unload_ressources()
+        if unload_ressources is not None:
             if isinstance(unload_ressources, str):
                 unload_ressources = [unload_ressources]
 

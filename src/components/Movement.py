@@ -135,8 +135,11 @@ class Movement:
                 self.go_to(value)
 
     def go_to(self, location):
+        print("=" * 20)
+        print(f"Going to : {location}")
         while self.location != location:
-            self.move_towards(location)
+            aiming_location = self.region.get_aiming_location(self.location, location)
+            self.move_towards(aiming_location)
 
     def move_left(self):
         return self.move(Positions.CHANGE_MAP_LEFT_POS())
@@ -186,7 +189,7 @@ class Movement:
         success = False
         self.next_location = self.city.bank.LOCATION
         while not success:
-            self.move_towards(self.next_location)
+            self.go_to(self.city.bank.LOCATION)
 
             # SAFETY
             ocr_location = read_map_location()

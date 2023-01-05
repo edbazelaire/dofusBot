@@ -90,7 +90,7 @@ class Craft:
             req_pods += qty * Ressources.get(ressource_name).pods
 
         # return max number of craft possible depending on max pods
-        return self.max_pods // req_pods
+        return (self.max_pods - 150) // req_pods
 
     @staticmethod
     def get_recipe(craft_name: str) -> dict:

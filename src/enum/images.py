@@ -15,6 +15,7 @@ class Images:
     PHOENIX_STATUE_2 = 'phoenix_statue_2.png'
     PHOENIX_STATUE_3 = 'phoenix_statue_3.png'
     YES_BUTTON = 'yes_button.png'
+    OK_BUTTON = 'ok_button.png'
     CURSOR_LEFT = 'cursor_left.png'
     CURSOR_RIGHT = 'cursor_right.png'
     CURSOR_UP = 'cursor_up.png'

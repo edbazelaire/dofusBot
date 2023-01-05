@@ -346,3 +346,16 @@ class ChampAstrub(AbstractRegion):
 
         path.append(to_location)
         return path
+
+    def get_aiming_location(self, from_location, to_location):
+        if Astrub.is_in_city(to_location) or Astrub.is_in_city(from_location):
+            return Astrub.get_aiming_location(from_location, to_location)
+
+        if Astrub.is_above_city(to_location) \
+                and not Astrub.is_above_city(from_location) \
+                and not Astrub.is_in_city(from_location) \
+                and to_location[0] > Astrub.TOP_LEFT_CITY_CHECKPOINT[0] \
+                and from_location[1] > Astrub.TOP_LEFT_CITY_CHECKPOINT[1]:
+            return Astrub.TOP_LEFT_CITY_CHECKPOINT
+
+        return to_location
