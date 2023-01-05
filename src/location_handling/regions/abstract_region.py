@@ -33,6 +33,9 @@ class AbstractRegion:
     def get_path(self, from_location, to_location):
         return [to_location]
 
+    def get_aiming_location(self, from_location, to_location):
+        return to_location
+
     # ==================================================================================================================
     # INITIALIZATION
     def set_path(self, ressources: list):

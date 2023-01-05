@@ -1,6 +1,8 @@
 from src.Bot import Bot
 from src.enum.positions import Positions
 from src.enum.regions import Regions
+from src.enum.ressources import Ressources
+
 from src.utils.utils_fct import display_mouse
 
 import sys
@@ -29,15 +31,25 @@ if __name__ == '__main__':
     Positions(game_window_id=game_window_id)
 
     bot = Bot(
-        region_name=region_name,
-        ressources=ressources,
+        region_name=Regions.CHAMP_ASTRUB,
+        ressources=[
+            Ressources.FRENE,
+            Ressources.CHENE,
+            # Ressources.IF,
+            # Ressources.ERABLE,
+            # Ressources.BOMBU,
+        ],
+        crafts=[
+            Ressources.CARASAU
+        ],
         max_allowed_ressources=int(max_allowed_ressources)
+
     )
     bot.run()
 
     # DEBUG (not working if run() is active)
     # Bot.read_num_ressources(True)
-    Bot.check_inventory_pods()
+    bot.check_pods()
     Bot.test_ocr_map()
     display_mouse()
 

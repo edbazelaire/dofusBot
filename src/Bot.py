@@ -6,13 +6,14 @@ import os
 import pytesseract
 from PIL.Image import Image
 
+from src.components.Inventory import Inventory
+from src.components.craft.craft import Craft
 from src.enum.positions import Positions
 from src.enum.images import Images
 from src.components.Fight import Fight
 from src.components.Movement import Movement
-from src.utils.ErrorHandler import ErrorHandler
-from src.utils.utils_fct import wait_click_on, check_map_loaded, read_map_location, check_is_ghost, open_inventory, \
-    wait_image
+from src.utils.ErrorHandler import ErrorHandler, ErrorType
+from src.utils.utils_fct import read_map_location, check_is_ghost, wait_image, check_ok_button
 
 
 class Bot:
@@ -20,17 +21,18 @@ class Bot:
     HARVEST_TIME = 2
     CONFIDENCE = 0.75
 
-    def __init__(self, region_name: str, ressources: List[str], city_name: str = None, max_allowed_ressources=0):
+    def __init__(self, region_name: str, ressources: List[str], crafts: List[str] = None, city_name: str = None, max_allowed_ressources=0):
         self.images = {}
+        self.clicked_pos = []
 
         self.ressources = ressources
         self.get_ressources_images(ressources)
         self.max_allowed_ressources = max_allowed_ressources
 
-        self.clicked_pos = []
-
         self.Movement = Movement(region_name, ressources, city_name)
         self.Fight = Fight()
+        self.Inventory = Inventory()
+        self.Craft = Craft(craft_names=crafts, max_pods=Inventory.get_max_pods())
 
         if Positions.WINDOW_SIZE_PERC <= 0.5:
             Bot.CONFIDENCE = 0.7
@@ -52,21 +54,24 @@ class Bot:
 
     def check_situation(self):
         """ on reset check the situation the character is in """
+
         if self.Fight.check_combat_started():
             self.fight_routine()
 
         elif self.check_tomb():
             self.Movement.ghost_routine()
 
+        elif check_ok_button(click=True):
+            return
+
         elif check_is_ghost():
             self.Movement.go_to_phoenix()
 
-        # elif self.check_pods():
-        elif self.check_inventory_pods():
-            self.bank_routine()
+        elif self.check_craft():
+            self.craft_routine()
 
-        else:
-            self.Movement.go_to_next_location()
+        elif self.check_pods():
+            self.bank_routine()
 
     def get_ressources_images(self, ressources: list):
         """ get only images of requested ressources """
@@ -86,48 +91,57 @@ class Bot:
             if ErrorHandler.is_error:
                 self.reset()
 
+            # check if has craft order
+            if self.check_craft():
+                self.craft_routine()
+                continue
+
             # scan for ressources
-            if self.Movement.location in self.Movement.region.path:
-                self.scan()
+            if self.Movement.location in self.Movement.path:
+                found_one = self.scan()
 
                 if ErrorHandler.is_error:
                     continue
 
-                # check if fight has occurred
-                time.sleep(1)
+                if found_one:
+                    # check if fight has occurred
+                    time.sleep(1)
+                    if self.Fight.check_combat_started():
+                        self.fight_routine()
+                        continue
+
+                    # check if character needs to go unload ressources to the bank
+                    if self.check_pods():
+                        self.bank_routine()
+                        continue
+
+            success = self.Movement.go_to_next_location()
+            if not success:
+                # check if was caught in a fight
                 if self.Fight.check_combat_started():
                     self.fight_routine()
                     continue
 
-                if ErrorHandler.is_error:
-                    continue
-
-                # check if character needs to go unload ressources to the bank
-                if self.check_pods():
-                    self.bank_routine()
-                    continue
-
-            if ErrorHandler.is_error:
-                continue
-
-            self.Movement.go_to_next_location()
-
-    def scan(self):
+    def scan(self) -> bool:
         """ scan the map for ressources """
         print('Scanning', end='')
 
+        self.clicked_pos = []
+
         start = time.time()
-        isAny = True
-        while isAny:
+        found_one = False
+        is_any = True
+        while is_any:
             print('.', end='')
-            isAny = self.check_all_ressources()
-            if not isAny or time.time() - start > self.MAX_TIME_SCANNING:
+            is_any = self.find_all_ressources()
+            if not is_any or time.time() - start > self.MAX_TIME_SCANNING:
                 break
             time.sleep(self.HARVEST_TIME)
 
         print("\n")
+        return found_one
 
-    def check_all_ressources(self):
+    def find_all_ressources(self):
         for ressource_name, images in self.images.items():
             # check if this ressource belong to this position
             if self.Movement.location not in self.Movement.region.RESSOURCES_LOCATIONS[ressource_name]:
@@ -138,13 +152,13 @@ class Bot:
                 continue
 
             for image in images:
-                isAny = self.check_ressource(image)
+                isAny = self.find_ressource(image)
                 if isAny:
                     return True
 
         return False
 
-    def check_ressource(self, image: Image) -> bool:
+    def find_ressource(self, image: Image) -> bool:
         all_pos = list(pg.locateAllOnScreen(
             image,
             confidence=self.CONFIDENCE,
@@ -167,45 +181,14 @@ class Bot:
 
     # ==================================================================================================================
     # CHECKS
-    def check_pods(self):
+    @staticmethod
+    def check_pods():
         """ check number of pods by reading number of ressources in the quick inventory (faster than opening inventory
         but more subject to errors)"""
-        num_ressources = self.read_num_ressources()
+        if Inventory.last_time_check_pods is not None and time.time() - Inventory.last_time_check_pods < Inventory.CHECK_PODS_INTERVAL:
+            return False
 
-        # security : check that calculated number of ressources is not impossible
-        if num_ressources >= self.max_allowed_ressources:
-            if self.check_inventory_pods():
-                print(f"MAX PODS : {num_ressources}")
-                return True
-        return False
-
-    @staticmethod
-    def check_inventory_pods():
-        test = False
-
-        open_inventory()
-        wait_image(Images.INVENTORY_LOADED_ICON)
-        time.sleep(1)
-
-        img = pg.screenshot(region=Positions.INVENTORY_PODS_REG)
-        height, width = img.size
-        image_data = img.load()
-        min_value = 150
-
-        for loop1 in range(height):
-            for loop2 in range(width):
-                r, g, b = image_data[loop1, loop2]
-                if r >= min_value or g >= min_value or b >= min_value:
-                    test = True
-                    break
-
-            if test:
-                break
-        # close inventory
-        open_inventory()
-        time.sleep(1)
-
-        return test
+        return Inventory.check_pods()
 
     @staticmethod
     def read_num_ressources(debug=False):
@@ -238,6 +221,10 @@ class Bot:
             if pg.locateOnScreen('images/screenshots/tomb.png', confidence=0.7):
                 return True
 
+    def check_craft(self) -> bool:
+        """ check if a craft order has been sent to the bot """
+        return self.Craft.is_crafting and self.Craft.craft_order is not None
+
     # ==================================================================================================================
     # ROUTINES
     def fight_routine(self):
@@ -247,15 +234,16 @@ class Bot:
         if self.Fight.check_is_victory():
             return
 
+        self.Movement.current_path_index = 0
         if self.check_tomb():
             self.Movement.ghost_routine()
 
         elif self.Fight.check_is_defeat():
             self.on_death()
 
-    def bank_routine(self):
+    def bank_routine(self, unload_ressources: (str, List[str]) = None):
         """ go to the bank and unload ressources """
-        print("MAX PODS REACHED -> Going to bank")
+        print("Going to bank")
 
         # go to the bank
         self.Movement.go_to_bank()
@@ -264,43 +252,69 @@ class Bot:
         if ErrorHandler.is_error:
             return
 
-        # unload ressources in the bank
-        self.unload_bank()
+        bank = self.Movement.city.bank
+
+        # unload ressources in bank
+        bank.open()
         time.sleep(1)
+
+        # unload ressources in bank
+        if unload_ressources is None:
+            bank.unload_ressources()
+        else:
+            if isinstance(unload_ressources, str):
+                unload_ressources = [unload_ressources]
+
+            for ressource_name in unload_ressources:
+                success = bank.transfer(ressource_name, from_bank=False)
+                if not success:
+                    ErrorHandler.warning(f"unable to transfer {ressource_name}")
+
+        # transfer ressources for requested crafts if possible (success -> craft order is set)
+        self.Craft.transfer_required_ressources()
+
+        # close bank tab
+        bank.close()
 
         # get out of the bank
-        pg.click(*self.Movement.city.GET_OUT_BANK_POSITION)
+        bank.exit()
+
+    def craft_routine(self):
+        if self.Craft.craft_order is None:
+            ErrorHandler.error("Call for craft routine when craft_order is None")
+            ErrorHandler.is_error = True
+
+        if self.Craft.is_crafting is False:
+            ErrorHandler.error("Call for craft routine when craft_order is None")
+            ErrorHandler.is_error = True
+
+        print(f"\nCraft ordered : {self.Craft.craft_order}")
+
+        # init job/building
+        job = self.Craft.get_job(self.Craft.craft_order)
+        building = self.Movement.city.get_craft_building(job)
+
+        # go to the craft building
+        self.Movement.go_to(building.LOCATION)
+
+        # enter the requested building for the craft
+        building.enter()
+        time.sleep(3)
+
+        # craft the requested ordered
+        building.use_machine()
+        building.craft(self.Craft.craft_order)
+        building.exit_machine()
+
         time.sleep(1)
-        success = check_map_loaded()
-        if not success:
-            ErrorHandler.error("unable to get out of bank")
 
-        # reset
-        self.reset()
+        # exit building
+        building.exit()
 
-    def unload_bank(self):
-        """ unload ressources in the bank """
-        # click on npc
-        wait_click_on(self.Movement.city.BANK_NPC_IMAGE, confidence=0.6)
-
-        # click on "accept" to access your bank inventory
-        wait_click_on(Images.get(Images.BANK_DIALOG_ACCESS), confidence=0.6)
-        time.sleep(1)
-
-        # select ressources tab
-        wait_click_on(Images.get(Images.BANK_RESSOURCE_TAB), region=Positions.BANK_PLAYER_INVENTORY_REG, confidence=0.6)
-        time.sleep(1)
-
-        # unload ressources
-        wait_click_on(Images.get(Images.BANK_TRANSFER_BUTTON), region=Positions.BANK_PLAYER_INVENTORY_REG, confidence=0.7)
-        time.sleep(1)
-
-        # validate ressources unloading
-        wait_click_on(Images.get(Images.BANK_TRANSFER_VISIBLE_OBJ_BTN), confidence=0.6)
-        time.sleep(1)
-
-        # close bank
-        pg.click(*Positions.CLOSE_BANK_BUTTON_POSITION)
+        # go to bank to unload
+        unload_ressource = self.Craft.craft_order
+        self.Craft.craft_order = None
+        self.bank_routine(unload_ressources=unload_ressource)
 
     # ==================================================================================================================
     # FIGHT
@@ -310,7 +324,6 @@ class Bot:
     # ==================================================================================================================
     # DEBUG
     def test(self):
-        # self.test_ocr()
         self.Fight.fight()
         return
 
@@ -333,7 +346,8 @@ class Bot:
         print(value)
         img.show()
 
-    def take_screeshot(self):
+    @staticmethod
+    def take_screenshot():
         img = pg.screenshot()
         dir = 'images/fight/'
         n_images = len(os.listdir(dir))

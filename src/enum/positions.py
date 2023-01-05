@@ -34,17 +34,42 @@ class Positions:
 
     # ==================================================================================================================
     # BANK
-    BANK_DOOR_POSITION = (1145, 343)  # position to click in order to enter the bank
-    BANK_PLAYER_INVENTORY_REG = (1241, 96, 345, 800)  # region of the player's inventory when the bank is opened
-    BANK_BANK_INVENTORY_REG = (352, 96, 345, 800)  # region of the bank's inventory when the bank is opened
-    BANK_PLAYER_RESSOURCE_POS = (1464, 155)  # button to click to open the ressources part of the player inventory
-    BANK_BANK_RESSOURCE_POS = (578, 155)  # button to click to open the ressources part of the player inventory
-    CLOSE_BANK_BUTTON_POSITION = (1564, 111)  # position of closing bank button
-    GET_OUT_BANK_POSITION = (735, 710)  # position to click to get out of the bank
+    BANK_DOOR_POSITION = (1145, 343)                    # position to click in order to enter the bank
+    BANK_SEARCH_BAR = (518, 823)                        # positions to click to use the search bar
+    BANK_SEARCH_BAR_RESET_BUTTON = (663, 823)           # positions to click to reset the search bar
+    BANK_PLAYER_SEARCH_BAR = (1445, 823)                # positions to click to use the search bar on player's side
+    BANK_PLAYER_SEARCH_BAR_RESET_BUTTON = (1560, 823)   # positions to click to reset the search bar on player's side
+    BANK_PLAYER_INVENTORY_REG = (1241, 96, 345, 800)    # region of the player's inventory when the bank is opened
+    BANK_INVENTORY_REG = (352, 96, 345, 800)            # region of the bank's inventory when the bank is opened
+    BANK_PLAYER_RESSOURCE_POS = (1464, 155)             # button to click to open the ressources part of the player inventory
+    BANK_BANK_RESSOURCE_POS = (578, 155)                # button to click to open the ressources part of the player inventory
+    BANK_FIRST_RESSOURCE_POSITION = (397, 230)          # position of the bank's first ressource
+    BANK_PLAYER_FIRST_RESSOURCE_POSITION = (1286, 230)  # position of the player's first ressource
+    BANK_FIRST_RESSOURCE_QUANTITY_REG = (372, 203, 54, 10)          # region of the bank's first ressource
+    BANK_PLAYER_FIRST_RESSOURCE_QUANTITY_REG = (1261, 203, 54, 10)  # position of the bank's first ressource
 
+    # RECIPES   ------------------------------------------------
+    BANK_RECIPES_BTN = (379, 821)                       # button that opens recipes tab
+    BANK_RECIPES_SEARCH_BAR = (850, 233)                # position of the search bar in the recipes region
+    BANK_RECIPES_REG = (730, 30, 470, 870)              # region of recipes
+
+    CLOSE_BANK_BUTTON_POSITION = (1564, 111)            # position of closing bank button
+    GET_OUT_BANK_POSITION = (735, 710)                  # position to click to get out of the bank
+
+    # ==================================================================================================================
+    # CRAFT
+    CRAFT_SEARCH_BAR = (410, 133)           # position of the search bar to craft items
+    CRAFT_FIRST_SLOT = (346, 240)           # first slot of the craft machine
+    CRAFT_QUANTITY_BTN = (1013, 413)        # position to click to set the quantity
+    CRAFT_FUSION_BTN = (1013, 502)          # button clicked to craft
+    CRAFT_EXIT_MACHINE_BTN = (1561, 87)     # button clicked to exit machine
+
+    # ==================================================================================================================
     # PERSONAL TABS
     INVENTORY_CLICK_POS = (1412, 949)           # position to click to open inventory
     INVENTORY_PODS_REG = (1365, 855, 10, 6)
+    INVENTORY_PODS_VALUE_REG = (1333, 790, 40, 23)
+    INVENTORY_PODS_BAR_MIDDLE = (1320, 855)
 
     # RESSOURCES
     RESSOURCE1_REG = (1218, 934, 34, 16)
@@ -86,6 +111,9 @@ class Positions:
 
             # filter
             if not isinstance(val, tuple):
+                continue
+
+            if len(val) == 0:
                 continue
 
             setattr(Positions, name, self.resize(val))

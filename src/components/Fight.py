@@ -132,11 +132,11 @@ class Fight:
 
     def forfait(self):
         # click ff button
-        wait_click_on(Images.get(Images.FF_BUTTON), confidence=0.7, offset_x=5, offset_y=5)
+        wait_click_on(Images.FF_BUTTON, confidence=0.5)
         time.sleep(1)
 
         # validate ff
-        wait_click_on(Images.get(Images.OK_FF_BUTTON), confidence=0.7)
+        wait_click_on(Images.OK_FF_BUTTON, confidence=0.7)
 
     # ==================================================================================================================
     # CHECK
@@ -156,7 +156,8 @@ class Fight:
         return False
 
     def check_combat_started(self):
-        return pg.locateOnScreen(Images.get(Images.READY_BUTTON), confidence=0.7) is not None
+        return pg.locateOnScreen(Images.get(Images.READY_BUTTON), confidence=0.7) is not None \
+               or pg.locateOnScreen(Images.get(Images.END_TURN_BUTTON)) is not None
 
     def check_is_victory(self):
         return pg.locateOnScreen(Images.get(Images.VICTORY), confidence=0.7) is not None

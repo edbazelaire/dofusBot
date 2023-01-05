@@ -1,4 +1,3 @@
-from src.enum.regions import Regions
 from src.location_handling.city.Frigost import Frigost
 from src.location_handling.city.astrub import Astrub
 from src.location_handling.city.bonta import Bonta

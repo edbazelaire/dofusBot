@@ -9,6 +9,7 @@ from src.utils.ErrorHandler import ErrorHandler
 class Images:
     IMAGES_DIR = 'images'
 
+    # COMMONS               ====================================================================
     SCREENSHOTS_DIR = 'screenshots'
     PHOENIX_STATUE = 'phoenix_statue.png'
     PHOENIX_STATUE_2 = 'phoenix_statue_2.png'
@@ -18,25 +19,37 @@ class Images:
     CURSOR_RIGHT = 'cursor_right.png'
     CURSOR_UP = 'cursor_up.png'
     CURSOR_DOWN = 'cursor_down.png'
-    INVENTORY_LOADED_ICON = 'inventory_loaded_icon.png'
-    GHOST_FORM = 'ghost_form.png'   # TODO
+    GHOST_FORM = 'ghost_form.png'                                   # TODO
+    OK_TRANSFER_BUTTON = 'ok_transfer.png'
+    INVENTORY_OPENED = 'inventory_opened.png'
+    CRAFT_MACHINE_LOADED = 'craft_machine_loaded.png'
 
+    # BANK                  ====================================================================
     BANK_DIR = 'bank'
     BANK_NPC_ASTRUB = 'bank_npc.png'
     BANK_NPC_BONTA = 'bank_npc_bonta.png'
     BANK_DIALOG_ACCESS = 'dialog_access_bank_button.png'
+    BANK_ALL_TAB = 'bank_all_tab.png'
+    BANK_ITEM_TAB = 'bank_item_tab.png'
+    BANK_CONSUMABLE_TAB = 'bank_consumable_tab.png'
     BANK_RESSOURCE_TAB = 'bank_ressource_tab.png'
+    BANK_PLAYER_TRANSFER_BUTTON = 'bank_player_transfer_button.png'
     BANK_TRANSFER_BUTTON = 'bank_transfer_button.png'
     BANK_TRANSFER_VISIBLE_OBJ_BTN = 'transfer_visible_ressources_button.png'
+    BANK_OPEN = 'bank_open.png'     # TODO : image that validates that bank is open or no
+    RECIPES_OPEN = 'recipes_open.png'
 
+    # STUFFS                ====================================================================
     STUFFS_DIR = 'stuffs'
     FIGHT_STUFF = 'fight_stuff.png'
     PODS_STUFF = 'pods_stuff.png'
 
+    # QUICK INVENTORY       ====================================================================
     QUICK_INV_DIR = 'quick_inv'
     BONTA_POTION = 'bonta_potion.png'
     RECALL_POTION = 'recall_potion.png'
 
+    # FIGHT                 ====================================================================
     FIGHT_DIR = 'fight'
     READY_BUTTON = 'ready.png'
     END_TURN_BUTTON = 'end_turn.png'
