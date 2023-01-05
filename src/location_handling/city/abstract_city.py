@@ -1,7 +1,5 @@
 from src.buildings.Bank import Bank
-from src.buildings.abstract_building import AbstractBuilding
 from src.buildings.craft_building import CraftBuilding
-from src.enum.positions import Positions
 
 
 class AbstractCity:
@@ -23,13 +21,8 @@ class AbstractCity:
         pass
 
     @staticmethod
-    def get_path(from_location, to_location) -> list:
-        """ get path from a location to another if at least one of theme is in the city """
-        pass
-
-    @staticmethod
-    def get_bank_path(location) -> list:
-        """ get path to the bank from anywhere in the global map """
+    def get_aiming_location(from_location, to_location) -> list:
+        """ next location to go to in order to be able to go to requested location """
         pass
 
     @staticmethod

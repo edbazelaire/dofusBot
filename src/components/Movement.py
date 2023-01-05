@@ -9,6 +9,8 @@ import pyautogui as pg
 import time
 
 from src.enum.regions import Regions
+from src.location_handling.city.abstract_city import AbstractCity
+from src.location_handling.regions.abstract_region import AbstractRegion
 from src.location_handling.utils import get_region, get_city
 from src.utils.ErrorHandler import ErrorHandler, ErrorType
 from src.utils.utils_fct import read_map_location, wait_click_on, check_map_change, wait_image
@@ -26,18 +28,18 @@ class Movement:
         :param city_name:   name of the city where the ressources are unloaded to the bank. If not provided, use default
                             city of the region
         """
-        self.region = get_region(region_name, ressources)
+        self.region: AbstractRegion     = get_region(region_name, ressources)
         if city_name is None:
             city_name = self.region.CITY
-        self.city = get_city(city_name)
-        self.path = self.region.path
+        self.city: AbstractCity         = get_city(city_name)
+        self.path : List[list]          = self.region.path
 
-        self.path_taken: dict = {}      # path already taken recently
+        self.path_taken: dict           = {}                # path already taken recently
 
-        self.current_path_index = 0     # index in the farming path
-        self.current_path_index_modificator = 1
-        self.location = (0, 0)          # current position of the bot
-        self.next_location = None       # location that the bot is currently heading to
+        self.current_path_index: int    = 0                 # index in the farming path
+        self.current_path_index_modificator: int = 1        # step on path
+        self.location: list             = [0, 0]            # current position of the bot
+        self.next_location: list        = None              # location that the bot is currently heading to
 
         self.location = read_map_location()
 
@@ -77,22 +79,16 @@ class Movement:
         if self.next_location is None or self.location == self.next_location:
             self.get_next_location()
 
-        # ANYWHERE -> IN CITY or IN CITY -> ANYWHERE
-        if self.city.is_in_city(self.next_location) or self.city.is_in_city(self.location):
-            aiming_location = self.city.get_path(from_location=self.location, to_location=self.next_location)[0]
+        aiming_location = self.region.get_aiming_location(self.location, self.next_location)
 
-        # REGION DECIDES : where aiming to get to next_location
-        else:
-            aiming_location = self.region.get_aiming_location(self.location, self.next_location)
-
-        self.move_towards(aiming_location)
-
-    def move_towards(self, pos) -> bool:
-        """ take one step towards the requested position """
-        if Actions.is_action(pos):
-            Actions.take_potion(pos)
+        if Actions.is_action(aiming_location):
+            Actions.do(aiming_location)
             return True
 
+        return self.move_towards(aiming_location)
+
+    def move_towards(self, pos: list) -> bool:
+        """ take one step towards the requested position """
         distance_x = pos[0] - self.location[0]
         distance_y = pos[1] - self.location[1]
 
@@ -124,8 +120,11 @@ class Movement:
             time.sleep(1)
             print(f'     location : {self.location}')
             print("")
+            ErrorHandler.reset_error(ErrorType.MAP_NOT_CHANGED_ERROR)
+        else:
+            ErrorHandler.warning("map not changed", ErrorType.MAP_NOT_CHANGED_ERROR)
 
-        return True
+        return success
 
     def follow_path(self, path: list):
         for value in path:
@@ -173,7 +172,9 @@ class Movement:
     # GO TO SPECIFIC POSITION
     def go_to_phoenix(self):
         self.location = read_map_location()
-        self.follow_path(self.region.get_phoenix_path())
+        self.next_location = self.region.PHOENIX_STATUE_LOCATION
+
+        self.go_to(self.region.PHOENIX_STATUE_LOCATION)
 
         wait_click_on(self.region.PHOENIX_STATUE_IMAGE)
 
@@ -183,9 +184,9 @@ class Movement:
     def go_to_bank(self):
         print(f"{self.location} : Moving to the BANK")
         success = False
+        self.next_location = self.city.bank.LOCATION
         while not success:
-            path = self.city.get_bank_path(self.location)
-            self.follow_path(path)
+            self.move_towards(self.next_location)
 
             # SAFETY
             ocr_location = read_map_location()
@@ -207,15 +208,3 @@ class Movement:
         time.sleep(1)
 
         print(f"{self.location} : I am in the bank")
-
-    # ==================================================================================================================
-    # CHECKS
-    def check_location(self):
-        pos = read_map_location()
-        if self.location[0] != pos[0] or self.location[1] != pos[1]:
-            ErrorHandler.error(f"position calculated {self.location} is different from OCR position {pos}", ErrorType.MAP_POSITION_ERROR)
-            return False
-
-        # reset if location check went ok
-        ErrorHandler.ERROR_CTRS[ErrorType.MAP_POSITION_ERROR] = 0
-        return True

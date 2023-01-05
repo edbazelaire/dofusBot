@@ -12,8 +12,8 @@ from src.enum.positions import Positions
 from src.enum.images import Images
 from src.components.Fight import Fight
 from src.components.Movement import Movement
-from src.utils.ErrorHandler import ErrorHandler
-from src.utils.utils_fct import read_map_location, check_is_ghost, wait_image
+from src.utils.ErrorHandler import ErrorHandler, ErrorType
+from src.utils.utils_fct import read_map_location, check_is_ghost, wait_image, check_ok_button
 
 
 class Bot:
@@ -54,11 +54,15 @@ class Bot:
 
     def check_situation(self):
         """ on reset check the situation the character is in """
+
         if self.Fight.check_combat_started():
             self.fight_routine()
 
         elif self.check_tomb():
             self.Movement.ghost_routine()
+
+        elif check_ok_button(click=True):
+            return
 
         elif check_is_ghost():
             self.Movement.go_to_phoenix()
@@ -68,9 +72,6 @@ class Bot:
 
         elif self.check_pods():
             self.bank_routine()
-
-        else:
-            self.Movement.go_to_next_location()
 
     def get_ressources_images(self, ressources: list):
         """ get only images of requested ressources """
@@ -109,18 +110,17 @@ class Bot:
                         self.fight_routine()
                         continue
 
-                    if ErrorHandler.is_error:
-                        continue
-
                     # check if character needs to go unload ressources to the bank
                     if self.check_pods():
                         self.bank_routine()
                         continue
 
-            if ErrorHandler.is_error:
-                continue
-
-            self.Movement.go_to_next_location()
+            success = self.Movement.go_to_next_location()
+            if not success:
+                # check if was caught in a fight
+                if self.Fight.check_combat_started():
+                    self.fight_routine()
+                    continue
 
     def scan(self) -> bool:
         """ scan the map for ressources """
@@ -294,7 +294,7 @@ class Bot:
         building = self.Movement.city.get_craft_building(job)
 
         # go to the craft building
-        self.Movement.follow_path(self.Movement.city.get_path(self.Movement.location, building.LOCATION))
+        self.Movement.go_to(building.LOCATION)
 
         # enter the requested building for the craft
         building.enter()

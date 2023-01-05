@@ -161,3 +161,15 @@ def check_is_ghost():
     # open_inventory()
     # return success
     return False
+
+
+def check_ok_button(click=False):
+    """ check if there is a "ok" button popup
+     :param click: if True, click the button
+     """
+    pos = pg.locateOnScreen(Images.OK_FF_BUTTON, confidence=0.6)
+    if pos is None:
+        return False
+
+    pg.click(pos[0], pos[1])
+    return True
