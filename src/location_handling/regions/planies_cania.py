@@ -62,3 +62,12 @@ class PlainesCania(AbstractRegion):
             path.append(Actions.TAKE_RECALL_POTION)
 
         path.append(to_location)
+
+    def get_aiming_location(self, from_location, to_location):
+        if Bonta.is_in_city(from_location):
+            if Bonta.is_in_city(to_location):
+                return Bonta.get_path(from_location, to_location)
+
+            return Actions.TAKE_RECALL_POTION
+
+        return to_location

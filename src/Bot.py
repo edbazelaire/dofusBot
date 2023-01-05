@@ -126,12 +126,14 @@ class Bot:
         """ scan the map for ressources """
         print('Scanning', end='')
 
+        self.clicked_pos = []
+
         start = time.time()
         found_one = False
         is_any = True
         while is_any:
             print('.', end='')
-            is_any = self.check_all_ressources()
+            is_any = self.find_all_ressources()
             if not is_any or time.time() - start > self.MAX_TIME_SCANNING:
                 break
             time.sleep(self.HARVEST_TIME)
@@ -139,7 +141,7 @@ class Bot:
         print("\n")
         return found_one
 
-    def check_all_ressources(self):
+    def find_all_ressources(self):
         for ressource_name, images in self.images.items():
             # check if this ressource belong to this position
             if self.Movement.location not in self.Movement.region.RESSOURCES_LOCATIONS[ressource_name]:
@@ -150,13 +152,13 @@ class Bot:
                 continue
 
             for image in images:
-                isAny = self.check_ressource(image)
+                isAny = self.find_ressource(image)
                 if isAny:
                     return True
 
         return False
 
-    def check_ressource(self, image: Image) -> bool:
+    def find_ressource(self, image: Image) -> bool:
         all_pos = list(pg.locateAllOnScreen(
             image,
             confidence=self.CONFIDENCE,
@@ -179,13 +181,14 @@ class Bot:
 
     # ==================================================================================================================
     # CHECKS
-    def check_pods(self):
+    @staticmethod
+    def check_pods():
         """ check number of pods by reading number of ressources in the quick inventory (faster than opening inventory
         but more subject to errors)"""
         if Inventory.last_time_check_pods is not None and time.time() - Inventory.last_time_check_pods < Inventory.CHECK_PODS_INTERVAL:
             return False
 
-        return self.Inventory.check_pods()
+        return Inventory.check_pods()
 
     @staticmethod
     def read_num_ressources(debug=False):
