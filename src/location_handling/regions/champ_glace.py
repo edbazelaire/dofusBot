@@ -53,7 +53,7 @@ class ChampGlace(AbstractRegion):
     }
 
     # IMAGES
-    PHOENIX_STATUE_IMAGE: str = Images.get_screenshot(Images.PHOENIX_STATUE_3)
+    PHOENIX_STATUE_IMAGE: str = Images.get(Images.PHOENIX_STATUE_3)
 
     def get_path(self, from_location, to_location):
         """ get path from a position to another (add special locations to go to if there is obstacle in between) """

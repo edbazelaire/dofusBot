@@ -67,7 +67,7 @@ class Actions:
                 ErrorHandler.error("unable to find potion")
                 ErrorHandler.is_error = True
                 return False
-            pos = pg.locateOnScreen(Images.get_quick_inv(img), confidence=0.8)
+            pos = pg.locateOnScreen(Images.get(img), confidence=0.8)
 
         # to check with ocr that map was loaded
         current_location = read_map_location()
@@ -96,7 +96,7 @@ class Actions:
             if time.time() - start >= 6:
                 ErrorHandler.error("unable to find stuff")
                 return
-            pos = pg.locateOnScreen(Images.get_stuff(img), confidence=0.7)
+            pos = pg.locateOnScreen(Images.get(img), confidence=0.7)
 
         pg.doubleClick(pos[0] + offset_x, pos[1] + offset_y)
 

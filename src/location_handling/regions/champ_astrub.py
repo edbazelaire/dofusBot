@@ -13,42 +13,60 @@ class ChampAstrub(AbstractRegion):
     PHOENIX_STATUE_LOCATION: list = [2, -14]
     CHECKPOINT: list = Astrub.TOP_CITY_CHECKPOINT
     RESSOURCES_LOCATIONS = {
-            Ressources.HOUBLON: [
-                [6, -22],
-                [5, -24],
-                [5, -26],
-                [4, -26],
-                [4, -28],
-                [3, -30],
-                [5, -28],
-                [8, -23],
-            ],
-            Ressources.SEIGLE: [
-                [5, -25],
-                [3, -27],
-                [9, -22]
-            ],
-            Ressources.CHANVRE: [
-                [7, -24],
-            ],
-            Ressources.BLE: [
-                [5, -22],
-                [3, -22],
-                [3, -23],
-                [4, -23],
-                [5, -25],
-                [3, -26],
-                [4, -27],
-                [4, -29],
-                [4, -30],
-                [5, -30],
-                [6, -30],
-                [6, -29],
-                [6, -28],
-                [5, -28],
-                [7, -25],
-                [7, -23],
-            ],
+        # CEREALS
+        Ressources.BLE: [
+            [5, -22],
+            [3, -22],
+            [3, -23],
+            [4, -23],
+            [5, -25],
+            [3, -26],
+            [4, -27],
+            [4, -29],
+            [4, -30],
+            [5, -30],
+            [6, -30],
+            [6, -29],
+            [6, -28],
+            [5, -28],
+            [7, -25],
+            [7, -23],
+        ],
+        Ressources.ORGES: [
+            [5, -22],
+            [4, -23],
+            [3, -24],
+            [3, -26],
+            [3, -28],
+            [3, -31],
+            [4, -30],
+            [5, -30],
+            [6, -29],
+            [5, -27],
+            [7, -27],
+            [7, -24],
+            [8, -24],
+            [6, -24],
+            [6, -22],
+        ],
+        Ressources.HOUBLON: [
+            [6, -22],
+            [5, -24],
+            [5, -26],
+            [4, -26],
+            [4, -28],
+            [3, -30],
+            [5, -28],
+            [8, -23],
+        ],
+        Ressources.SEIGLE: [
+            [5, -25],
+            [3, -27],
+            [9, -22]
+        ],
+        Ressources.CHANVRE: [
+            [7, -24],
+        ],
 
             Ressources.FRENE: [
                 [1, -18],
@@ -338,15 +356,92 @@ class ChampAstrub(AbstractRegion):
                 [-2, -20],
                 [-3, -21],
             ],
+
+        # PLANTS
+        Ressources.ORTIE: [
+            [4, -19],
+            [3, -20],
+            [2, -21],
+            [2, -22],
+            [1, -22],
+            [1, -23],
+            [2, -23],
+            [2, -24],
+            [1, -24],
+            [2, -25],
+            [3, -25],
+            [2, -26],
+            [2, -27],
+            [2, -28],
+            [2, -29],
+            [2, -30],
+            [3, -30],
+            [3, -31],
+            [4, -31],
+            [4, -30],
+            [4, -29],
+            [3, -29],
+            [3, -28],
+            [4, -28],
+            [5, -29],
+            [5, -30],
+            [6, -30],
+            [6, -29],
+            [6, -28],
+            [6, -26],
+            [7, -25],
+            [7, -22],
+            [7, -20],
+            [6, -21],
+            [5, -20],
+        ],
+        Ressources.SAUGE: [
+            [-3, -19],
+            [-3, -20],
+            # [4, -20],
+            [-3, -21],
+            [-2, -21],
+            [-2, -22],
+            [-2, -23],
+            [-2, -24],
+            [-3, -24],
+            # [-4, -24],
+            [-1, -24],
+            [0, -24],
+            [1, -24],
+            [1, -25],
+            [1, -26],
+            [0, -26],
+            [-1, -26],
+            [-1, -27],
+            [0, -27],
+            [1, -27],
+            [1, -28],
+            [3, -31],
+            [3, -32],
+            [4, -32],
+            [4, -31],  # FAKE ------------------
+            [5, -30],
+            [5, -29],
+            [5, -27],
+            [6, -27],
+            [7, -28],
+            [6, -24],
+            [7, -23],
+            [8, -23],
+            [9, -23],
+            [5, -22],
+        ]
         }
 
     # IMAGES
-    PHOENIX_STATUE_IMAGE: str = Images.get_screenshot(Images.PHOENIX_STATUE)
+    PHOENIX_STATUE_IMAGE: str = Images.PHOENIX_STATUE
 
     def get_path(self, from_location, to_location):
         """ get path from a position to another (add special locations to go to if there is obstacle in between) """
         path = []
         if Astrub.is_above_city(to_location) \
+                and not Astrub.is_above_city(from_location) \
                 and not Astrub.is_in_city(from_location) \
                 and to_location[0] > Astrub.TOP_LEFT_CITY_CHECKPOINT[0] \
                 and from_location[1] > Astrub.TOP_LEFT_CITY_CHECKPOINT[1]:

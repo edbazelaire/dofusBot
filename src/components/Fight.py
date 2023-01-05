@@ -46,8 +46,8 @@ class Fight:
         print("COMBAT ENDED")
 
         # remove "defeat" popup
-        pos = pg.locateOnScreen(Images.get_fight(Images.CANCEL_POPUP), confidence=0.7)
-        pg.click(pos[0] + 5, pos[1] + 5)
+        pos = pg.locateOnScreen(Images.get(Images.CANCEL_POPUP), confidence=0.7)
+        pg.click(pos[0], pos[1])
 
         self.equipe_stuff(Images.PODS_STUFF)
 
@@ -97,11 +97,10 @@ class Fight:
 
         return True
 
-
     @staticmethod
     def end_turn():
-        pos = pg.locateOnScreen(Images.get_fight(Images.END_TURN_BUTTON), confidence=0.7)
-        pg.click(pos[0] + 30, pos[0] + 10)
+        pos = pg.locateOnScreen(Images.get(Images.END_TURN_BUTTON), confidence=0.7)
+        pg.click(pos[0], pos[0])
 
     def locate_self(self):
         for char_img in self.char_images:
@@ -133,11 +132,11 @@ class Fight:
 
     def forfait(self):
         # click ff button
-        wait_click_on(Images.get_fight(Images.FF_BUTTON), confidence=0.7, offset_x=5, offset_y=5)
+        wait_click_on(Images.FF_BUTTON, confidence=0.5)
         time.sleep(1)
 
         # validate ff
-        wait_click_on(Images.get_fight(Images.OK_FF_BUTTON), confidence=0.7)
+        wait_click_on(Images.OK_FF_BUTTON, confidence=0.7)
 
     # ==================================================================================================================
     # CHECK
@@ -157,13 +156,14 @@ class Fight:
         return False
 
     def check_combat_started(self):
-        return pg.locateOnScreen(Images.get_fight(Images.READY_BUTTON), confidence=0.7) is not None
+        return pg.locateOnScreen(Images.get(Images.READY_BUTTON), confidence=0.7) is not None \
+               or pg.locateOnScreen(Images.get(Images.END_TURN_BUTTON)) is not None
 
     def check_is_victory(self):
-        return pg.locateOnScreen(Images.get_fight(Images.VICTORY), confidence=0.7) is not None
+        return pg.locateOnScreen(Images.get(Images.VICTORY), confidence=0.7) is not None
 
     def check_is_defeat(self):
-        return pg.locateOnScreen(Images.get_fight(Images.DEFEAT), confidence=0.7) is not None
+        return pg.locateOnScreen(Images.get(Images.DEFEAT), confidence=0.7) is not None
 
     def check_combat_ended(self):
         return self.check_is_defeat() or self.check_is_victory()

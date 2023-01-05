@@ -33,6 +33,9 @@ class AbstractRegion:
     def get_path(self, from_location, to_location):
         return [to_location]
 
+    def get_aiming_location(self, from_location, to_location):
+        return to_location
+
     # ==================================================================================================================
     # INITIALIZATION
     def set_path(self, ressources: list):
@@ -60,7 +63,10 @@ class AbstractRegion:
         :return:
         """
 
-        print('calculation best path...')
+        print('calculating best path... ', end='')
+        n_factorial = 1
+        for i in range(1, len(all_pos)):
+            n_factorial = n_factorial * i
 
         # get index of the position closest to the checkpoint
         start_pos_index = None
@@ -74,7 +80,10 @@ class AbstractRegion:
         # from remaining positions, calculate the shortest path
         best_distance = math.inf
         best_path = []
+        i = 0
         for path in itertools.permutations(all_pos, len(all_pos)):
+            print(f"{i} / {n_factorial}", end='\r')
+            i += 1
             distance = 0
             last_pos = start_pos
             for pos in path:
@@ -99,6 +108,7 @@ class AbstractRegion:
                 best_path = list(path)
                 best_distance = distance
 
+        print("done !")
         return [start_pos] + best_path
 
 

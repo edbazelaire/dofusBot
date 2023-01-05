@@ -1,32 +1,55 @@
+import math
 import os
+from PIL import Image
+
+from src.enum.positions import Positions
+from src.utils.ErrorHandler import ErrorHandler
 
 
 class Images:
     IMAGES_DIR = 'images'
 
+    # COMMONS               ====================================================================
     SCREENSHOTS_DIR = 'screenshots'
     PHOENIX_STATUE = 'phoenix_statue.png'
     PHOENIX_STATUE_2 = 'phoenix_statue_2.png'
     PHOENIX_STATUE_3 = 'phoenix_statue_3.png'
-    OK_BUTTON = 'ok_button.png'
-    GHOST_FORM = 'ghost_form.png'   # TODO
+    YES_BUTTON = 'yes_button.png'
+    CURSOR_LEFT = 'cursor_left.png'
+    CURSOR_RIGHT = 'cursor_right.png'
+    CURSOR_UP = 'cursor_up.png'
+    CURSOR_DOWN = 'cursor_down.png'
+    GHOST_FORM = 'ghost_form.png'                                   # TODO
+    OK_TRANSFER_BUTTON = 'ok_transfer.png'
+    INVENTORY_OPENED = 'inventory_opened.png'
+    CRAFT_MACHINE_LOADED = 'craft_machine_loaded.png'
 
+    # BANK                  ====================================================================
     BANK_DIR = 'bank'
     BANK_NPC_ASTRUB = 'bank_npc.png'
     BANK_NPC_BONTA = 'bank_npc_bonta.png'
     BANK_DIALOG_ACCESS = 'dialog_access_bank_button.png'
+    BANK_ALL_TAB = 'bank_all_tab.png'
+    BANK_ITEM_TAB = 'bank_item_tab.png'
+    BANK_CONSUMABLE_TAB = 'bank_consumable_tab.png'
     BANK_RESSOURCE_TAB = 'bank_ressource_tab.png'
+    BANK_PLAYER_TRANSFER_BUTTON = 'bank_player_transfer_button.png'
     BANK_TRANSFER_BUTTON = 'bank_transfer_button.png'
     BANK_TRANSFER_VISIBLE_OBJ_BTN = 'transfer_visible_ressources_button.png'
+    BANK_OPEN = 'bank_open.png'     # TODO : image that validates that bank is open or no
+    RECIPES_OPEN = 'recipes_open.png'
 
+    # STUFFS                ====================================================================
     STUFFS_DIR = 'stuffs'
     FIGHT_STUFF = 'fight_stuff.png'
     PODS_STUFF = 'pods_stuff.png'
 
+    # QUICK INVENTORY       ====================================================================
     QUICK_INV_DIR = 'quick_inv'
     BONTA_POTION = 'bonta_potion.png'
     RECALL_POTION = 'recall_potion.png'
 
+    # FIGHT                 ====================================================================
     FIGHT_DIR = 'fight'
     READY_BUTTON = 'ready.png'
     END_TURN_BUTTON = 'end_turn.png'
@@ -40,24 +63,26 @@ class Images:
     CHAR_DIR = 'char'
 
     @staticmethod
-    def get_screenshot(image: str):
-        return Images.IMAGES_DIR + '/' + Images.SCREENSHOTS_DIR + '/' + image
+    def get(img: str):
+        # check if already has path
+        if img.startswith(Images.IMAGES_DIR + '/'):
+            return Images.load(img_path=img)
+
+        # else find image in images dir
+        for r, d, f in os.walk(Images.IMAGES_DIR):
+            for filename in f:
+                if filename.lower() == img.lower():
+                    return Images.load(os.path.join(r, filename))
+
+        ErrorHandler.fatal_error('unkown image ' + img)
 
     @staticmethod
-    def get_bank(image: str):
-        return Images.IMAGES_DIR + '/' + Images.BANK_DIR + '/' + image
-
-    @staticmethod
-    def get_stuff(image: str):
-        return Images.IMAGES_DIR + '/' + Images.STUFFS_DIR + '/' + image
-
-    @staticmethod
-    def get_quick_inv(image: str):
-        return Images.IMAGES_DIR + '/' + Images.QUICK_INV_DIR + '/' + image
-
-    @staticmethod
-    def get_fight(image: str):
-        return Images.IMAGES_DIR + '/' + Images.FIGHT_DIR + '/' + image
+    def load(img_path: str):
+        img = Image.open(img_path)
+        return img.resize((
+            math.floor(img.size[0] * Positions.WINDOW_SIZE_PERC),
+            math.floor(img.size[1] * Positions.WINDOW_SIZE_PERC),
+        ))
 
     @staticmethod
     def get_enemy_images():

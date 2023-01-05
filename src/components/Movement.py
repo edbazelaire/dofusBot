@@ -13,14 +13,15 @@ from src.enum.regions import Regions
 from src.location_handling.city.abstract_city import AbstractCity
 from src.location_handling.regions.abstract_region import AbstractRegion
 from src.location_handling.utils import get_region, get_city
-from src.utils.ErrorHandler import ErrorHandler
-from src.utils.utils_fct import read_map_location, wait_click_on, check_map_change, get_distance
+from src.utils.ErrorHandler import ErrorHandler, ErrorType
+from src.utils.utils_fct import read_map_location, wait_click_on, check_map_change, wait_image
 
 
 class Movement:
     """
-    Handle Bot's movements from a location to another
+    Handle Bot movements from a location to another
     """
+
     def __init__(self, region_name: str, ressources: List[str], city_name: str = None):
         """
         :param region_name: name of the region where the ressources are farmed
@@ -28,18 +29,18 @@ class Movement:
         :param city_name:   name of the city where the ressources are unloaded to the bank. If not provided, use default
                             city of the region
         """
-        self.region = get_region(region_name, ressources)
+        self.region: AbstractRegion     = get_region(region_name, ressources)
         if city_name is None:
             city_name = self.region.CITY
-        self.city = get_city(city_name)
-        self.path = self.region.path
+        self.city: AbstractCity         = get_city(city_name)
+        self.path : List[list]          = self.region.path
 
-        self.clicked_pos = []
+        self.path_taken: dict           = {}                # path already taken recently
 
-        self.current_path_index = 0     # index in the farming path
-        self.current_path_index_modificator = 1
-        self.location = (0, 0)          # current position of the bot
-        self.next_location = None       # location that the bot is currently heading to
+        self.current_path_index: int    = 0                 # index in the farming path
+        self.current_path_index_modificator: int = 1        # step on path
+        self.location: list             = [0, 0]            # current position of the bot
+        self.next_location: list        = None              # location that the bot is currently heading to
 
         self.location = read_map_location()
 
@@ -48,11 +49,13 @@ class Movement:
 
     # ==================================================================================================================
     # INITIALIZATION
-    def reset(self):
+    def reset(self, with_current_index=False):
         self.location = read_map_location()
+        if with_current_index:
+            self.current_path_index = 0
 
     # ==================================================================================================================
-    def get_next_position(self):
+    def get_next_location(self):
         if self.next_location is None:
             self.next_location = self.path[self.current_path_index]
 
@@ -66,74 +69,63 @@ class Movement:
             self.current_path_index += self.current_path_index_modificator
             self.next_location = self.path[self.current_path_index]
 
-    def go_to_next_pos(self):
+        print('=' * 100)
+        print(f'Next Location : {self.next_location}')
+
+    def go_to_next_location(self):
         """ return True if reaches next pos, False if stop during movement """
         # security, if a None pos is provided
         self.location = read_map_location()
 
         if self.next_location is None or self.location == self.next_location:
-            self.get_next_position()
+            self.get_next_location()
 
-        # ANYWHERE -> IN CITY or IN CITY -> ANYWHERE
-        if self.city.is_in_city(self.next_location) or self.city.is_in_city(self.location):
-            path = self.city.get_path(from_location=self.location, to_location=self.next_location)
-            self.follow_path(path)
-            return
+        aiming_location = self.region.get_aiming_location(self.location, self.next_location)
 
-        path = self.region.get_path(self.location, self.next_location)
-        self.follow_path(path)
+        if Actions.is_action(aiming_location):
+            Actions.do(aiming_location)
+            return True
 
-    def go_to(self, pos, force=False) -> bool:
-        """ go to a position, if bot is stopping for any reason, return false. Return True if reaches max position """
+        return self.move_towards(aiming_location)
 
-        print('=' * 100)
-        print(f'Going to : {pos}')
-
-        if pos == [-76, -47]:
-            print('')
-
-        self.clicked_pos = []
+    def move_towards(self, pos: list) -> bool:
+        """ take one step towards the requested position """
         distance_x = pos[0] - self.location[0]
         distance_y = pos[1] - self.location[1]
 
-        while distance_y != 0 or distance_x != 0:
-            # check movement priority between x and y
-            starts_with_x = distance_y == 0 or self.current_path_index_modificator != -1
+        # check movement priority between x and y
+        starts_with_x = distance_y == 0 or self.current_path_index_modificator != -1
 
-            if distance_x > 0 and starts_with_x:
-                success = self.move_right()
+        if distance_x > 0 and starts_with_x:
+            success = self.move_right()
 
-            elif distance_x < 0  and starts_with_x:
-                success = self.move_left()
+        elif distance_x < 0 and starts_with_x:
+            success = self.move_left()
 
-            elif distance_y > 0:
-                success = self.move_down()
+        elif distance_y > 0:
+            success = self.move_down()
 
-            elif distance_y < 0:
-                success = self.move_up()
+        elif distance_y < 0:
+            success = self.move_up()
 
-            else:
-                success = True
+        else:
+            success = True
 
-            if ErrorHandler.is_error:
-                return False
+        if ErrorHandler.is_error:
+            return False
 
-            self.location = read_map_location()
-            distance_x = pos[0] - self.location[0]
-            distance_y = pos[1] - self.location[1]
+        self.location = read_map_location()
 
-            if success:
-                # sleep (safety) and check position with OCR position
-                time.sleep(1)
+        if success:
+            # sleep (safety) and check position with OCR position
+            time.sleep(1)
+            print(f'     location : {self.location}')
+            print("")
+            ErrorHandler.reset_error(ErrorType.MAP_NOT_CHANGED_ERROR)
+        else:
+            ErrorHandler.warning("map not changed", ErrorType.MAP_NOT_CHANGED_ERROR)
 
-                print(f'     location : {self.location}')
-                print("")
-
-            # if during the movement, the bot stumble on a harvesting map, return false to scan the map
-            if self.location in self.path and not force:
-                return False
-
-        return True
+        return success
 
     def follow_path(self, path: list):
         for value in path:
@@ -143,56 +135,73 @@ class Movement:
             else:
                 self.go_to(value)
 
+    def go_to(self, location):
+        while self.location != location:
+            self.move_towards(location)
+
     def move_left(self):
-        return self.move(Positions.CHANGE_MAP_LEFT_POS)
+        return self.move(Positions.CHANGE_MAP_LEFT_POS())
 
     def move_right(self):
-        return self.move(Positions.CHANGE_MAP_RIGHT_POS)
+        return self.move(Positions.CHANGE_MAP_RIGHT_POS())
 
     def move_up(self):
-        return self.move(Positions.CHANGE_MAP_UP_POS)
+        return self.move(Positions.CHANGE_MAP_UP_POS())
 
     def move_down(self):
-        return self.move(Positions.CHANGE_MAP_DOWN_POS)
+        return self.move(Positions.CHANGE_MAP_DOWN_POS())
 
     def move(self, click_pos):
         pg.click(*click_pos)
         return check_map_change(from_location=self.location)
 
-    def get_back_to_first_position(self):
-        """ go back to first position by getting threw the gates (meaning that we can access this position from either
-        in or outside the city) """
+    # ==================================================================================================================
+    # ROUTINES
+    def ghost_routine(self):
+        """ get back to phoenix statue and then to the farming locations """
+        print("-- is ghost")
+        wait_click_on(Images.YES_BUTTON)
 
-        if self.region == Regions.CHAMP_ASTRUB:
-            # go to the gates
-            self.go_to(Locations.GATES_LOCATION)
-        else:
-            Actions.do(Actions.TAKE_RECALL_POTION)
-            self.location = read_map_location()
+        # wait that map is loaded
+        check_map_change(from_location=self.location)
 
-        # go to first map and reset all values
-        self.go_to(self.path[0])
-        self.reset()
+        wait_click_on(Images.CANCEL_POPUP)
+
+        self.go_to_phoenix()
+
+    # ==================================================================================================================
+    # GO TO SPECIFIC POSITION
+    def go_to_phoenix(self):
+        self.location = read_map_location()
+        self.next_location = self.region.PHOENIX_STATUE_LOCATION
+
+        self.go_to(self.region.PHOENIX_STATUE_LOCATION)
+
+        wait_click_on(self.region.PHOENIX_STATUE_IMAGE)
+
+        # wait until reaching phoenix statue
+        time.sleep(3)
 
     def go_to_bank(self):
         print(f"{self.location} : Moving to the BANK")
         success = False
+        self.next_location = self.city.bank.LOCATION
         while not success:
-            path = self.city.get_bank_path(self.location)
-            self.follow_path(path)
+            self.move_towards(self.next_location)
 
             # SAFETY
             ocr_location = read_map_location()
-            if ocr_location != self.city.BANK_LOCATION:
-                ErrorHandler.error(f"ocr location ({ocr_location}) is not on bank location ({self.city.BANK_LOCATION})")
+            if ocr_location != self.city.bank.LOCATION:
+                ErrorHandler.error(f"ocr location ({ocr_location}) is not on bank location ({self.city.bank.LOCATION})")
                 self.location = ocr_location
                 continue
 
             success = True
 
         # get in the bank
+        time.sleep(2)
         print(f"{self.location} : Clicking on BANK_DOOR")
-        test = self.enter_building(click_pos=self.city.BANK_DOOR_POSITION, loading_img=self.city.BANK_NPC_IMAGE, max_timer=10)
+        test = self.city.bank.enter()
 
         if not test:
             return
@@ -200,78 +209,3 @@ class Movement:
         time.sleep(1)
 
         print(f"{self.location} : I am in the bank")
-
-    @staticmethod
-    def enter_building(click_pos: tuple = None, click_img: str = None, loading_img: str = '', max_timer=5) -> bool:
-        """ Enter a building by clicking requested position
-        :param click_pos:   position to click to enter the building
-        :param click_img:   image to click in order to get in the building
-        :param loading_img: waiting for this image to confirm map loading
-        :return:
-        """
-
-        if click_pos is not None:
-            pg.click(*click_pos)
-
-        elif click_img is not None:
-            wait_click_on(click_img)
-
-        else:
-            ErrorHandler.fatal_error("BAD CONFIGURATION, neither click_pos or click_img is provided")
-
-        start = time.time()
-        if loading_img != '':
-            while pg.locateOnScreen(loading_img) is None:
-                if time.time() - start > max_timer:
-                    ErrorHandler.is_error = True
-                    return False
-                time.sleep(0.5)
-
-        return True
-
-    # ==================================================================================================================
-    # ROUTINES
-    def ghost_routine(self):
-        """ get back to phoenix statue and then to the farming locations """
-        print("-- is ghost")
-        wait_click_on('images/screenshots/yes_button.png')
-
-        # wait that map is loaded
-        check_map_change(from_location=self.location)
-
-        wait_click_on(Images.get_fight(Images.CANCEL_POPUP), offset_x=5, offset_y=5)
-
-        self.go_to_phoenix()
-
-    def go_to_phoenix(self):
-        self.location = read_map_location()
-
-        # get closest phoenix region
-        distance = math.inf
-        region_name = self.region.NAME
-        for temp_region, phoenix_location in Locations.PHOENIX_STATUES.items():
-            if get_distance(self.location, phoenix_location) < distance:
-                region_name = temp_region
-
-        # go to the closest phoenix
-        region = get_region(region_name)
-        self.follow_path(region.get_phoenix_path())
-
-        # click on the statue
-        wait_click_on(region.PHOENIX_STATUE_IMAGE)
-
-        # wait until reaching phoenix statue
-        time.sleep(3)
-
-    # ==================================================================================================================
-    # CHECKS
-    def check_location(self):
-        pos = read_map_location()
-        if self.location[0] != pos[0] or self.location[1] != pos[1]:
-            ErrorHandler.error(f"position calculated {self.location} is different from OCR position {pos}", ErrorHandler.MAP_POSITION_ERROR)
-            return False
-
-        # reset if location check went ok
-        ErrorHandler.ERROR_CTRS[ErrorHandler.MAP_POSITION_ERROR] = 0
-        return True
-
