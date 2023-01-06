@@ -20,6 +20,10 @@ class CraftBuilding(AbstractBuilding):
         time.sleep(2)
 
     def craft(self, craft_name):
+        # only display available recepies
+        wait_click_on(Images.AFFICHER_RECETTES_DISPO)
+        time.sleep(1)
+
         # search craft in the recipes
         ressource = Ressources.get(craft_name)
         pg.click(*Positions.CRAFT_SEARCH_BAR)

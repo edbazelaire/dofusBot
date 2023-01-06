@@ -166,6 +166,22 @@ class Ressources:
             )
 
         # ------------------------------------------------
+        # BUCHERON
+        elif ressource_name == Ressources.PLANCHE_DE_SURF:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Ressource,
+                pods=2
+            )
+
+        elif ressource_name == Ressources.SUBSTRAT_DE_FURAIE:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Ressource,
+                pods=2
+            )
+
+        # ------------------------------------------------
         # ALCHIMIST
         elif ressource_name == Ressources.POTION_DE_SOUVENIR:
             return RessourceConfig(

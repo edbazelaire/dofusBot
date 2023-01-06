@@ -30,11 +30,16 @@ class Craft:
 
         Jobs.BUCHERON: {
             Ressources.PLANCHE_DE_SURF: {
-                Ressources.FRENE,
-                Ressources.CHATAIGNER,
-                Ressources.NOYER,
-                Ressources.CHENE,
-            }
+                Ressources.FRENE: 10,
+                Ressources.CHATAIGNER: 10,
+                Ressources.NOYER: 10,
+                Ressources.CHENE: 10,
+            },
+
+            Ressources.SUBSTRAT_DE_FURAIE: {
+                Ressources.PLANCHE_DE_SURF: 1,
+                Ressources.POTION_DE_SOUVENIR: 1
+            },
         },
 
         Jobs.ALCHIMIST: {
