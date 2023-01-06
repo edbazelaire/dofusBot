@@ -21,6 +21,9 @@ class Ressources:
     CHATAIGNER = 'chataigner'
     NOYER = 'noyer'
     CHENE = 'chene'
+    BOMBU = 'bombu'
+    ERABLE = 'erable'
+    IF = 'if'
 
     # PLANTS
     ORTIE = 'ortie'
@@ -37,15 +40,19 @@ class Ressources:
     CARASAU = 'carasau'
     PAIN_AUX_FLOCONS_D_AVOINE = 'pain aux flocons d\'avoine'
     POTION_DE_SOUVENIR = 'potion de souvenir'
+    PLANCHE_DE_SURF = 'planche de surf'
+    SUBSTRAT_DE_FURAIE = 'substrat de futaie'
 
     # ==================================================================================================================
     # OTHERS
-    CENDRES_ETERNELLES = 'cendres_eternelles'
+    CENDRES_ETERNELLES = 'cendres eternelles'
 
     @staticmethod
     def get(ressource_name):
         # ==============================================================================================================
         # COLLECTABLES
+        # -----------------------------------------------------------------------------------------
+        # CEREALS
         if ressource_name == Ressources.HOUBLON:
             return RessourceConfig(
                 name=ressource_name,
@@ -67,20 +74,42 @@ class Ressources:
                 pods=2
             )
 
-        elif ressource_name == Ressources.CENDRES_ETERNELLES:
-            return RessourceConfig(
-                name='cendres eternelles',
-                ressource_type=RessourceType.Ressource,
-                pods=1
-            )
-
-        elif ressource_name == Ressources.TREFLE_A_5_FEUILLES:
+        elif ressource_name == Ressources.TREFLES_A_5_FEUILLES:
             return RessourceConfig(
                 name=ressource_name,
                 ressource_type=RessourceType.Ressource,
                 pods=1
             )
 
+        # -----------------------------------------------------------------------------------------
+        # CEREALS
+        elif ressource_name == Ressources.FRENE:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Ressource,
+                pods=5
+            )
+        elif ressource_name == Ressources.CHATAIGNER:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Ressource,
+                pods=5
+            )
+        elif ressource_name == Ressources.NOYER:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Ressource,
+                pods=5
+            )
+        elif ressource_name == Ressources.CHENE:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Ressource,
+                pods=5
+            )
+
+        # -----------------------------------------------------------------------------------------
+        # PLANTS
         elif ressource_name == Ressources.ORTIE:
             return RessourceConfig(
                 name=ressource_name,
@@ -91,6 +120,15 @@ class Ressources:
         elif ressource_name == Ressources.SAUGE:
             return RessourceConfig(
                 name=ressource_name,
+                ressource_type=RessourceType.Ressource,
+                pods=1
+            )
+
+        # -----------------------------------------------------------------------------------------
+        # OTHER
+        elif ressource_name == Ressources.CENDRES_ETERNELLES:
+            return RessourceConfig(
+                name='cendres eternelles',
                 ressource_type=RessourceType.Ressource,
                 pods=1
             )
@@ -129,13 +167,6 @@ class Ressources:
 
         # ------------------------------------------------
         # ALCHIMIST
-        elif ressource_name == Ressources.BRIOCHETTE:
-            return RessourceConfig(
-                name=ressource_name,
-                ressource_type=RessourceType.Consumable,
-                pods=2
-            )
-
         elif ressource_name == Ressources.POTION_DE_SOUVENIR:
             return RessourceConfig(
                 name=ressource_name,

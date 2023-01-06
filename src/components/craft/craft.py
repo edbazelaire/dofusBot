@@ -28,7 +28,14 @@ class Craft:
             }
         },
 
-        Jobs.BUCHERON: {},
+        Jobs.BUCHERON: {
+            Ressources.PLANCHE_DE_SURF: {
+                Ressources.FRENE,
+                Ressources.CHATAIGNER,
+                Ressources.NOYER,
+                Ressources.CHENE,
+            }
+        },
 
         Jobs.ALCHIMIST: {
             Ressources.POTION_DE_SOUVENIR: {

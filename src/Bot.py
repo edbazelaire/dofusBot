@@ -21,13 +21,12 @@ class Bot:
     HARVEST_TIME = 2
     CONFIDENCE = 0.75
 
-    def __init__(self, region_name: str, ressources: List[str], crafts: List[str] = None, city_name: str = None, max_allowed_ressources=0):
+    def __init__(self, region_name: str, ressources: List[str], crafts: List[str] = None, city_name: str = None):
         self.images = {}
         self.clicked_pos = []
 
         self.ressources = ressources
         self.get_ressources_images(ressources)
-        self.max_allowed_ressources = max_allowed_ressources
 
         self.Movement = Movement(region_name, ressources, city_name)
         self.Fight = Fight()
@@ -234,6 +233,7 @@ class Bot:
         if self.Fight.check_is_victory():
             return
 
+        self.Movement.current_path_index = 0
         if self.check_tomb():
             self.Movement.ghost_routine()
 
@@ -356,7 +356,5 @@ class Bot:
         n_images = len(os.listdir(dir))
         img.save(dir + f'houblon_{n_images}.png')
         time.sleep(1)
-
-
 
 
