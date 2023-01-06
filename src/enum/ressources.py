@@ -74,7 +74,7 @@ class Ressources:
                 pods=2
             )
 
-        elif ressource_name == Ressources.TREFLES_A_5_FEUILLES:
+        elif ressource_name == Ressources.TREFLE_A_5_FEUILLES:
             return RessourceConfig(
                 name=ressource_name,
                 ressource_type=RessourceType.Ressource,

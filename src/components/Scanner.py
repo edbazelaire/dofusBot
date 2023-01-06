@@ -11,7 +11,8 @@ from src.utils.Sleeper import Sleeper
 class Scanner:
     HARVEST_TIME = 2
 
-    def __init__(self, ressources):
+    def __init__(self, parent, ressources):
+        self.parent = parent
         self.ressources = ressources
         self.images = self.get_ressources_images(ressources)
         self.clicked_pos = []
@@ -22,7 +23,7 @@ class Scanner:
 
         for ressource_name, images in self.images.items():
             # check if this ressource belong to this position
-            if CurrentBot.location not in CurrentBot.region.RESSOURCES_LOCATIONS[ressource_name]:
+            if self.parent.Movement.location not in self.parent.Movement.region.RESSOURCES_LOCATIONS[ressource_name]:
                 continue
 
             for image in images:

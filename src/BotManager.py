@@ -23,27 +23,31 @@ class BotManager:
 
     # ==================================================================================================
     # INITIALIZATION
-    def __init__(self, region_name):
+    def __init__(self, region_name, ressources, crafts):
         self.bots: List[Bot] = []
 
-        self.create_bots(region_name)
+        self.create_bots(region_name, ressources, crafts)
 
-    def create_bots(self, region_name):
+    def create_bots(self, region_name, ressources, crafts):
         # get only dofus windows
         all_windows = pyautogui.getAllWindows()
         for window in all_windows:
-            if "Dofus" in window.title:
+            if "Dofus 2." in window.title:
+                _id = len(self.bots)
                 self.bots.append(Bot(
+                    id=_id,
+                    window=window,
                     region_name=region_name,
-                    ressources=[],
-                    window=window
+                    ressources=ressources[_id],
+                    crafts=crafts[_id]
                 ))
 
     # ==================================================================================================
     # MAIN
     def run(self):
-        for bot in self.bots:
-            bot.play()
+        while True:
+            for bot in self.bots:
+                bot.play()
 
     def fight_routine(self):
         while True:

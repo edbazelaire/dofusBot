@@ -12,6 +12,7 @@ from src.enum.positions import Positions
 from src.enum.images import Images
 from src.components.Fight import Fight
 from src.components.Movement import Movement
+from src.enum.routines import Routines
 from src.utils.CurrentBot import CurrentBot
 from src.utils.ErrorHandler import ErrorHandler
 from src.utils.Sleeper import Sleeper
@@ -30,13 +31,14 @@ class Bot:
         self.window = window
         self.clicked_pos = []
 
+        self.Movement = Movement(self, region_name, ressources, city_name)
+
         self.select()
 
-        self.Movement = Movement(self, region_name, ressources, city_name)
         self.Fight = Fight()
         self.Inventory = Inventory()
         self.Craft = Craft(craft_names=crafts, max_pods=Inventory.get_max_pods())
-        self.Scanner = Scanner(ressources)
+        self.Scanner = Scanner(self, ressources)
 
         if Positions.WINDOW_SIZE_PERC <= 0.5:
             Bot.CONFIDENCE = 0.7
@@ -46,6 +48,7 @@ class Bot:
         CurrentBot.location = self.Movement.location
         CurrentBot.region = self.Movement.region
         self.window.activate()
+        time.sleep(0.5)
 
     # ==================================================================================================================
     # INITIALIZATION
@@ -119,15 +122,15 @@ class Bot:
             return self.Movement.ghost_routine()
 
         elif self.current_routine is None:
+            # check if character needs to go unload ressources to the bank
+            if self.check_pods():
+                return self.bank_routine()
+
             if self.Movement.location in self.Movement.path:
                 # scan for ressources
                 done = self.Scanner.scan()
                 if not done:
                     return
-
-                # check if character needs to go unload ressources to the bank
-                if self.check_pods():
-                    return self.bank_routine()
 
                 if ErrorHandler.is_error:
                     return
@@ -364,11 +367,3 @@ class Bot:
         n_images = len(os.listdir(dir))
         img.save(dir + f'houblon_{n_images}.png')
         time.sleep(1)
-
-
-class Routines(Enum):
-    Bank = 'bank'
-    Craft = 'craft'
-    Ghost = 'ghost'
-    Fight = 'fight'
-    Phoenix = 'fight'

@@ -1,16 +1,13 @@
-import math
 from typing import List
 
-from src.Bot import Routines
 from src.enum.actions import Actions
 from src.enum.images import Images
 from src.enum.positions import Positions
-from src.enum.locations import Locations
 
 import pyautogui as pg
 import time
 
-from src.enum.regions import Regions
+from src.enum.routines import Routines
 from src.location_handling.city.abstract_city import AbstractCity
 from src.location_handling.regions.abstract_region import AbstractRegion
 from src.location_handling.utils import get_region, get_city
@@ -120,7 +117,10 @@ class Movement:
         elif distance_y < 0:
             self.move_up()
 
-        ErrorHandler.fatal_error("unhandled error in move_towards()")
+        else:
+            ErrorHandler.fatal_error("unhandled error in move_towards()")
+
+        return False
 
     def follow_path(self, path: list):
         for value in path:
