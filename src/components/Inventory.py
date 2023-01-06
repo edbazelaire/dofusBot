@@ -14,7 +14,7 @@ class Inventory:
     last_time_check_pods = None
 
     @staticmethod
-    def get_max_pods() -> int:
+    def get_max_pods(debug=False) -> int:
         """ read max pods from inventory """
         Inventory.open()
 
@@ -33,6 +33,9 @@ class Inventory:
 
         pods = int(pods)
         print(f"MAX PODS : {pods}")
+
+        if debug:
+            img.show()
 
         return pods
 
@@ -63,6 +66,7 @@ class Inventory:
     @staticmethod
     def check_pods():
         test = False
+        Inventory.last_time_check_pods = time.time()
 
         # open inventory
         Inventory.open()

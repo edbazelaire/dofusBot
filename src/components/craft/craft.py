@@ -14,7 +14,7 @@ class Craft:
         Jobs.PAYSAN: {
             Ressources.BRIOCHETTE: {
                 Ressources.HOUBLON: 5,
-                Ressources.TREFLES: 1,
+                Ressources.TREFLE_A_5_FEUILLES: 1,
                 Ressources.CENDRES_ETERNELLES: 1
             },
 

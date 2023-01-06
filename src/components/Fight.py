@@ -132,11 +132,14 @@ class Fight:
 
     def forfait(self):
         # click ff button
-        wait_click_on(Images.FF_BUTTON, confidence=0.5)
+        wait_click_on(Images.FF_BUTTON, confidence=0.6, region=Positions.ACTIONS_BAR_REG)
         time.sleep(1)
 
         # validate ff
         wait_click_on(Images.OK_FF_BUTTON, confidence=0.7)
+
+        print("COMBAT ENDED")
+
 
     # ==================================================================================================================
     # CHECK

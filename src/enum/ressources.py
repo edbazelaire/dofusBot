@@ -25,6 +25,7 @@ class Ressources:
     # PLANTS
     ORTIE = 'ortie'
     SAUGE = 'sauge'
+    TREFLE_A_5_FEUILLES = 'trefle a 5 feuilles'
 
     # METALS
     FER = 'fer'
@@ -39,7 +40,6 @@ class Ressources:
 
     # ==================================================================================================================
     # OTHERS
-    TREFLES = 'trefles'
     CENDRES_ETERNELLES = 'cendres_eternelles'
 
     @staticmethod
@@ -74,9 +74,9 @@ class Ressources:
                 pods=1
             )
 
-        elif ressource_name == Ressources.TREFLES:
+        elif ressource_name == Ressources.TREFLE_A_5_FEUILLES:
             return RessourceConfig(
-                name='trefle a 5 feuilles',
+                name=ressource_name,
                 ressource_type=RessourceType.Ressource,
                 pods=1
             )
