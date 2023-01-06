@@ -1,11 +1,9 @@
-from src.enum.actions import Actions
 from src.enum.images import Images
 from src.location_handling.city.bonta import Bonta
 from src.location_handling.regions.abstract_region import AbstractRegion
 from src.enum.locations import Locations
 from src.enum.regions import Regions
 from src.enum.ressources import Ressources
-from src.utils.ErrorHandler import ErrorHandler
 
 
 class PlainesCania(AbstractRegion):
@@ -52,13 +50,8 @@ class PlainesCania(AbstractRegion):
             ],
         }
 
-    def get_path(self, from_location, to_location):
-        path = []
-        if Bonta.is_in_city(from_location):
-            if Bonta.is_in_city(to_location):
-                ErrorHandler.warning("asking for a city movement in the region")
-                return Bonta.get_path(from_location, to_location)
+    def get_aiming_location(self, from_location, to_location):
+        if Bonta.is_in_city(from_location) or Bonta.is_in_city(to_location):
+            return Bonta.get_aiming_location(from_location, to_location)
 
-            path.append(Actions.TAKE_RECALL_POTION)
-
-        path.append(to_location)
+        return to_location

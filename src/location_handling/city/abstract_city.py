@@ -1,4 +1,5 @@
-from src.enum.positions import Positions
+from src.buildings.Bank import Bank
+from src.buildings.craft_building import CraftBuilding
 
 
 class AbstractCity:
@@ -8,16 +9,10 @@ class AbstractCity:
     SUB_REGION = ''             # (unused) name of the city's sub-region in the map
     RESIZED = False             # has been resized already
 
-    BANK_LOCATION = []          # location of the bank in the city
-    BANK_DOOR_POSITION = ()     # screen position (x, y) to click in order to get in the bank
-    GET_OUT_BANK_POSITION = ()  # screen position to click to get out the bank
-    BANK_NPC_IMAGE = ''         # image of the NPC in the bank to talk to
+    bank: Bank
 
     def __init__(self):
         if not self.RESIZED:
-            self.BANK_DOOR_POSITION = Positions.resize(self.BANK_DOOR_POSITION)
-            self.GET_OUT_BANK_POSITION = Positions.resize(self.GET_OUT_BANK_POSITION)
-
             self.RESIZED = True
 
     @staticmethod
@@ -26,12 +21,12 @@ class AbstractCity:
         pass
 
     @staticmethod
-    def get_path(from_location, to_location) -> list:
-        """ get path from a location to another if at least one of theme is in the city """
+    def get_aiming_location(from_location, to_location) -> list:
+        """ next location to go to in order to be able to go to requested location """
         pass
 
     @staticmethod
-    def get_bank_path(location) -> list:
+    def get_craft_building(job) -> CraftBuilding:
         """ get path to the bank from anywhere in the global map """
         pass
 

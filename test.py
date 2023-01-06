@@ -1,30 +1,12 @@
-import win32gui
+import pyautogui as pg
+import pytesseract
 
+from src.enum.positions import Positions
 
-def callback(hwnd, extra):
-    name = win32gui.GetWindowText(hwnd)
-    if 'Dofus' in name:
-        return hwnd
-    else:
-        return
+pg.moveTo(*Positions.INVENTORY_PODS_BAR_MIDDLE)
+img = pg.screenshot(region=Positions.INVENTORY_PODS_VALUE_REG)
 
-    rect = win32gui.GetWindowRect(hwnd)
-    x = rect[0]
-    y = rect[1]
-    w = rect[2] - x
-    h = rect[3] - y
-    print("Window %s:" % win32gui.GetWindowText(hwnd))
-    print("\tLocation: (%d, %d)" % (x, y))
-    print("\t    Size: (%d, %d)" % (w, h))
+value = pytesseract.image_to_string(img, config='--psm 8 --oem 3 -c tessedit_char_whitelist=0123456789')
 
-
-def main():
-    win32gui.EnumWindows(callback, None)
-
-    # test = win32gui.FindWindow(None, "Parsec")
-    # win32gui.GetWindow(test)
-    # print(test)
-
-
-if __name__ == '__main__':
-    main()
+print(value)
+img.show()

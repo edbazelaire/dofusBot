@@ -6,17 +6,18 @@ from src.utils.ErrorHandler import ErrorHandler
 
 class Positions:
     """ contains all screen positions """
+    GAME_WINDOW_ID = 0
+    CURRENT_WINDOW = 0
     DONE = False
 
     ### DO NOT CHANGE ###
     WINDOW_DEFAULT_POS = [-8, -8]
     GAME_WINDOW_DEFAULT_POS = [325, 22]  # default screen position
-    GAME_WINDOW_DEFAULT_SIZE = [1200, 855]  # size of the default screen, on which the positions where calculated
+    GAME_WINDOW_DEFAULT_SIZE = [1271, 905]  # size of the default screen, on which the positions where calculated
     ### DO NOT CHANGE ###
 
     # ==================================================================================================================
     # GAME WINDOW SCREEN CONFIGURATION
-    WINDOW_POS_OFFSET = [0, 0]      # offset to add to compensate the window position from default (WINDOW_DEFAULT_POS)
     WINDOW_SIZE_PERC: float = 1     # percentage of size changes from default size (WINDOW_DEFAULT_SIZE)
 
     # ==================================================================================================================
@@ -33,16 +34,42 @@ class Positions:
 
     # ==================================================================================================================
     # BANK
-    BANK_DOOR_POSITION = (1145, 343)  # position to click in order to enter the bank
-    BANK_PLAYER_INVENTORY_REG = (1241, 96, 345, 800)  # region of the player's inventory when the bank is opened
-    BANK_BANK_INVENTORY_REG = (352, 96, 345, 800)  # region of the bank's inventory when the bank is opened
-    BANK_PLAYER_RESSOURCE_POS = (1464, 155)  # button to click to open the ressources part of the player inventory
-    BANK_BANK_RESSOURCE_POS = (578, 155)  # button to click to open the ressources part of the player inventory
-    CLOSE_BANK_BUTTON_POSITION = (1564, 111)  # position of closing bank button
-    GET_OUT_BANK_POSITION = (735, 710)  # position to click to get out of the bank
+    BANK_DOOR_POSITION = (1145, 343)                    # position to click in order to enter the bank
+    BANK_SEARCH_BAR = (518, 823)                        # positions to click to use the search bar
+    BANK_SEARCH_BAR_RESET_BUTTON = (663, 823)           # positions to click to reset the search bar
+    BANK_PLAYER_SEARCH_BAR = (1445, 823)                # positions to click to use the search bar on player's side
+    BANK_PLAYER_SEARCH_BAR_RESET_BUTTON = (1560, 823)   # positions to click to reset the search bar on player's side
+    BANK_PLAYER_INVENTORY_REG = (1241, 96, 345, 800)    # region of the player's inventory when the bank is opened
+    BANK_INVENTORY_REG = (352, 96, 345, 800)            # region of the bank's inventory when the bank is opened
+    BANK_PLAYER_RESSOURCE_POS = (1464, 155)             # button to click to open the ressources part of the player inventory
+    BANK_BANK_RESSOURCE_POS = (578, 155)                # button to click to open the ressources part of the player inventory
+    BANK_FIRST_RESSOURCE_POSITION = (397, 230)          # position of the bank's first ressource
+    BANK_PLAYER_FIRST_RESSOURCE_POSITION = (1286, 230)  # position of the player's first ressource
+    BANK_FIRST_RESSOURCE_QUANTITY_REG = (372, 203, 54, 10)          # region of the bank's first ressource
+    BANK_PLAYER_FIRST_RESSOURCE_QUANTITY_REG = (1261, 203, 54, 10)  # position of the bank's first ressource
 
+    # RECIPES   ------------------------------------------------
+    BANK_RECIPES_BTN = (379, 821)                       # button that opens recipes tab
+    BANK_RECIPES_SEARCH_BAR = (850, 233)                # position of the search bar in the recipes region
+    BANK_RECIPES_REG = (730, 30, 470, 870)              # region of recipes
+
+    CLOSE_BANK_BUTTON_POSITION = (1564, 111)            # position of closing bank button
+    GET_OUT_BANK_POSITION = (735, 710)                  # position to click to get out of the bank
+
+    # ==================================================================================================================
+    # CRAFT
+    CRAFT_SEARCH_BAR = (410, 133)           # position of the search bar to craft items
+    CRAFT_FIRST_SLOT = (346, 240)           # first slot of the craft machine
+    CRAFT_QUANTITY_BTN = (1013, 413)        # position to click to set the quantity
+    CRAFT_FUSION_BTN = (1013, 502)          # button clicked to craft
+    CRAFT_EXIT_MACHINE_BTN = (1561, 87)     # button clicked to exit machine
+
+    # ==================================================================================================================
     # PERSONAL TABS
-    INVENTORY_CLICK_POS = (1412, 949)  # position to click to open inventory
+    INVENTORY_CLICK_POS = (1412, 949)           # position to click to open inventory
+    INVENTORY_PODS_REG = (1365, 840, 10, 6)
+    INVENTORY_PODS_VALUE_REG = (1325, 777, 45, 23)
+    INVENTORY_PODS_BAR_MIDDLE = (1320, 844)
 
     # RESSOURCES
     RESSOURCE1_REG = (1218, 934, 34, 16)
@@ -51,11 +78,12 @@ class Positions:
     RESSOURCE4_REG = (1092, 934, 34, 16)
 
     # LOCATION (location / zone / region...)
-    MAP_LOCATION_REG = (0, 70, 100, 30)
-    MAP_ZONE_NAME_REG = (0, 45, 320, 25)
-    MAP_REGION_NAME_REG = (0, 45, 320, 25)
+    MAP_LOCATION_REG = (-20, 70, 150, 30)
+    MAP_ZONE_NAME_REG = (-20, 45, 320, 25)
+    MAP_REGION_NAME_REG = (-20, 45, 320, 25)    # TODO
 
     # FIGHT
+    ACTIONS_BAR_REG = (393, 925, 1200, 110)
     READY_BUTTON_REG = (1340, 950, 110, 35)
     END_TURN_BUTTON_POS = (1396, 965)
     SPELL_1_POS = (894, 953)
@@ -65,8 +93,9 @@ class Positions:
     PM_REG = (795, 1006, 20, 22)
     PA_REG = (744, 1010, 20, 22)
 
-    def __init__(self):
-        self.set_window_size()
+    def __init__(self, game_window_id):
+        Positions.GAME_WINDOW_ID = game_window_id
+        Positions.set_window_size()
 
         for name, val in vars(Positions).items():
             # filter constants
@@ -78,37 +107,39 @@ class Positions:
                 continue
 
             # do not change settings
-            if name == 'WINDOW_SIZE_PERC' or name == 'WINDOW_POS_OFFSET' or name == 'WINDOW_SIZE' or name == 'WINDOW_POS':
+            if name == 'WINDOW_SIZE_PERC' or name == 'WINDOW_REG' or name == 'WINDOW_POS':
                 continue
 
             # filter
             if not isinstance(val, tuple):
                 continue
 
+            if len(val) == 0:
+                continue
+
             setattr(Positions, name, self.resize(val))
 
         # update GameWindow X & Y from WindowRegion
-        self.X_MIN = self.WINDOW_REG[0]
-        self.Y_MIN = self.WINDOW_REG[1]
-        self.X_MAX = self.X_MIN + self.WINDOW_REG[2]
-        self.Y_MAX = self.Y_MAX + self.WINDOW_REG[3]
+        Positions.X_MIN = Positions.WINDOW_REG[0] + Positions.X_BAND_OFFSET
+        Positions.Y_MIN = Positions.WINDOW_REG[1] + Positions.Y_BAND_OFFSET
+        Positions.X_MAX = Positions.X_MIN + Positions.WINDOW_REG[2] - 2 * Positions.X_BAND_OFFSET
+        Positions.Y_MAX = Positions.Y_MAX + Positions.WINDOW_REG[3] - 2 * Positions.Y_BAND_OFFSET
 
     @staticmethod
     def resize(pos: tuple):
-        x = math.floor(pos[0] * Positions.WINDOW_SIZE_PERC) + Positions.WINDOW_POS_OFFSET[0]
-        y = math.floor(pos[1] * Positions.WINDOW_SIZE_PERC) + Positions.WINDOW_POS_OFFSET[1]
+        x = math.floor((pos[0] - Positions.GAME_WINDOW_DEFAULT_POS[0]) * Positions.WINDOW_SIZE_PERC) + Positions.WINDOW_REG[0]
+        y = math.floor((pos[1] - Positions.GAME_WINDOW_DEFAULT_POS[1]) * Positions.WINDOW_SIZE_PERC) + Positions.WINDOW_REG[1]
 
         if len(pos) == 2:
-            new_val = (x, y)
+            return x, y
         elif len(pos) == 4:
-            reg_size_x = math.floor(pos[2] / Positions.WINDOW_SIZE_PERC)
-            reg_size_y = math.floor(pos[3] / Positions.WINDOW_SIZE_PERC)
-            new_val = (x, y, reg_size_x, reg_size_y)
+            reg_size_x = math.floor(pos[2] * Positions.WINDOW_SIZE_PERC)
+            reg_size_y = math.floor(pos[3] * Positions.WINDOW_SIZE_PERC)
+            return x, y, reg_size_x, reg_size_y
         else:
             ErrorHandler.error(f'trying to set resize a tuple that is neither a pos nore a region {pos}')
-            return pos
 
-        return new_val
+        return None
 
     @staticmethod
     def get_ressource_regions():
@@ -116,6 +147,10 @@ class Positions:
 
     @staticmethod
     def set_window_size():
+        """ resize all position values according to the game window size/position
+        :param id: id of the game window
+        :return:
+        """
         def check_game_window_size(x, y, size_x, size_y):
             import pyautogui as pg
 
@@ -190,23 +225,22 @@ class Positions:
             if 'Dofus' not in name or Positions.DONE:
                 return
 
+            if Positions.GAME_WINDOW_ID != Positions.CURRENT_WINDOW:
+                Positions.CURRENT_WINDOW += 1
+                return
+
             # get size of the ALL window
             rect = win32gui.GetWindowRect(hwnd)
             window_x = rect[0] + 8
             window_y = rect[1] + 30        # add 30px because of window tab
-            size_x = rect[2] - window_x - 8
-            size_y = rect[3] - window_y - 8
+            window_size_x = rect[2] - window_x - 8
+            window_size_y = rect[3] - window_y - 8
 
             # get size of the GAME WINDOW
-            Positions.WINDOW_REG = check_game_window_size(window_x, window_y, size_x, size_y)
+            Positions.WINDOW_REG = check_game_window_size(window_x, window_y, window_size_x, window_size_y)
 
             # set RELATIVE VALUES
             Positions.WINDOW_SIZE_PERC = Positions.WINDOW_REG[2] / Positions.GAME_WINDOW_DEFAULT_SIZE[0]
-
-            Positions.WINDOW_POS_OFFSET = [
-                Positions.WINDOW_REG[0] - Positions.GAME_WINDOW_DEFAULT_POS[0],
-                Positions.WINDOW_REG[1] - Positions.GAME_WINDOW_DEFAULT_POS[1]
-            ]
 
             # adjust size_y
             Positions.WINDOW_REG[3] = math.floor(Positions.WINDOW_SIZE_PERC * Positions.GAME_WINDOW_DEFAULT_SIZE[1])
@@ -225,16 +259,16 @@ class Positions:
 
     @staticmethod
     def CHANGE_MAP_LEFT_POS() -> tuple:
-        return Positions.WINDOW_REG[0] + Positions.X_BAND_OFFSET / 2, Positions.WINDOW_REG[3] / 2
+        return Positions.WINDOW_REG[0] + Positions.X_BAND_OFFSET / 2, Positions.WINDOW_REG[1] + Positions.WINDOW_REG[3] / 2
 
     @staticmethod
     def CHANGE_MAP_RIGHT_POS() -> tuple:
-        return Positions.WINDOW_REG[0] + Positions.WINDOW_REG[2] - Positions.X_BAND_OFFSET / 2, Positions.WINDOW_REG[3] / 2
+        return Positions.WINDOW_REG[0] + Positions.WINDOW_REG[2] - Positions.X_BAND_OFFSET / 2,  Positions.WINDOW_REG[1] + Positions.WINDOW_REG[3] / 2
 
     @staticmethod
     def CHANGE_MAP_UP_POS() -> tuple:
-        return Positions.WINDOW_REG[2] / 2, Positions.WINDOW_REG[1] + Positions.Y_BAND_OFFSET / 2
+        return Positions.WINDOW_REG[0] + Positions.WINDOW_REG[2] / 2, Positions.WINDOW_REG[1] + Positions.Y_BAND_OFFSET / 2
 
     @staticmethod
     def CHANGE_MAP_DOWN_POS() -> tuple:
-        return Positions.WINDOW_REG[2] / 2, Positions.WINDOW_REG[1] + Positions.WINDOW_REG[3] - Positions.Y_BAND_OFFSET / 2
+        return Positions.WINDOW_REG[0] + Positions.WINDOW_REG[2] / 2, Positions.WINDOW_REG[1] + Positions.WINDOW_REG[3] - Positions.Y_BAND_OFFSET / 2
