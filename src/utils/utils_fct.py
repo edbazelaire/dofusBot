@@ -99,13 +99,11 @@ def check_map_change(from_location, do_map_load_check=False) -> bool:
     """ check if player changed map by looking at map position """
     start = time.time()
     map_location = read_map_location()
-    while from_location == map_location or map_location is None:
+    if from_location == map_location or map_location is None:
         if time.time() - start > ErrorHandler.TRAVEL_MAP_TIME:
             ErrorHandler.warning("MAP NOT CHANGED", ErrorType.MAP_NOT_CHANGED_ERROR)
             return False
         time.sleep(0.5)
-
-        map_location = read_map_location()
 
     print("     MAP CHANGED")
     ErrorHandler.ERROR_CTRS[ErrorType.MAP_NOT_CHANGED_ERROR] = False

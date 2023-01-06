@@ -20,10 +20,11 @@ class Images:
     CURSOR_RIGHT = 'cursor_right.png'
     CURSOR_UP = 'cursor_up.png'
     CURSOR_DOWN = 'cursor_down.png'
-    GHOST_FORM = 'ghost_form.png'                                   # TODO
     OK_TRANSFER_BUTTON = 'ok_transfer.png'
     INVENTORY_OPENED = 'inventory_opened.png'
     CRAFT_MACHINE_LOADED = 'craft_machine_loaded.png'
+    JOIN_FIGHT_IMG = 'join_fight.png'   # TODO
+    GHOST_FORM = 'ghost_form.png'       # TODO
 
     # BANK                  ====================================================================
     BANK_DIR = 'bank'

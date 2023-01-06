@@ -28,7 +28,7 @@ class Bank(AbstractBuilding):
 
     def close(self):
         pg.click(*Positions.CLOSE_BANK_BUTTON_POSITION)
-        time.sleep(1)
+        time.sleep(0.2)
 
         while Bank.check_is_opened():
             ErrorHandler.error('bank not closed', ErrorType.RETRY_ACTION_ERROR)
@@ -36,7 +36,7 @@ class Bank(AbstractBuilding):
             time.sleep(1)
 
         ErrorHandler.reset_error(ErrorType.RETRY_ACTION_ERROR)
-        time.sleep(1)
+        time.sleep(0.2)
 
     def enter(self) -> bool:
         return self.enter_building(click_pos=self.DOOR_POSITION, loading_img=self.NPC_IMAGE)

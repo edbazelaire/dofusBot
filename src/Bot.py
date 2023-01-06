@@ -1,40 +1,51 @@
+from enum import Enum
 from typing import List
-
 import pyautogui as pg
 import time
 import os
 import pytesseract
-from PIL.Image import Image
 
 from src.components.Inventory import Inventory
+from src.components.Scanner import Scanner
 from src.components.craft.craft import Craft
 from src.enum.positions import Positions
 from src.enum.images import Images
 from src.components.Fight import Fight
 from src.components.Movement import Movement
-from src.utils.ErrorHandler import ErrorHandler, ErrorType
-from src.utils.utils_fct import read_map_location, check_is_ghost, wait_image, check_ok_button, wait_click_on
+from src.utils.CurrentBot import CurrentBot
+from src.utils.ErrorHandler import ErrorHandler
+from src.utils.Sleeper import Sleeper
+from src.utils.utils_fct import read_map_location, check_is_ghost, check_ok_button, wait_click_on, check_map_change
 
 
 class Bot:
+    CURRENT_ID = 0
     MAX_TIME_SCANNING = 60
-    HARVEST_TIME = 2
-    CONFIDENCE = 0.75
 
-    def __init__(self, region_name: str, ressources: List[str], crafts: List[str] = None, city_name: str = None):
-        self.images = {}
+    def __init__(self, id, window, region_name, ressources: List[str] = [], crafts: List[str] = None, city_name: str = None):
+        self.current_routine: (None, Routines) = None
+        self.current_step: int = 0
+
+        self.id = id
+        self.window = window
         self.clicked_pos = []
 
-        self.ressources = ressources
-        self.get_ressources_images(ressources)
+        self.select()
 
-        self.Movement = Movement(region_name, ressources, city_name)
+        self.Movement = Movement(self, region_name, ressources, city_name)
         self.Fight = Fight()
         self.Inventory = Inventory()
         self.Craft = Craft(craft_names=crafts, max_pods=Inventory.get_max_pods())
+        self.Scanner = Scanner(ressources)
 
         if Positions.WINDOW_SIZE_PERC <= 0.5:
             Bot.CONFIDENCE = 0.7
+
+    def select(self):
+        CurrentBot.id = self.id
+        CurrentBot.location = self.Movement.location
+        CurrentBot.region = self.Movement.region
+        self.window.activate()
 
     # ==================================================================================================================
     # INITIALIZATION
@@ -45,15 +56,17 @@ class Bot:
         print("=" * 50)
         print("")
 
-        self.clicked_pos = []
         self.Movement.reset()
         ErrorHandler.reset()
 
         self.check_situation()
 
+    def reset_routine(self):
+        self.current_routine = None
+        self.current_step = 0
+
     def check_situation(self):
         """ on reset check the situation the character is in """
-
         if self.Fight.check_combat_started():
             self.fight_routine()
 
@@ -64,7 +77,7 @@ class Bot:
             return
 
         elif check_is_ghost():
-            self.Movement.go_to_phoenix()
+            self.Movement.phoenix_routine()
 
         elif self.check_craft():
             self.craft_routine()
@@ -72,111 +85,59 @@ class Bot:
         elif self.check_pods():
             self.bank_routine()
 
-    def get_ressources_images(self, ressources: list):
-        """ get only images of requested ressources """
-        dir = 'images/ressources'
-        for ressource_name in ressources:
-            self.images[ressource_name] = [Images.load(dir + '/' + filename) for filename in os.listdir(dir) if filename.startswith(ressource_name)]
-
     # ==================================================================================================================
     # RUN
-    def run(self):
-        print(f"STARTING POSITION : {self.Movement.location}")
-        print(f"STARTING MAP INDEX : {self.Movement.current_path_index}")
+    def play(self):
+        self.select()
 
-        self.check_situation()
+        # if last_position set : check map changed
+        if self.Movement.last_location is not None:
+            success = check_map_change(self.Movement.last_location, True)
+            if success:
+                self.Movement.last_location = None
+                self.Movement.location = read_map_location()
+                print(f'     location : {self.Movement.location}')
+                print("")
+            elif self.Fight.check_combat_started():
+                return self.fight_routine()
 
-        while True:
-            if ErrorHandler.is_error:
-                self.reset()
+        if ErrorHandler.is_error:
+            self.reset()
 
-            # check if has craft order
-            if self.check_craft():
-                self.craft_routine()
-                continue
+        # check if has craft order
+        if self.check_craft():
+            self.craft_routine()
+            return
 
-            # scan for ressources
+        if self.current_routine == Routines.Bank:
+            return self.bank_routine()
+        elif self.current_routine == Routines.Craft:
+            return self.craft_routine()
+        elif self.current_routine == Routines.Fight:
+            return
+        elif self.current_routine == Routines.Ghost:
+            return self.Movement.ghost_routine()
+
+        elif self.current_routine is None:
             if self.Movement.location in self.Movement.path:
+                # scan for ressources
+                done = self.Scanner.scan()
+                if not done:
+                    return
+
                 # check if character needs to go unload ressources to the bank
                 if self.check_pods():
-                    self.bank_routine()
-                    continue
-
-                found_one = self.scan()
+                    return self.bank_routine()
 
                 if ErrorHandler.is_error:
-                    continue
+                    return
 
-                if found_one:
-                    # check if fight has occurred
-                    time.sleep(1)
-                    if self.Fight.check_combat_started():
-                        self.fight_routine()
-                        continue
-
-            success = self.Movement.go_to_next_location()
-            if not success:
-                # check if was caught in a fight
+                # check if fight has occurred
+                time.sleep(1)
                 if self.Fight.check_combat_started():
-                    self.fight_routine()
-                    continue
+                    return self.fight_routine()
 
-    def scan(self) -> bool:
-        """ scan the map for ressources """
-        print('Scanning', end='')
-
-        self.clicked_pos = []
-
-        start = time.time()
-        found_one = False
-        is_any = True
-        while is_any:
-            print('.', end='')
-            is_any = self.find_all_ressources()
-            if not is_any or time.time() - start > self.MAX_TIME_SCANNING:
-                break
-            time.sleep(self.HARVEST_TIME)
-
-        print("\n")
-        return found_one
-
-    def find_all_ressources(self):
-        for ressource_name, images in self.images.items():
-            # check if this ressource belong to this position
-            if self.Movement.location not in self.Movement.region.RESSOURCES_LOCATIONS[ressource_name]:
-                continue
-
-            # check that this is not a "fake" location (only here to help path finding)
-            if ressource_name == "fake":
-                continue
-
-            for image in images:
-                isAny = self.find_ressource(image)
-                if isAny:
-                    return True
-
-        return False
-
-    def find_ressource(self, image: Image) -> bool:
-        all_pos = list(pg.locateAllOnScreen(
-            image,
-            confidence=self.CONFIDENCE,
-            region=Positions.WINDOW_REG
-        ))
-
-        for pos in all_pos:
-            if (pos[0], pos[1]) in self.clicked_pos:
-                continue
-
-            self.clicked_pos.append((pos[0], pos[1]))
-
-            if Positions.X_MAX > pos[0] > Positions.X_MIN and Positions.Y_MAX > pos[1] > Positions.Y_MIN:
-                x = min(pos[0] + pos.width / 2, Positions.X_MAX)
-                y = min(pos[1] + pos.height / 2, Positions.Y_MAX)
-                pg.click(x, y)
-                return True
-
-        return False
+            self.Movement.go_to_next_location()
 
     # ==================================================================================================================
     # CHECKS
@@ -242,40 +203,61 @@ class Bot:
 
     def bank_routine(self, unload_ressources: (str, List[str]) = None):
         """ go to the bank and unload ressources """
-        print("Going to bank")
-
-        # go to the bank
-        self.Movement.go_to_bank()
-        time.sleep(2)
-
-        if ErrorHandler.is_error:
-            return
-
         bank = self.Movement.city.bank
 
-        # unload ressources in bank
-        bank.open()
-        time.sleep(1)
+        # --------------------------------------------------------
+        # STEP 0 : init routine
+        if self.current_routine != Routines.Bank or self.current_step == 0:
+            print("-- bank routine")
+            self.current_routine = Routines.Bank
+            self.current_step = 1
 
-        # unload ressources in bank
-        bank.unload_ressources()
-        if unload_ressources is not None:
-            if isinstance(unload_ressources, str):
-                unload_ressources = [unload_ressources]
+        # --------------------------------------------------------
+        # STEP 1 : go to the bank
+        if self.current_step == 1:
+            done = self.Movement.move_towards(bank.LOCATION)
+            if not done:
+                return
 
-            for ressource_name in unload_ressources:
-                success = bank.transfer(ressource_name, from_bank=False)
-                if not success:
-                    ErrorHandler.warning(f"unable to transfer {ressource_name}")
+            print("Clicking on BANK_DOOR")
+            if not bank.enter():
+                return
 
-        # transfer ressources for requested crafts if possible (success -> craft order is set)
-        self.Craft.transfer_required_ressources()
+            Sleeper.sleep(1)
+            self.current_step += 1
+            return
 
-        # close bank tab
-        bank.close()
+        # --------------------------------------------------------
+        # STEP 2 : open bank - unload - exit
+        elif self.current_step == 2:
+            if ErrorHandler.is_error:
+                return
 
-        # get out of the bank
-        bank.exit()
+            # unload ressources in bank
+            bank.open()
+            time.sleep(1)
+
+            # unload ressources in bank
+            bank.unload_ressources()
+            if unload_ressources is not None:
+                if isinstance(unload_ressources, str):
+                    unload_ressources = [unload_ressources]
+
+                for ressource_name in unload_ressources:
+                    success = bank.transfer(ressource_name, from_bank=False)
+                    if not success:
+                        ErrorHandler.warning(f"unable to transfer {ressource_name}")
+
+            # transfer ressources for requested crafts if possible (success -> craft order is set)
+            self.Craft.transfer_required_ressources()
+
+            # close bank tab
+            bank.close()
+
+            # get out of the bank
+            bank.exit()
+
+            self.reset_routine()
 
     def craft_routine(self):
         if self.Craft.craft_order is None:
@@ -286,36 +268,62 @@ class Bot:
             ErrorHandler.error("Call for craft routine when craft_order is None")
             ErrorHandler.is_error = True
 
-        print(f"\nCraft ordered : {self.Craft.craft_order}")
-
         # init job/building
         job = self.Craft.get_job(self.Craft.craft_order)
         building = self.Movement.city.get_craft_building(job)
 
-        # go to the craft building
-        self.Movement.go_to(building.LOCATION)
+        # ---------------------------------------------------
+        # STEP 0 : init routine
+        if self.current_routine != Routines.Craft or self.current_step == 0:
+            print("-- craft routine")
+            self.current_routine = Routines.Craft
+            self.current_step = 1
 
-        # enter the requested building for the craft
-        building.enter()
-        time.sleep(3)
+        # ---------------------------------------------------
+        # STEP 1 : go to building
+        if self.current_step == 1:
+            # go to the craft building
+            done = self.Movement.move_towards(building.LOCATION)
+            if not done:
+                return
 
-        # craft the requested ordered
-        building.use_machine()
-        building.craft(self.Craft.craft_order)
-        building.exit_machine()
+            self.current_step += 1
 
-        time.sleep(1)
+        # ---------------------------------------------------
+        # STEP 2 : enter the building
+        if self.current_step == 2:
+            # enter the requested building for the craft
+            building.enter()
+            Sleeper.sleep(3)
+            self.current_step += 1
+            return
 
-        # exit building
-        building.exit()
+        # ---------------------------------------------------
+        # STEP 3 : do the craft - exit - start the bank routine
+        if self.current_step == 3:
+            # craft the requested ordered
+            building.use_machine()
+            building.craft(self.Craft.craft_order)
+            building.exit_machine()
 
-        # go to bank to unload
-        unload_ressource = self.Craft.craft_order
-        self.Craft.craft_order = None
-        self.bank_routine(unload_ressources=unload_ressource)
+            time.sleep(1)
+
+            # exit building
+            building.exit()
+
+            # go to bank to unload
+            unload_ressource = self.Craft.craft_order
+            self.Craft.craft_order = None
+            self.bank_routine(unload_ressources=unload_ressource)
+
+        self.reset_routine()
 
     # ==================================================================================================================
     # FIGHT
+    @staticmethod
+    def join_fight():
+        wait_click_on(Images.JOIN_FIGHT_IMG)
+
     def on_death(self):
         check_ok_button(True)
         time.sleep(2)
@@ -358,3 +366,9 @@ class Bot:
         time.sleep(1)
 
 
+class Routines(Enum):
+    Bank = 'bank'
+    Craft = 'craft'
+    Ghost = 'ghost'
+    Fight = 'fight'
+    Phoenix = 'fight'
