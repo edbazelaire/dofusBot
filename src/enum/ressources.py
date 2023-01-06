@@ -28,7 +28,7 @@ class Ressources:
     # PLANTS
     ORTIE = 'ortie'
     SAUGE = 'sauge'
-    TREFLES_A_5_FEUILLES = 'trefles a 5 feuilles'
+    TREFLE_A_5_FEUILLES = 'trefle a 5 feuilles'
 
     # METALS
     FER = 'fer'

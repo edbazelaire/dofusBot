@@ -13,7 +13,7 @@ from src.enum.images import Images
 from src.components.Fight import Fight
 from src.components.Movement import Movement
 from src.utils.ErrorHandler import ErrorHandler, ErrorType
-from src.utils.utils_fct import read_map_location, check_is_ghost, wait_image, check_ok_button
+from src.utils.utils_fct import read_map_location, check_is_ghost, wait_image, check_ok_button, wait_click_on
 
 
 class Bot:
@@ -97,6 +97,11 @@ class Bot:
 
             # scan for ressources
             if self.Movement.location in self.Movement.path:
+                # check if character needs to go unload ressources to the bank
+                if self.check_pods():
+                    self.bank_routine()
+                    continue
+
                 found_one = self.scan()
 
                 if ErrorHandler.is_error:
@@ -107,11 +112,6 @@ class Bot:
                     time.sleep(1)
                     if self.Fight.check_combat_started():
                         self.fight_routine()
-                        continue
-
-                    # check if character needs to go unload ressources to the bank
-                    if self.check_pods():
-                        self.bank_routine()
                         continue
 
             success = self.Movement.go_to_next_location()
@@ -317,7 +317,12 @@ class Bot:
     # ==================================================================================================================
     # FIGHT
     def on_death(self):
+        check_ok_button(True)
+        time.sleep(2)
+
         self.Movement.location = read_map_location()
+
+        wait_click_on(Images.CANCEL_POPUP, confidence=0.7)
 
     # ==================================================================================================================
     # DEBUG

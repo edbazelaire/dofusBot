@@ -68,7 +68,7 @@ class Positions:
     # PERSONAL TABS
     INVENTORY_CLICK_POS = (1412, 949)           # position to click to open inventory
     INVENTORY_PODS_REG = (1365, 840, 10, 6)
-    INVENTORY_PODS_VALUE_REG = (1338, 777, 45, 23)
+    INVENTORY_PODS_VALUE_REG = (1325, 777, 45, 23)
     INVENTORY_PODS_BAR_MIDDLE = (1320, 844)
 
     # RESSOURCES
@@ -83,6 +83,7 @@ class Positions:
     MAP_REGION_NAME_REG = (-20, 45, 320, 25)    # TODO
 
     # FIGHT
+    ACTIONS_BAR_REG = (393, 925, 1200, 110)
     READY_BUTTON_REG = (1340, 950, 110, 35)
     END_TURN_BUTTON_POS = (1396, 965)
     SPELL_1_POS = (894, 953)

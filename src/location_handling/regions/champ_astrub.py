@@ -431,8 +431,36 @@ class ChampAstrub(AbstractRegion):
             [8, -23],
             [9, -23],
             [5, -22],
-        ]
-        }
+        ],
+        Ressources.TREFLE_A_5_FEUILLES: [
+            [0, -18],
+            [0, -17],
+            [0, -16],
+            [0, -15],
+            [-1, -15],
+            [-1, -16],
+            [-2, -16],
+            [-3, -16],
+            [-3, -17],
+            [-1, -17],
+            [-1, -18],
+            [-2, -18],
+            [-3, -18],
+            [-3, -19],
+            [-2, -19],
+            [-1, -19],
+            [-1, -20],
+            [-3, -20],
+            [-3, -21],
+            [-3, -22],
+            [-2, -21],
+            [-1, -21],
+            [0, -21],
+            [0, -22],
+            [0, -23],
+            [2, -23],
+        ],
+    }
 
     # IMAGES
     PHOENIX_STATUE_IMAGE: str = Images.PHOENIX_STATUE
@@ -460,5 +488,9 @@ class ChampAstrub(AbstractRegion):
                 and to_location[0] > Astrub.TOP_LEFT_CITY_CHECKPOINT[0] \
                 and from_location[1] > Astrub.TOP_LEFT_CITY_CHECKPOINT[1]:
             return Astrub.TOP_LEFT_CITY_CHECKPOINT
+
+        if from_location[0] == 7 and -25 >= from_location[1] >= -28 \
+                and to_location[0] >= 8:
+            return [7, -24]
 
         return to_location
