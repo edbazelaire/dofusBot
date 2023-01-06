@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import List
 import pyautogui as pg
 import time
@@ -30,6 +29,7 @@ class Bot:
         self.id = id
         self.window = window
         self.clicked_pos = []
+        self.unload_ressources = []
 
         self.Movement = Movement(self, region_name, ressources, city_name)
 
@@ -242,7 +242,12 @@ class Bot:
 
             # unload ressources in bank
             bank.unload_ressources()
+
             if unload_ressources is not None:
+                unload_ressources = []
+
+            unload_ressources += self.unload_ressources
+            if len(unload_ressources) is not None:
                 if isinstance(unload_ressources, str):
                     unload_ressources = [unload_ressources]
 
@@ -250,6 +255,9 @@ class Bot:
                     success = bank.transfer(ressource_name, from_bank=False)
                     if not success:
                         ErrorHandler.warning(f"unable to transfer {ressource_name}")
+
+            # reset unload ressource
+            self.unload_ressources = []
 
             # transfer ressources for requested crafts if possible (success -> craft order is set)
             self.Craft.transfer_required_ressources()
@@ -315,11 +323,9 @@ class Bot:
             building.exit()
 
             # go to bank to unload
-            unload_ressource = self.Craft.craft_order
+            self.unload_ressources = self.Craft.craft_order
             self.Craft.craft_order = None
-            self.bank_routine(unload_ressources=unload_ressource)
-
-        self.reset_routine()
+            self.bank_routine()
 
     # ==================================================================================================================
     # FIGHT
