@@ -242,11 +242,11 @@ class Bank(AbstractBuilding):
 
         # reset search bar
         pg.click(*reset_btn_pos)
-        time.sleep(1)
+        time.sleep(0.5)
 
         # click on search bar
         pg.click(*search_bar_pos)
-        time.sleep(1)
+        time.sleep(0.5)
 
         # type ressource name in search bar
         ressource = Ressources.get(ressource_name)

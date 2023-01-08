@@ -2,6 +2,7 @@ from typing import List
 
 import pyautogui
 
+from data.JobRoutines import get_job_routine, JobRoutine
 from src.Bot import Bot
 from src.enum.images import Images
 from src.utils.ErrorHandler import ErrorHandler
@@ -23,24 +24,32 @@ class BotManager:
 
     # ==================================================================================================
     # INITIALIZATION
-    def __init__(self, region_name, ressources, crafts):
+    def __init__(self, n_max=None):
         self.bots: List[Bot] = []
 
-        self.create_bots(region_name, ressources, crafts)
+        self.create_bots(n_max)
 
-    def create_bots(self, region_name, ressources, crafts):
+    def create_bots(self, n_max=None):
         # get only dofus windows
         all_windows = pyautogui.getAllWindows()
+        ctr = 0
         for window in all_windows:
             if "Dofus 2." in window.title:
                 _id = len(self.bots)
+                char_name = window.title.split(' - Dofus')[0]
+                job_routine = get_job_routine(char_name)
+                if job_routine is None:
+                    continue
+
                 self.bots.append(Bot(
-                    id=_id,
+                    bot_id=_id,
                     window=window,
-                    region_name=region_name,
-                    ressources=ressources[_id],
-                    crafts=crafts[_id]
+                    job_routine=job_routine
                 ))
+                ctr += 1
+
+                if n_max is not None and ctr >= n_max:
+                    return
 
     # ==================================================================================================
     # MAIN
@@ -48,6 +57,9 @@ class BotManager:
         while True:
             for bot in self.bots:
                 bot.play()
+
+                if ErrorHandler.is_error:
+                    bot.reset()
 
     def fight_routine(self):
         while True:

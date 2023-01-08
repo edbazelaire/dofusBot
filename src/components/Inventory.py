@@ -65,31 +65,15 @@ class Inventory:
 
     @staticmethod
     def check_pods():
-        test = False
         Inventory.last_time_check_pods = time.time()
 
         # open inventory
         Inventory.open()
-        time.sleep(1)
 
-        # check color at the end of the pods bar
-        img = pg.screenshot(region=Positions.INVENTORY_PODS_REG)
-        height, width = img.size
-        image_data = img.load()
-        min_value = 100
-
-        for loop1 in range(height):
-            for loop2 in range(width):
-                r, g, b = image_data[loop1, loop2]
-                if r >= min_value or g >= min_value or b >= min_value:
-                    test = True
-                    break
-
-            if test:
-                break
+        test = wait_image(Images.FULL_PODS, max_timer=1)
 
         # close inventory
         Inventory.close()
-        time.sleep(1)
+        time.sleep(0.5)
 
         return test

@@ -39,7 +39,9 @@ class Movement:
 
         self.current_path_index: int    = 0                 # index in the farming path
         self.current_path_index_modificator: int = 1        # step on path
-        self.last_location: (None, list)= None              # last location of the player when map change was requested
+
+        self.last_time_requested_movement   = None          # last time a movement was requested (for error debug)
+        self.last_location: (None, list)    = None          # last location of the player when map change was requested
         self.location: list             = [0, 0]            # current position of the bot
         self.next_location: list        = None              # location that the bot is currently heading to
 
@@ -90,7 +92,12 @@ class Movement:
         if to_location == self.location:
             return True
 
-        aiming_location = self.region.get_aiming_location(self.location, to_location)
+        # re aim location while region find an in-between aiming location
+        while True:
+            aiming_location = self.region.get_aiming_location(self.location, to_location)
+            if aiming_location == to_location:
+                break
+            to_location = aiming_location
 
         if aiming_location == self.location:
             ErrorHandler.fatal_error("aiming location == self.location")
@@ -150,8 +157,8 @@ class Movement:
 
     def move(self, click_pos):
         self.last_location = self.location
+        self.last_time_requested_movement = time.time()
         pg.click(*click_pos)
-        return check_map_change(from_location=self.location)
 
     # ==================================================================================================================
     # ROUTINES
@@ -172,6 +179,7 @@ class Movement:
         if self.parent.current_step == 1:
             # wait that map is loaded
             if not check_map_change(from_location=self.location):
+                wait_click_on(Images.YES_BUTTON)
                 return
 
             wait_click_on(Images.CANCEL_POPUP)

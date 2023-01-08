@@ -8,24 +8,24 @@ from src.utils.ErrorHandler import ErrorHandler
 
 
 class Craft:
-    CRAFT_INTERVAL: int = 30 * 60   # interval between each craft sessions
+    CRAFT_INTERVAL: int = 60 * 60   # interval between each craft sessions
 
     CRAFTS = {
         Jobs.PAYSAN: {
+            Ressources.PAIN_D_INCARNAM: {
+                Ressources.BLE: 4
+            },
+
             Ressources.BRIOCHETTE: {
                 Ressources.HOUBLON: 5,
                 Ressources.TREFLE_A_5_FEUILLES: 1,
                 Ressources.CENDRES_ETERNELLES: 1
             },
 
-            Ressources.PAIN_D_INCARNAM: {
-                Ressources.BLE: 4
-            },
-
             Ressources.CARASAU: {
                 Ressources.ORGES: 4,
                 Ressources.ORTIE: 1
-            }
+            },
         },
 
         Jobs.BUCHERON: {

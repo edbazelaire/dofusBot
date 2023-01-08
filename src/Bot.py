@@ -4,6 +4,7 @@ import time
 import os
 import pytesseract
 
+from data.JobRoutines import JobRoutine
 from src.components.Inventory import Inventory
 from src.components.Scanner import Scanner
 from src.components.craft.craft import Craft
@@ -22,23 +23,23 @@ class Bot:
     CURRENT_ID = 0
     MAX_TIME_SCANNING = 60
 
-    def __init__(self, id, window, region_name, ressources: List[str] = [], crafts: List[str] = None, city_name: str = None):
+    def __init__(self, bot_id, window, job_routine: JobRoutine):
         self.current_routine: (None, Routines) = None
         self.current_step: int = 0
 
-        self.id = id
+        self.id = bot_id
         self.window = window
         self.clicked_pos = []
         self.unload_ressources = []
 
-        self.Movement = Movement(self, region_name, ressources, city_name)
+        self.Movement = Movement(self, job_routine.region_name, job_routine.ressources, job_routine.city_name)
 
         self.select()
 
         self.Fight = Fight()
         self.Inventory = Inventory()
-        self.Craft = Craft(craft_names=crafts, max_pods=Inventory.get_max_pods())
-        self.Scanner = Scanner(self, ressources)
+        self.Craft = Craft(craft_names=job_routine.crafts, max_pods=Inventory.get_max_pods())
+        self.Scanner = Scanner(self, job_routine.ressources)
 
         if Positions.WINDOW_SIZE_PERC <= 0.5:
             Bot.CONFIDENCE = 0.7
@@ -60,7 +61,7 @@ class Bot:
         print("")
 
         self.Movement.reset()
-        ErrorHandler.reset()
+        ErrorHandler.reset(self.id)
 
         self.check_situation()
 
@@ -95,7 +96,7 @@ class Bot:
 
         # if last_position set : check map changed
         if self.Movement.last_location is not None:
-            success = check_map_change(self.Movement.last_location, True)
+            success = check_map_change(self.Movement.last_location, at_time=self.Movement.last_time_requested_movement)
             if success:
                 self.Movement.last_location = None
                 self.Movement.location = read_map_location()
@@ -103,9 +104,8 @@ class Bot:
                 print("")
             elif self.Fight.check_combat_started():
                 return self.fight_routine()
-
-        if ErrorHandler.is_error:
-            self.reset()
+            elif self.Movement.last_time_requested_movement is None or time.time() - self.Movement.last_time_requested_movement < ErrorHandler.TRAVEL_MAP_TIME:
+                return
 
         # check if has craft order
         if self.check_craft():
@@ -243,7 +243,7 @@ class Bot:
             # unload ressources in bank
             bank.unload_ressources()
 
-            if unload_ressources is not None:
+            if unload_ressources is  None:
                 unload_ressources = []
 
             unload_ressources += self.unload_ressources
@@ -323,7 +323,7 @@ class Bot:
             building.exit()
 
             # go to bank to unload
-            self.unload_ressources = self.Craft.craft_order
+            self.unload_ressources.append(self.Craft.craft_order)
             self.Craft.craft_order = None
             self.bank_routine()
 

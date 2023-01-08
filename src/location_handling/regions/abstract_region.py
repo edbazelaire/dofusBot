@@ -44,15 +44,15 @@ class AbstractRegion:
             pos = self.RESSOURCES_LOCATIONS[ressource_name]
             [self.path.append(pos[i]) for i in range(len(pos)) if pos[i] not in self.path]
 
-        path = JsonHandler.get_json_path(ressources, self.NAME)
-        if path is not None:
-            self.path = path
-            print(f'Loaded path : {self.path}')
-            return
-
-        # self.path = self.get_best_path(self.path, from_checkpoint=self.CHECKPOINT)
-        JsonHandler.save_json_path(ressources, self.NAME, self.path)
-        print(f'Path : {path}')
+        # path = JsonHandler.get_json_path(ressources, self.NAME)
+        # if path is not None:
+        #     self.path = path
+        #     print(f'Loaded path : {self.path}')
+        #     return
+        #
+        # # self.path = self.get_best_path(self.path, from_checkpoint=self.CHECKPOINT)
+        # JsonHandler.save_json_path(ressources, self.NAME, self.path)
+        # print(f'Path : {path}')
 
     @staticmethod
     def get_best_path(all_pos: List[List[int]], from_checkpoint: List[int]) -> List[List[int]]:

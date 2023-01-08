@@ -25,6 +25,7 @@ class Images:
     CRAFT_MACHINE_LOADED = 'craft_machine_loaded.png'
     JOIN_FIGHT_IMG = 'join_fight.png'   # TODO
     GHOST_FORM = 'ghost_form.png'       # TODO
+    FULL_PODS = 'full_pods.png'
 
     # BANK                  ====================================================================
     BANK_DIR = 'bank'

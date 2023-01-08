@@ -33,9 +33,11 @@ class ErrorHandler:
     }
 
     @staticmethod
-    def reset():
+    def reset(bot_id=None):
+        if bot_id is None:
+            bot_id = CurrentBot.id
         ErrorHandler.is_error = False
-        ErrorHandler.ERROR_CTRS[CurrentBot.id] = ErrorHandler.DEFAULT_ERROR_CTRS
+        ErrorHandler.ERROR_CTRS[bot_id] = ErrorHandler.DEFAULT_ERROR_CTRS
 
     @staticmethod
     def reset_error(error_type: ErrorType):
