@@ -264,7 +264,7 @@ class Bank(AbstractBuilding):
     def check_first_slot_empty(in_bank=True) -> bool:
         """ check if first slot is empty """
         pos = Positions.BANK_FIRST_RESSOURCE_POSITION if in_bank else Positions.BANK_PLAYER_FIRST_RESSOURCE_POSITION
-        EXPECTED_COLOR = (64, 66, 59)  # TODO !
+        EXPECTED_COLOR = (64, 66, 59)
         CHECK_REGION = (
             pos[0] - 20,
             pos[1] - 20,

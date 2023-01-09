@@ -5,6 +5,7 @@ from src.location_handling.regions.mine_astrub import MineAstrub
 from src.location_handling.regions.champ_astrub import ChampAstrub
 from src.location_handling.regions.champ_glace import ChampGlace
 from src.location_handling.regions.planies_cania import PlainesCania
+from src.location_handling.regions.prairie_astrub import PrairieAstrub
 from src.utils.ErrorHandler import ErrorHandler
 
 
@@ -26,6 +27,8 @@ def get_region(region_name: str, ressources: list):
         return PlainesCania(ressources)
     elif region_name == ChampAstrub.NAME:
         return ChampAstrub(ressources)
+    elif region_name == PrairieAstrub.NAME:
+        return PrairieAstrub(ressources)
     elif region_name == MineAstrub.NAME:
         return MineAstrub(ressources)
     elif region_name == ChampGlace.NAME:

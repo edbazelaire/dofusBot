@@ -85,7 +85,7 @@ def read_region():
     # read Zone
     img = pg.screenshot(region=Positions.MAP_ZONE_NAME_REG)
     img = Images.change_color(img, 210)
-    value = pytesseract.image_to_string(img, config="-c tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyz, -psm 7")
+    value = pytesseract.image_to_string(img, config="--psm 7 --oem 3 -c tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyz")
 
     if value == '':
         ErrorHandler.error("unable to read region")

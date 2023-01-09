@@ -31,6 +31,7 @@ class Bot:
         self.window = window
         self.clicked_pos = []
         self.unload_ressources = []
+        self.max_pods = 0 if len(job_routine.crafts) == 0 else Inventory.get_max_pods()
 
         self.Movement = Movement(self, job_routine.region_name, job_routine.ressources, job_routine.city_name)
 
@@ -38,7 +39,7 @@ class Bot:
 
         self.Fight = Fight()
         self.Inventory = Inventory()
-        self.Craft = Craft(craft_names=job_routine.crafts, max_pods=Inventory.get_max_pods())
+        self.Craft = Craft(craft_names=job_routine.crafts, max_pods=self.max_pods)
         self.Scanner = Scanner(self, job_routine.ressources)
 
         if Positions.WINDOW_SIZE_PERC <= 0.5:

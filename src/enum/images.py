@@ -42,6 +42,13 @@ class Images:
     BANK_OPEN = 'bank_open.png'     # TODO : image that validates that bank is open or no
     RECIPES_OPEN = 'recipes_open.png'
 
+    # SWAP TEAM                ====================================================================
+    SWAP_TEAM_DIR = 'swap_team'
+    MULTI_ACCOUNT_BUTTON = 'multi_account_button.png'
+    ACCOUNT_AVATAR = 'account_avatar.png'
+    LOG_ACCOUNT = 'log_account.png'
+
+
     # STUFFS                ====================================================================
     STUFFS_DIR = 'stuffs'
     FIGHT_STUFF = 'fight_stuff.png'
