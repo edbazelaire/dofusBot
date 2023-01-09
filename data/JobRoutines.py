@@ -8,10 +8,9 @@ from src.utils.ErrorHandler import ErrorHandler
 class CharNames(Enum):
     # TEAM 2
     PASCA_VIVIE = 'Pasca-Vivie'
-    RALPHERTIN = 'Ralphertin'
-    INCE_ROLA = 'Ince-Rola'
     ALIC_CLARIA = 'Alic-Claria'
-    MALINA_HAPIS = 'Malina-Hapis'
+    INCE_ROLA = 'Ince-Rola'
+    RALPHERTIN = 'Ralphertin'
 
 
 class JobRoutine:
@@ -77,6 +76,3 @@ def get_char_id(char_name: (str, CharNames)):
 
     if char_name == CharNames.INCE_ROLA.value:
         return '#6773'
-
-    if char_name == CharNames.MALINA_HAPIS.value:
-        return '#5244'

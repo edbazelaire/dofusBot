@@ -14,10 +14,14 @@ class CraftBuilding(AbstractBuilding):
 
         self.MACHINE_POSITION = Positions.resize(machine_position)
 
-    def use_machine(self):
-        pg.click(*self.MACHINE_POSITION)
-        wait_image(Images.CRAFT_MACHINE_LOADED)
-        time.sleep(2)
+    def use_machine(self) -> bool:
+        for i in range(3):
+            pg.click(*self.MACHINE_POSITION)
+            success = wait_image(Images.CRAFT_MACHINE_LOADED)
+            if success:
+                time.sleep(2)
+                return True
+        return False
 
     def craft(self, craft_name):
         # search craft in the recipes

@@ -306,7 +306,7 @@ class Bot:
         if self.current_step == 2:
             # enter the requested building for the craft
             building.enter()
-            Sleeper.sleep(3)
+            Sleeper.sleep(5)
             self.current_step += 1
             return
 
