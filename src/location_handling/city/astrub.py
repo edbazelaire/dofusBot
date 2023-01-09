@@ -1,6 +1,8 @@
 from src.buildings.Bank import Bank
+from src.buildings.Hdv import Hdv
 from src.buildings.craft_building import CraftBuilding
 from src.enum.jobs import Jobs
+from src.enum.ressources import RessourceType
 from src.location_handling.city.abstract_city import AbstractCity
 from src.enum.images import Images
 from src.utils.ErrorHandler import ErrorHandler
@@ -126,3 +128,8 @@ class Astrub(AbstractCity):
 
         else:
             ErrorHandler.fatal_error(f"unhandled job {job}")
+
+    @staticmethod
+    def get_hdv(ressource_type: RessourceType) -> Hdv:
+        if ressource_type == RessourceType.Consumable:
+            return Hdv(location=[3, -19], click_pos=(1344, 432))

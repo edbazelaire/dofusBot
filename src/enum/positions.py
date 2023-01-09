@@ -65,6 +65,24 @@ class Positions:
     CRAFT_EXIT_MACHINE_BTN = (1561, 87)     # button clicked to exit machine
 
     # ==================================================================================================================
+    # HDV
+    BUY_BTN = (695, 126)
+    SELL_BTN = (870, 126)
+    QTY_BTN = (513, 325)
+    QTY_1 = (525, 350)
+    QTY_10 = (525, 375)
+    QTY_100 = (525, 400)
+    # -- buy
+    HDV_BUY_SEARCH_BAR = (473, 200)
+    HDV_BUY_SEARCH_BAR_RESET_BTN = (570, 202)
+    # -- sell
+    HDV_SELL_SEARCH_BAR = (1031, 188)
+    HDV_SELL_SEARCH_BAR_RESET_BTN = (1204, 190)
+    # -- player
+    HDV_PLAYER_SEARCH_BAR = (1557, 797)
+    HDV_PLAYER_SEARCH_BAR_RESET_BTN = (1431, 795)
+
+    # ==================================================================================================================
     # PERSONAL TABS
     INVENTORY_CLICK_POS = (1412, 949)           # position to click to open inventory
     INVENTORY_PODS_REG = (1365, 840, 10, 6)

@@ -121,6 +121,8 @@ class Bot:
             return
         elif self.current_routine == Routines.Ghost:
             return self.Movement.ghost_routine()
+        elif self.current_routine == Routines.Phoenix:
+            return self.Movement.phoenix_routine()
 
         elif self.current_routine is None:
             # check if character needs to go unload ressources to the bank

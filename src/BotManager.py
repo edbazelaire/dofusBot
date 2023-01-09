@@ -78,18 +78,18 @@ class BotManager:
     # MAIN
     def run(self):
         while True:
-            TIME_DURATION = None
+            TIME_DURATION = 0
             start_time = time.time()
 
             while True:
+                if TIME_DURATION is not None and time.time() - start_time >= TIME_DURATION:
+                    break
+
                 for bot in self.bots:
                     bot.play()
 
                     if ErrorHandler.is_error:
                         bot.reset()
-
-                if TIME_DURATION is not None and time.time() - start_time >= TIME_DURATION:
-                    break
 
             self.exchange_ressources()
             self.craft_all()

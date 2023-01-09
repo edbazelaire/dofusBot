@@ -12,6 +12,7 @@ from src.location_handling.city.abstract_city import AbstractCity
 from src.location_handling.regions.abstract_region import AbstractRegion
 from src.location_handling.utils import get_region, get_city
 from src.utils.ErrorHandler import ErrorHandler, ErrorType
+from src.utils.Sleeper import Sleeper
 from src.utils.utils_fct import read_map_location, wait_click_on, check_map_change, wait_image
 
 
@@ -201,6 +202,8 @@ class Movement:
             self.parent.current_routine = Routines.Phoenix
             self.parent.current_step = 1
 
+        # --------------------------------------------------------
+        # STEP 1 : init routine
         if self.parent.current_step == 1:
             done = self.move_towards(self.region.PHOENIX_STATUE_LOCATION)
             if not done:
@@ -208,27 +211,12 @@ class Movement:
 
             self.parent.current_step += 1
 
-        wait_click_on(self.region.PHOENIX_STATUE_IMAGE)
+        # --------------------------------------------------------
+        # STEP 2 : click on phoenix_statue
+        if self.parent.current_step == 2:
+            success = wait_click_on(self.region.PHOENIX_STATUE_IMAGE)
 
-        # wait until reaching phoenix statue
-        time.sleep(3)
-
-    def go_to_bank(self):
-        print(f"{self.location} : Moving to the BANK")
-        self.next_location = self.city.bank.LOCATION
-        if self.location != self.city.bank.LOCATION:
-            self.go_to(self.city.bank.LOCATION)
-            return False
-
-        # get in the bank
-        time.sleep(2)
-        print(f"{self.location} : Clicking on BANK_DOOR")
-        test = self.city.bank.enter()
-
-        if not test:
-            return
-
-        time.sleep(1)
-
-        print(f"{self.location} : I am in the bank")
-        return True
+            # wait until reaching phoenix statue
+            if success:
+                Sleeper.sleep(3)
+                self.parent.reset_routine()

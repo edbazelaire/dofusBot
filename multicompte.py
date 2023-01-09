@@ -1,6 +1,5 @@
 from data.JobRoutines import CharNames
 from src.BotManager import BotManager
-from src.components.Inventory import Inventory
 from src.enum.positions import Positions
 
 if __name__ == '__main__':

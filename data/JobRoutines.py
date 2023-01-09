@@ -21,43 +21,36 @@ class JobRoutine:
         self.city_name = city_name
 
 
-JOB_ROUTINE_ALCHI = JobRoutine(
-    region_name=Regions.CHAMP_ASTRUB,
-    ressources=[Ressources.ORTIE, Ressources.SAUGE, Ressources.TREFLE_A_5_FEUILLES],
-    crafts=[Ressources.POTION_DE_SOUVENIR]
-)
-
-JOB_ROUTINE_PAYSAN = JobRoutine(
-    region_name=Regions.CHAMP_ASTRUB,
-    ressources=[Ressources.HOUBLON],
-    crafts=[]
-)
-
-JOB_ROUTINE_BUCHERON = JobRoutine(
-    region_name=Regions.CHAMP_ASTRUB,
-    ressources=[Ressources.FRENE, Ressources.CHATAIGNER, Ressources.NOYER],
-    crafts=[]
-)
-
-
 def get_job_routine(char_name: (str, CharNames)) -> (None, JobRoutine):
     if isinstance(char_name, CharNames):
         char_name = char_name.value
 
     if char_name == CharNames.PASCA_VIVIE.value:
-        return JOB_ROUTINE_PAYSAN
+        return JobRoutine(
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.HOUBLON],
+            crafts=[]
+        )
 
     if char_name == CharNames.RALPHERTIN.value:
-        return JOB_ROUTINE_ALCHI
+        return JobRoutine(
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.ORTIE, Ressources.SAUGE, Ressources.TREFLE_A_5_FEUILLES],
+            crafts=[Ressources.POTION_DE_SOUVENIR]
+        )
 
     if char_name == CharNames.INCE_ROLA.value:
-        return JOB_ROUTINE_BUCHERON
+        return JobRoutine(
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.FRENE, Ressources.CHATAIGNER, Ressources.NOYER],
+            crafts=[]
+        )
 
     if char_name == CharNames.ALIC_CLARIA.value:
         return JobRoutine(
             region_name=Regions.PRAIRIE_ASTRUB,
-            ressources=[Ressources.ORTIE],
-            crafts=[]
+            ressources=[Ressources.ORTIE, Ressources.SAUGE],
+            crafts=[Ressources.POTION_DE_SOUVENIR]
         )
 
     ErrorHandler.error(f'unable to find JobRoutine for {JobRoutine}')
