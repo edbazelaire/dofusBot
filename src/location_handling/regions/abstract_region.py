@@ -40,9 +40,12 @@ class AbstractRegion:
     # INITIALIZATION
     def set_path(self, ressources: list):
         """ get unique position of each ressources """
-        for ressource_name in ressources:
-            pos = self.RESSOURCES_LOCATIONS[ressource_name]
-            [self.path.append(pos[i]) for i in range(len(pos)) if pos[i] not in self.path]
+        path = self.RESSOURCES_LOCATIONS[ressources[0]]
+        if len(ressources) > 1:
+            for ressource_name in ressources:
+                path = self.get_best_path_2(path, self.RESSOURCES_LOCATIONS[ressource_name])
+
+        self.path = path
 
         # path = JsonHandler.get_json_path(ressources, self.NAME)
         # if path is not None:
@@ -53,6 +56,61 @@ class AbstractRegion:
         # # self.path = self.get_best_path(self.path, from_checkpoint=self.CHECKPOINT)
         # JsonHandler.save_json_path(ressources, self.NAME, self.path)
         # print(f'Path : {path}')
+
+    @staticmethod
+    def calculate_detour(loc1, loc2, mid_loc) -> int:
+        """
+        On a path from a location to another, calculate detour that passing threw a third location would take
+        :param loc1:    start location
+        :param loc2:    end location
+        :param mid_loc: location to pass through
+
+        :return:    minimum detour that it would take
+        """
+        x_min = min(loc1[0], loc2[0])
+        x_max = max(loc1[0], loc2[0])
+        y_min = min(loc1[1], loc2[1])
+        y_max = max(loc1[1], loc2[1])
+
+        # check if is in path (= no detour)
+        if x_max >= mid_loc[0] >= x_min and y_max >= mid_loc[1] >= y_min:
+            return 0
+
+        min_distance = math.inf
+        for x in range(abs(x_max - x_min) + 1):
+            for y in range(abs(y_max - y_min) + 1):
+                distance = get_distance([x + x_min, y + y_min], mid_loc) * 2
+                if distance < min_distance:
+                    min_distance = distance
+        return min_distance
+
+    def get_best_path_2(self, path1, path2) -> list:
+        """ get the best common path between 2 paths """
+        # remove common values
+        path2 = [x for x in path2 if x not in path1]
+
+        for val in path2:
+            index = 0
+            min_detour = math.inf
+            for i in range(len(path1)):
+                j = (i + 1) % len(path1)
+
+                detour = self.calculate_detour(path1[i], path1[j], val)
+
+                if detour == 0:
+                    index = j
+                    break
+
+                elif detour < min_detour:
+                    min_detour = detour
+                    index = j
+
+            if index == 0:
+                path1.appendd(val)
+            else:
+                path1.insert(index, val)
+
+        return path1
 
     @staticmethod
     def get_best_path(all_pos: List[List[int]], from_checkpoint: List[int]) -> List[List[int]]:
