@@ -33,6 +33,12 @@ class Positions:
     Y_BAND_OFFSET = 15
 
     # ==================================================================================================================
+    # MESSAGE BAR
+    MESSAGE_BAR = (459, 1030)
+    PRIVATE_MESSAGES_FILTER = (705, 983)
+    LAST_MESSAGE_NAME = (377, 993)
+
+    # ==================================================================================================================
     # BANK
     BANK_DOOR_POSITION = (1145, 343)                    # position to click in order to enter the bank
     BANK_SEARCH_BAR = (518, 823)                        # positions to click to use the search bar

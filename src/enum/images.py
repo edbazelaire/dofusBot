@@ -27,6 +27,10 @@ class Images:
     JOIN_FIGHT_IMG = 'join_fight.png'   # TODO
     GHOST_FORM = 'ghost_form.png'       # TODO
     FULL_PODS = 'full_pods.png'
+    EXCHANGE_BTN = 'exchange_btn.png'   # todo
+    EXCHANGE_LOADED = 'exchange_loaded.png'
+    VALIDATE_BTN = 'validate_btn.png'
+    CANCEL_BTN = 'cancel_btn.png'
 
     # BANK                  ====================================================================
     BANK_DIR = 'bank'
@@ -48,7 +52,6 @@ class Images:
     MULTI_ACCOUNT_BUTTON = 'multi_account_button.png'
     ACCOUNT_AVATAR = 'account_avatar.png'
     LOG_ACCOUNT = 'log_account.png'
-
 
     # STUFFS                ====================================================================
     STUFFS_DIR = 'stuffs'

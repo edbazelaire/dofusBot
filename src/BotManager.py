@@ -6,6 +6,7 @@ from pytesseract import pytesseract
 
 from data.JobRoutines import get_job_routine, CharNames, get_char_id
 from src.Bot import Bot
+from src.components.craft.craft import Craft
 from src.enum.images import Images
 from src.utils.ErrorHandler import ErrorHandler
 from src.utils.utils_fct import wait_click_on, wait_image
@@ -92,6 +93,8 @@ class BotManager:
                     if ErrorHandler.is_error:
                         bot.reset()
 
+            self.finish_routines()
+            self.unload_all_bank()
             self.exchange_ressources()
             self.craft_all()
 
@@ -100,12 +103,39 @@ class BotManager:
 
     # ==================================================================================================================
     # CRAFT TEAM
+    def finish_routines(self):
+        all_done = False
+        while not all_done:
+            all_done = True
+            for bot in self.bots:
+                if bot.current_routine is not None:
+                    all_done = False
+                    bot.play()
+
+        return
+
+    def unload_all_bank(self):
+        pass
+
     def exchange_ressources(self):
+        # take account of who needs what
+        requested_ressources = {}
+        available_ressources = {}
+
+        # check who is producing and who is requesting what
+        for bot in self.bots:
+            requested_ressources[bot.id], available_ressources[bot.id] = bot.get_requested_and_available_ressources()
+
+        # check who has requested ressources and start exchanges
+        for bot in self.bots:
+            for requested_ressource in requested_ressources[bot.id]:
+                for bot_id, ressources in available_ressources.items():
+                    if requested_ressource in ressources:
+                        self.start_exchange(bot, self.bots[bot_id], ressources=[requested_ressource])
+
         return
 
     def craft_all(self):
-        # take account of who needs what
-        requested_ressources = {}
         for bot in self.bots:
             continue
         return
@@ -142,6 +172,12 @@ class BotManager:
             if get_char_id(char_name) in value:
                 pg.moveTo(*pseudo_pos, 0.4)
                 wait_click_on(Images.LOG_ACCOUNT)
+
+    # ==================================================================================================================
+    # EXCHANGING
+    def start_exchange(self, bot1: Bot, bot2: Bot, ressources: list):
+
+        bot1.start_exchange()
 
     # ==================================================================================================================
     # FIGHT TEAM

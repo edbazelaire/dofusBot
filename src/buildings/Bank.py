@@ -76,22 +76,28 @@ class Bank(AbstractBuilding):
 
         # set transfer from / to the bank
         from_position = Positions.BANK_FIRST_RESSOURCE_POSITION if from_bank else Positions.BANK_PLAYER_FIRST_RESSOURCE_POSITION
-        to_position = Positions.BANK_PLAYER_FIRST_RESSOURCE_POSITION if from_bank else Positions.BANK_FIRST_RESSOURCE_POSITION
 
-        # drag ressource from inv to the other
-        pg.moveTo(*from_position)
-        pg.dragTo(*to_position, button='left', duration=1)
+        if n is None or n == 0:
+            pg.keyDown('ctrl')
+            pg.doubleClick(*from_position)
+            pg.keyUp('ctrl')
 
-        # type quantity of ressources to transfer
-        if n is not None and n > 0:
+        else:
+            to_position = Positions.BANK_PLAYER_FIRST_RESSOURCE_POSITION if from_bank else Positions.BANK_FIRST_RESSOURCE_POSITION
+
+            # drag ressource from inv to the other
+            pg.moveTo(*from_position)
+            pg.dragTo(*to_position, button='left', duration=1)
+
+            # type quantity of ressources to transfer
             pg.typewrite(str(n), interval=0.1)
 
-        time.sleep(2)
+            time.sleep(1)
 
-        # validate transfer from bank
-        pg.press('enter')
+            # validate transfer from bank
+            pg.press('enter')
+
         time.sleep(1)
-
         return True
 
     @staticmethod
