@@ -6,6 +6,12 @@ from src.utils.ErrorHandler import ErrorHandler
 
 
 class CharNames(Enum):
+    # TEAM 1    (server 2)
+    MIOPY = 'Miopy'
+    KAYUO = 'Kayuo'
+    YARRAT = 'Yarrat'
+    IMENEVE = 'Imeneve'
+
     # TEAM 2
     PASCA_VIVIE = 'Pasca-Vivie'
     ALIC_CLARIA = 'Alic-Claria'
@@ -25,6 +31,38 @@ def get_job_routine(char_name: (str, CharNames)) -> (None, JobRoutine):
     if isinstance(char_name, CharNames):
         char_name = char_name.value
 
+    # =========================================================================================
+    # TEAM 1
+    if char_name == CharNames.IMENEVE.value:
+        return JobRoutine(
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.ORGES],
+            crafts=[Ressources.CARASAU]
+        )
+
+    if char_name == CharNames.MIOPY.value:
+        return JobRoutine(
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.ORTIE, Ressources.SAUGE],
+            crafts=[]
+        )
+
+    if char_name == CharNames.KAYUO.value:
+        return JobRoutine(
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.FRENE, Ressources.CHENE],
+            crafts=[]
+        )
+
+    if char_name == CharNames.YARRAT.value:
+        return JobRoutine(
+            region_name=Regions.PRAIRIE_ASTRUB,
+            ressources=[Ressources.ORTIE, Ressources.SAUGE],
+            crafts=[]
+        )
+
+    # =========================================================================================
+    # TEAM 2
     if char_name == CharNames.PASCA_VIVIE.value:
         return JobRoutine(
             region_name=Regions.CHAMP_ASTRUB,
@@ -61,6 +99,17 @@ def get_char_id(char_name: (str, CharNames)):
     if isinstance(char_name, CharNames):
         char_name = char_name.value
 
+    # TEAM 1 =====================================================
+    if char_name == CharNames.IMENEVE.value:
+        return '#1489'
+    if char_name == CharNames.MIOPY.value:
+        return '#9436'
+    if char_name == CharNames.KAYUO.value:
+        return '#7800'
+    if char_name == CharNames.YARRAT.value:
+        return '#7903'
+
+    # TEAM 2 =====================================================
     if char_name == CharNames.PASCA_VIVIE.value:
         return '#5244'
 

@@ -64,11 +64,12 @@ class BotManager:
                 if job_routine is None:
                     continue
 
-                self.bots.append(Bot(
+                bot = Bot(
                     bot_id=_id,
                     window=window,
                     job_routine=job_routine
-                ))
+                )
+                self.bots.append(bot)
                 ctr += 1
 
                 if n_max is not None and ctr >= n_max:
@@ -78,7 +79,7 @@ class BotManager:
     # MAIN
     def run(self):
         while True:
-            TIME_DURATION = 0
+            TIME_DURATION = None
             start_time = time.time()
 
             while True:

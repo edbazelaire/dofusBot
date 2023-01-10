@@ -49,7 +49,10 @@ class Bot:
         CurrentBot.id = self.id
         CurrentBot.location = self.Movement.location
         CurrentBot.region = self.Movement.region
-        self.window.activate()
+        success = False
+        while not success:
+            self.window.activate()
+            success = True
         time.sleep(0.5)
 
     # ==================================================================================================================
