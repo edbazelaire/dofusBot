@@ -23,6 +23,7 @@ class Images:
     OK_TRANSFER_BUTTON = 'ok_transfer.png'
     INVENTORY_OPENED = 'inventory_opened.png'
     CRAFT_MACHINE_LOADED = 'craft_machine_loaded.png'
+    AFFICHER_RECETTES_DISPO = 'afficher_recettes_dispo.png'
     JOIN_FIGHT_IMG = 'join_fight.png'   # TODO
     GHOST_FORM = 'ghost_form.png'       # TODO
     FULL_PODS = 'full_pods.png'

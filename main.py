@@ -33,7 +33,7 @@ if __name__ == '__main__':
             Ressources.HOUBLON
         ],
         crafts=[
-            # Ressources.CARASAU
+            Ressources.CARASAU
         ]
     )
     bot.run()
