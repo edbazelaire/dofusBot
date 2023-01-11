@@ -39,36 +39,6 @@ def get_job_routine(char_name: (str, CharNames)) -> (None, JobRoutine):
 
     # =========================================================================================
     # TEAM 1
-    if char_name == CharNames.IMENEVE.value:
-        return JobRoutine(
-            region_name=Regions.CHAMP_ASTRUB,
-            ressources=[Ressources.HOUBLON],
-            crafts=[]
-        )
-
-    if char_name == CharNames.MIOPY.value:
-        return JobRoutine(
-            region_name=Regions.CHAMP_ASTRUB,
-            ressources=[Ressources.ORTIE, Ressources.SAUGE],
-            crafts=[Ressources.POTION_DE_SOUVENIR]
-        )
-
-    if char_name == CharNames.KAYUO.value:
-        return JobRoutine(
-            region_name=Regions.CHAMP_ASTRUB,
-            ressources=[Ressources.FRENE, Ressources.CHATAIGNER],
-            crafts=[]
-        )
-
-    if char_name == CharNames.YARRAT.value:
-        return JobRoutine(
-            region_name=Regions.PRAIRIE_ASTRUB,
-            ressources=[Ressources.ORTIE, Ressources.SAUGE, Ressources.TREFLE_A_5_FEUILLES],
-            crafts=[Ressources.POTION_DE_SOUVENIR]
-        )
-
-    # =========================================================================================
-    # TEAM 2
     if char_name == CharNames.PASCA_VIVIE.value:
         return JobRoutine(
             region_name=Regions.CHAMP_ASTRUB,

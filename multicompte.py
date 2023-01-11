@@ -9,11 +9,6 @@ if __name__ == '__main__':
     # init positions from window size
     Positions(game_window_id=0)
 
-    botManager = BotManager(
-        n_max=4,
-        teams=[
-            [CharNames.RALPHERTIN, CharNames.INCE_ROLA, CharNames.INCE_ROLA, CharNames.ALIC_CLARIA],
-        ]
-    )
+    botManager = BotManager()
 
     botManager.run()
