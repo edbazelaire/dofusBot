@@ -1,10 +1,11 @@
-from typing import List
+from typing import List, Tuple
 import pyautogui as pg
 import time
 import os
 import pytesseract
 
 from data.JobRoutines import JobRoutine
+from src.buildings.Bank import Bank
 from src.components.Inventory import Inventory
 from src.components.Scanner import Scanner
 from src.components.craft.craft import Craft
@@ -16,7 +17,8 @@ from src.enum.routines import Routines
 from src.utils.CurrentBot import CurrentBot
 from src.utils.ErrorHandler import ErrorHandler
 from src.utils.Sleeper import Sleeper
-from src.utils.utils_fct import read_map_location, check_is_ghost, check_ok_button, wait_click_on, check_map_change
+from src.utils.utils_fct import read_map_location, check_is_ghost, check_ok_button, wait_click_on, check_map_change, \
+    send_message, wait_image
 
 
 class Bot:
@@ -29,6 +31,7 @@ class Bot:
 
         self.id = bot_id
         self.window = window
+        self.job_routine = job_routine
         self.clicked_pos = []
         self.unload_ressources = []
         self.max_pods = 0 if len(job_routine.crafts) == 0 else Inventory.get_max_pods()
@@ -145,6 +148,52 @@ class Bot:
                     return self.fight_routine()
 
             self.Movement.go_to_next_location()
+
+    # ==================================================================================================================
+    # EXCHANGES
+    def get_requested_and_available_ressources(self):
+        requested_ressources = []
+        available_ressources = []
+
+        # go threw each crafts to see if the bot uses the ressource
+        for ressource_name in self.job_routine.ressources:
+            is_needed = False
+            for craft_name in self.job_routine.crafts:
+                recipe = Craft.get_recipe(craft_name)
+                if ressource_name in recipe:
+                    is_needed = True
+
+                # check what ressources the bot needs that he cant farm himself
+                for requested_ressource in recipe:
+                    if requested_ressource not in self.job_routine.ressources:
+                        requested_ressources.append(requested_ressource)
+
+            # if the bot doesn't use the ressource, set it available if other needs it
+            if not is_needed:
+                available_ressources.append(ressource_name)
+
+        return requested_ressources, available_ressources
+
+    @staticmethod
+    def start_exchange(player_name: str):
+        pg.click(*Positions.PRIVATE_MESSAGES_FILTER)
+
+        # send a message to the player
+        send_message(player_name, "hello my friend")
+
+        pg.click(*Positions.LAST_MESSAGE_NAME)
+        wait_click_on(Images.EXCHANGE_BTN)
+
+    def accept_exchange(self, ressources: (str, List[str])):
+        if isinstance(ressources, str):
+            ressources = [ressources]
+
+        wait_click_on(Images.YES_BUTTON, confidence=0.6)
+        wait_image(Images.EXCHANGE_LOADED)
+
+        for ressource in ressources:
+            Bank.search(ressource, in_bank=False)
+            Bank.transfer(ressource)
 
     # ==================================================================================================================
     # CHECKS

@@ -81,6 +81,12 @@ def read_map_location():
         return None
 
 
+def send_message(name:str, message:str):
+    pg.click(*Positions.MESSAGE_BAR)
+    time.sleep(0.5)
+    pg.typewrite(f"/w {name} {message}", 0.1)
+    pg.press('enter')
+
 def read_region():
     # read Zone
     img = pg.screenshot(region=Positions.MAP_ZONE_NAME_REG)
