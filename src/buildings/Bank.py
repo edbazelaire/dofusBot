@@ -173,6 +173,7 @@ class Bank(AbstractBuilding):
             region=region,
             confidence=0.7
         )
+
     @staticmethod
     def select_player_ressource_tab():
         wait_click_on(
@@ -231,7 +232,6 @@ class Bank(AbstractBuilding):
     def is_recipes_open(max_timer: float = 2):
         return wait_image(Images.RECIPES_OPEN, max_timer=max_timer)
 
-
     # ==================================================================================================================
     # UTILS
     @staticmethod
@@ -257,6 +257,7 @@ class Bank(AbstractBuilding):
         # type ressource name in search bar
         ressource = Ressources.get(ressource_name)
         pg.typewrite(ressource.name)
+        time.sleep(1)
 
         # if first slot empty, return false
         return not Bank.check_first_slot_empty(in_bank)

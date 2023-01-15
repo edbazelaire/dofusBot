@@ -13,16 +13,14 @@ class Sleeper:
         Sleeper.sleep_ctrs[CurrentBot.id] = (int(time.time()), n)
 
     @staticmethod
-    def wait_remaining_time(bot_id: int = None):
+    def check_remaining_time(bot_id: int = None) -> bool:
         if bot_id is None:
             bot_id = CurrentBot.id
 
         # time already exceeded
         if bot_id not in Sleeper.sleep_ctrs.keys():
-            return
+            return True
 
-        n_seconds_remaining = Sleeper.sleep_ctrs[bot_id][1] - time.time() - Sleeper.sleep_ctrs[bot_id][0]
-        if n_seconds_remaining <= 0:
-            return
+        n_seconds_remaining = Sleeper.sleep_ctrs[bot_id][1] - (time.time() - Sleeper.sleep_ctrs[bot_id][0])
+        return n_seconds_remaining <= 0
 
-        time.sleep(n_seconds_remaining)

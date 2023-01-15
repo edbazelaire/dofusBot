@@ -11,6 +11,7 @@ from src.enum.routines import Routines
 from src.location_handling.city.abstract_city import AbstractCity
 from src.location_handling.regions.abstract_region import AbstractRegion
 from src.location_handling.utils import get_region, get_city
+from src.utils.Displayer import Displayer
 from src.utils.ErrorHandler import ErrorHandler, ErrorType
 from src.utils.Sleeper import Sleeper
 from src.utils.utils_fct import read_map_location, wait_click_on, check_map_change, wait_image
@@ -75,7 +76,7 @@ class Movement:
             self.next_location = self.path[self.current_path_index]
 
         print('=' * 100)
-        print(f'Next Location : {self.next_location}')
+        Displayer.print(f'Next Location : {self.next_location}')
 
     def go_to_next_location(self):
         """ return True if reaches next pos, False if stop during movement """
@@ -140,7 +141,7 @@ class Movement:
 
     def go_to(self, location):
         print("=" * 20)
-        print(f"Going to : {location}")
+        Displayer.print(f"Going to : {location}")
         while self.location != location:
             self.move_towards(location)
 
@@ -168,7 +169,7 @@ class Movement:
         # --------------------------------------------------------
         # STEP 0 : init routine
         if self.parent.current_routine != Routines.Ghost or self.parent.current_step == 0:
-            print("-- ghost routine")
+            Displayer.print("-- ghost routine")
             self.last_location = self.location
             wait_click_on(Images.YES_BUTTON)
             self.parent.current_routine = Routines.Ghost
@@ -197,7 +198,7 @@ class Movement:
         # --------------------------------------------------------
         # STEP 0 : init routine
         if self.parent.current_routine != Routines.Phoenix or self.parent.current_step == 0:
-            print("-- phoenix routine")
+            Displayer.print("-- phoenix routine")
             self.location = read_map_location()
             self.parent.current_routine = Routines.Phoenix
             self.parent.current_step = 1

@@ -15,6 +15,7 @@ from src.components.Fight import Fight
 from src.components.Movement import Movement
 from src.enum.routines import Routines
 from src.utils.CurrentBot import CurrentBot
+from src.utils.Displayer import Displayer
 from src.utils.ErrorHandler import ErrorHandler
 from src.utils.Sleeper import Sleeper
 from src.utils.utils_fct import read_map_location, check_is_ghost, check_ok_button, wait_click_on, check_map_change, \
@@ -25,33 +26,35 @@ class Bot:
     CURRENT_ID = 0
     MAX_TIME_SCANNING = 60
 
-    def __init__(self, bot_id, window, job_routine: JobRoutine):
+    def __init__(self, bot_id: int, window, char_name: str, job_routine: JobRoutine):
         self.current_routine: (None, Routines) = None
         self.current_step: int = 0
 
         self.id = bot_id
         self.window = window
+        self.char_name = char_name
         self.job_routine = job_routine
         self.clicked_pos = []
         self.unload_ressources = []
-        self.max_pods = 0 if len(job_routine.crafts) == 0 else Inventory.get_max_pods()
 
         self.Movement = Movement(self, job_routine.region_name, job_routine.ressources, job_routine.city_name)
 
         self.select()
 
+        self.max_pods = Inventory.get_max_pods()
         self.Fight = Fight()
         self.Inventory = Inventory()
         self.Craft = Craft(craft_names=job_routine.crafts, max_pods=self.max_pods)
         self.Scanner = Scanner(self, job_routine.ressources)
+
+        self.Movement.location = read_map_location()
 
         if Positions.WINDOW_SIZE_PERC <= 0.5:
             Bot.CONFIDENCE = 0.7
 
     def select(self):
         CurrentBot.id = self.id
-        CurrentBot.location = self.Movement.location
-        CurrentBot.region = self.Movement.region
+        CurrentBot.instance = self
         success = False
         while not success:
             self.window.activate()
@@ -101,13 +104,14 @@ class Bot:
     def play(self):
         self.select()
 
+        # MOVEMENT REQUEST CHECK ==========================================
         # if last_position set : check map changed
         if self.Movement.last_location is not None:
             success = check_map_change(self.Movement.last_location, at_time=self.Movement.last_time_requested_movement)
             if success:
                 self.Movement.last_location = None
                 self.Movement.location = read_map_location()
-                print(f'     location : {self.Movement.location}')
+                Displayer.print(f'     location : {self.Movement.location}')
                 print("")
             elif self.Fight.check_combat_started():
                 return self.fight_routine()
@@ -119,6 +123,7 @@ class Bot:
             self.craft_routine()
             return
 
+        # ROUTINES ==========================================================
         if self.current_routine == Routines.Bank:
             return self.bank_routine()
         elif self.current_routine == Routines.Craft:
@@ -130,6 +135,7 @@ class Bot:
         elif self.current_routine == Routines.Phoenix:
             return self.Movement.phoenix_routine()
 
+        # NORMAL MOVEMENT ====================================================
         elif self.current_routine is None:
             # check if character needs to go unload ressources to the bank
             if self.check_pods():
@@ -153,60 +159,89 @@ class Bot:
 
     # ==================================================================================================================
     # EXCHANGES
-    def get_requested_and_available_ressources(self):
-        requested_ressources = []
+    def get_available_ressources(self):
         available_ressources = []
 
         # go threw each crafts to see if the bot uses the ressource
         for ressource_name in self.job_routine.ressources:
-            is_needed = False
-            for craft_name in self.job_routine.crafts:
-                recipe = Craft.get_recipe(craft_name)
-                if ressource_name in recipe:
-                    is_needed = True
-
-                # check what ressources the bot needs that he cant farm himself
-                for requested_ressource in recipe:
-                    if requested_ressource not in self.job_routine.ressources:
-                        requested_ressources.append(requested_ressource)
-
-            # if the bot doesn't use the ressource, set it available if other needs it
-            if not is_needed:
+            if ressource_name not in available_ressources and self.is_ressource_available(ressource_name):
                 available_ressources.append(ressource_name)
 
-        return requested_ressources, available_ressources
+        # check if crafts are available
+        for ressource_name in self.job_routine.crafts:
+            if ressource_name not in available_ressources and self.is_ressource_available(ressource_name):
+                available_ressources.append(ressource_name)
 
-    @staticmethod
-    def start_exchange(player_name: str):
+        return available_ressources
+
+    def is_ressource_available(self, ressource_name: str):
+        """go threw each crafts to see if the bot uses the ressource"""
+        for craft_name in self.job_routine.crafts:
+            recipe = Craft.get_recipe(craft_name)
+            if ressource_name in recipe.keys():
+                return False
+        return True
+
+    def get_requested_ressources(self):
+        """check what ressources the bot needs that he cant farm himself"""
+        requested_ressources = []
+        for craft_name in self.job_routine.crafts:
+            for requested_ressource in Craft.get_recipe(craft_name).keys():
+                if requested_ressource not in self.job_routine.ressources and requested_ressource not in requested_ressources:
+                    requested_ressources.append(requested_ressource)
+        return requested_ressources
+
+    def start_exchange(self, char_name: str):
+        self.select()
+
         pg.click(*Positions.PRIVATE_MESSAGES_FILTER)
 
         # send a message to the player
-        send_message(player_name, "hello my friend")
+        send_message(char_name, "hello my friend")
 
-        pg.click(*Positions.LAST_MESSAGE_NAME)
-        wait_click_on(Images.EXCHANGE_BTN)
+        pg.moveTo(*Positions.LAST_MESSAGE_NAME, 0.2)
+        pg.click()
+        if not wait_click_on(Images.EXCHANGE_BTN):
+            ErrorHandler.error(f"unable to exchange with player {char_name}")
+            return False
 
-    def accept_exchange(self, ressources: (str, List[str])):
+    def accept_exchange(self, ressources: (str, List[str])) -> bool:
+        self.select()
+
         if isinstance(ressources, str):
             ressources = [ressources]
 
-        wait_click_on(Images.YES_BUTTON, confidence=0.6)
-        wait_image(Images.EXCHANGE_LOADED)
+        if not wait_click_on(Images.YES_BUTTON, confidence=0.6):
+            ErrorHandler.error("unable to find yes button")
+            return False
+
+        if not wait_image(Images.EXCHANGE_LOADED):
+            ErrorHandler.error("Exchange not loaded")
+            return False
 
         for ressource in ressources:
-            Bank.search(ressource, in_bank=False)
-            Bank.transfer(ressource)
+            Bank.transfer(ressource, from_bank=False)
+
+        time.sleep(3)
+
+        return self.validate_exchange()
+
+    def validate_exchange(self):
+        self.select()
+
+        if not wait_click_on(Images.VALIDATE_BTN):
+            ErrorHandler.error('unable to validate exchange')
+            return False
 
     # ==================================================================================================================
     # CHECKS
-    @staticmethod
-    def check_pods():
+    def check_pods(self):
         """ check number of pods by reading number of ressources in the quick inventory (faster than opening inventory
         but more subject to errors)"""
-        if Inventory.last_time_check_pods is not None and time.time() - Inventory.last_time_check_pods < Inventory.CHECK_PODS_INTERVAL:
+        if self.Inventory.last_time_check_pods is not None and time.time() - self.Inventory.last_time_check_pods < Inventory.CHECK_PODS_INTERVAL:
             return False
 
-        return Inventory.check_pods()
+        return self.Inventory.check_pods()
 
     @staticmethod
     def read_num_ressources(debug=False):
@@ -219,14 +254,14 @@ class Bot:
             value = pytesseract.image_to_string(img, config='--psm 8 --oem 3 -c tessedit_char_whitelist=0123456789')
 
             if debug:
-                print(value)
+                Displayer.print(value)
                 img.show()
 
             value = 0 if value == '' else int(value)
             num_ressources += value
 
         if debug:
-            print(f"num_ressources : {num_ressources}")
+            Displayer.print(f"num_ressources : {num_ressources}")
         return num_ressources
 
     @staticmethod
@@ -266,7 +301,7 @@ class Bot:
         # --------------------------------------------------------
         # STEP 0 : init routine
         if self.current_routine != Routines.Bank or self.current_step == 0:
-            print("-- bank routine")
+            Displayer.print("-- bank routine")
             self.current_routine = Routines.Bank
             self.current_step = 1
 
@@ -277,11 +312,10 @@ class Bot:
             if not done:
                 return
 
-            print("Clicking on BANK_DOOR")
+            Displayer.print("Clicking on BANK_DOOR")
             if not bank.enter():
                 return
 
-            Sleeper.sleep(1)
             self.current_step += 1
             return
 
@@ -315,7 +349,8 @@ class Bot:
             self.unload_ressources = []
 
             # transfer ressources for requested crafts if possible (success -> craft order is set)
-            self.Craft.transfer_required_ressources()
+            if self.Craft.is_crafting:
+                self.Craft.transfer_required_ressources()
 
             # close bank tab
             bank.close()
@@ -331,7 +366,7 @@ class Bot:
             ErrorHandler.is_error = True
 
         if self.Craft.is_crafting is False:
-            ErrorHandler.error("Call for craft routine when craft_order is None")
+            ErrorHandler.error("Call for craft routine when is_crafting is False")
             ErrorHandler.is_error = True
 
         # init job/building
@@ -341,7 +376,7 @@ class Bot:
         # ---------------------------------------------------
         # STEP 0 : init routine
         if self.current_routine != Routines.Craft or self.current_step == 0:
-            print("-- craft routine")
+            Displayer.print("-- craft routine")
             self.current_routine = Routines.Craft
             self.current_step = 1
 
@@ -353,20 +388,14 @@ class Bot:
             if not done:
                 return
 
-            self.current_step += 1
-
-        # ---------------------------------------------------
-        # STEP 2 : enter the building
-        if self.current_step == 2:
-            # enter the requested building for the craft
-            building.enter()
-            Sleeper.sleep(5)
-            self.current_step += 1
+            if building.enter():
+                Sleeper.sleep(1)
+                self.current_step += 1
             return
 
         # ---------------------------------------------------
-        # STEP 3 : do the craft - exit - start the bank routine
-        if self.current_step == 3:
+        # STEP 2 : do the craft - exit - start the bank routine
+        if self.current_step == 2:
             # craft the requested ordered
             building.use_machine()
             building.craft(self.Craft.craft_order)
