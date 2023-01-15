@@ -17,15 +17,21 @@ class Craft:
                 Ressources.BLE: 4
             },
 
-            Ressources.BRIOCHETTE: {
-                Ressources.HOUBLON: 5,
-                Ressources.TREFLE_A_5_FEUILLES: 1,
-                Ressources.CENDRES_ETERNELLES: 1
-            },
-
             Ressources.CARASAU: {
                 Ressources.ORGES: 4,
                 Ressources.ORTIE: 1
+            },
+
+            Ressources.PAIN_AUX_FLOCONS_D_AVOINE: {
+                Ressources.AVOINE: 5,
+                Ressources.SAUGE: 1,
+                Ressources.AUBERGINE: 1
+            },
+
+            Ressources.BRIOCHETTE: {
+                Ressources.HOUBLON:             5,
+                Ressources.TREFLE_A_5_FEUILLES: 1,
+                Ressources.CENDRES_ETERNELLES:  1
             },
         },
 

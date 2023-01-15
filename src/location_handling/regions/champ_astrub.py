@@ -49,6 +49,17 @@ class ChampAstrub(AbstractRegion):
             [6, -24],
             [6, -22],
         ],
+        Ressources.AVOINE: [
+            [3, -22],
+            [3, -24],
+            [3, -26],
+            [3, -31],
+            [4, -28],
+            [6, -25],
+            [9, -24],
+            [7, -21],
+            [6, -22],
+        ],
         Ressources.HOUBLON: [
             [6, -22],
             [5, -24],
@@ -68,6 +79,7 @@ class ChampAstrub(AbstractRegion):
             [7, -24],
         ],
 
+        # WOOD
         Ressources.FRENE: [
             [1, -18],
             [0, -18],

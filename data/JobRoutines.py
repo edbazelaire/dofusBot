@@ -7,16 +7,28 @@ from src.utils.ErrorHandler import ErrorHandler
 
 class CharNames(Enum):
     # TEAM 1
-    PASCA_VIVIE = 'Pasca-Vivie'
-    ALIC_CLARIA = 'Alic-Claria'
-    INCE_ROLA   = 'Ince-Rola'
-    RALPHERTIN  = 'Ralphertin'
+    PASCA_VIVIE     = 'Pasca-Vivie'
+    ALIC_CLARIA     = 'Alic-Claria'
+    INCE_ROLA       = 'Ince-Rola'
+    RALPHERTIN      = 'Ralphertin'
 
     # TEAM 2
-    Alizyann    = 'Alizyann'
-    Bilias	    = 'Bilias'
-    Cinifurya	= 'Cinifurya'
-    Ditoxynag   = 'Ditoxynag'
+    Alizyann        = 'Alizyann'
+    Bilias	        = 'Bilias'
+    Cinifurya	    = 'Cinifurya'
+    Ditoxynag       = 'Ditoxynag'
+
+    # TEAM 3
+    Anabarch        = 'Anabarch'
+    Borias          = 'Borias'
+    Chouaoua        = 'Chouaoua'
+    DinoFury        = 'DinoFury'
+
+    # TEAM 4
+    Azxcine	        = 'Azxcine'
+    Bouyazine       = 'Bouyazine'
+    Cinistropyia    = 'Cinistropyia'
+    Doliphragie     = 'Doliphragie'
 
 
 class JobRoutine:
@@ -93,10 +105,67 @@ def get_job_routine(char_name: (str, CharNames)) -> (None, JobRoutine):
 
     # =========================================================================================
     # TEAM 3
+    if char_name == CharNames.Anabarch.value:
+        return JobRoutine(
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.BLE],
+            crafts=[Ressources.PAIN_D_INCARNAM]
+        )
+
+    if char_name == CharNames.Borias.value:
+        return JobRoutine(
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.ORTIE],
+            crafts=[]
+        )
+
+    if char_name == CharNames.Cinistropyia.value:
+        return JobRoutine(
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.FRENE],
+            crafts=[]
+        )
+
+    if char_name == CharNames.DinoFury.value:
+        return JobRoutine(
+            region_name=Regions.PRAIRIE_ASTRUB,
+            ressources=[Ressources.ORTIE],
+            crafts=[]
+        )
+
+    # =========================================================================================
+    # TEAM 4
+
+    if char_name == CharNames.Azxcine.value:
+        return JobRoutine(
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.BLE],
+            crafts=[Ressources.PAIN_D_INCARNAM]
+        )
+
+    if char_name == CharNames.Bouyazine.value:
+        return JobRoutine(
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.ORTIE],
+            crafts=[]
+        )
+
+    if char_name == CharNames.Chouaoua.value:
+        return JobRoutine(
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.FRENE],
+            crafts=[]
+        )
+
+    if char_name == CharNames.Doliphragie.value:
+        return JobRoutine(
+            region_name=Regions.PRAIRIE_ASTRUB,
+            ressources=[Ressources.ORTIE],
+            crafts=[]
+        )
 
     ErrorHandler.error(f'unable to find JobRoutine for {JobRoutine}')
     return None
-
 
 def get_char_id(char_name: (str, CharNames)):
     if isinstance(char_name, CharNames):
@@ -121,3 +190,29 @@ def get_char_id(char_name: (str, CharNames)):
         return '#2726'
     if char_name == CharNames.Ditoxynag.value:
         return '#8288'
+
+    # TEAM 3 =====================================================
+    if char_name == CharNames.Anabarch.value:
+        return '#9443'
+
+    if char_name == CharNames.Borias.value:
+        return '#7676'
+
+    if char_name == CharNames.Chouaoua.value:
+        return '#5427'
+
+    if char_name == CharNames.DinoFury.value:
+        return '#6370'
+
+    # TEAM 4 =====================================================
+    if char_name == CharNames.Azxcine.value:
+        return '#3953'
+
+    if char_name == CharNames.Bouyazine.value:
+        return '#7323'
+
+    if char_name == CharNames.Cinistropyia.value:
+        return '#6393'
+
+    if char_name == CharNames.Doliphragie.value:
+        return '#6357'
