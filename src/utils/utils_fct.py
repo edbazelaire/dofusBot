@@ -6,10 +6,11 @@ from PIL import Image
 
 from src.enum.images import Images
 from src.enum.positions import Positions
+from src.utils.Displayer import Displayer
 from src.utils.ErrorHandler import ErrorHandler, ErrorType
 
 
-def wait_click_on(image: (str, Image), confidence: float = 0.8, region=None, max_timer: float = 5, offset_x=None, offset_y=None):
+def wait_click_on(image: (str, Image), confidence: float = 0.8, region=None, max_timer: float = 5, offset_x=None, offset_y=None) -> bool:
     if isinstance(image, str):
         image = Images.get(image)
 
@@ -109,7 +110,7 @@ def check_map_change(from_location, do_map_load_check=False, at_time=None) -> bo
             ErrorHandler.warning("MAP NOT CHANGED", ErrorType.MAP_NOT_CHANGED_ERROR)
         return False
 
-    print("     MAP CHANGED")
+    Displayer.print("     MAP CHANGED")
     ErrorHandler.ERROR_CTRS[ErrorType.MAP_NOT_CHANGED_ERROR] = False
 
     if do_map_load_check:
@@ -124,32 +125,32 @@ def check_map_loaded() -> bool:
     start = time.time()
     while True:
         if time.time() - start > ErrorHandler.LOAD_MAP_TIME:
-            print(" -- map NOT loaded !!")
+            Displayer.print(" -- map NOT loaded !!")
             return False
 
         confidence = 0.5
         pg.moveTo(*Positions.CHANGE_MAP_LEFT_POS())
         if pg.locateOnScreen(Images.get(Images.CURSOR_LEFT), region=Positions.WINDOW_REG,
                              confidence=confidence) is not None:
-            print("     -- map loaded ")
+            Displayer.print("     -- map loaded ")
             return True
 
         pg.moveTo(*Positions.CHANGE_MAP_RIGHT_POS())
         if pg.locateOnScreen(Images.get(Images.CURSOR_RIGHT), region=Positions.WINDOW_REG,
                              confidence=confidence) is not None:
-            print("     -- map loaded")
+            Displayer.print("     -- map loaded")
             return True
 
         pg.moveTo(*Positions.CHANGE_MAP_UP_POS())
         if pg.locateOnScreen(Images.get(Images.CURSOR_UP), region=Positions.WINDOW_REG,
                              confidence=confidence) is not None:
-            print("     -- map loaded")
+            Displayer.print("     -- map loaded")
             return True
 
         pg.moveTo(*Positions.CHANGE_MAP_DOWN_POS())
         if pg.locateOnScreen(Images.get(Images.CURSOR_DOWN), region=Positions.WINDOW_REG,
                              confidence=confidence) is not None:
-            print("     -- map loaded")
+            Displayer.print("     -- map loaded")
             return True
 
         time.sleep(0.1)

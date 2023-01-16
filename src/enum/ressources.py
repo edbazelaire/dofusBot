@@ -42,7 +42,7 @@ class Ressources:
     PAIN_AUX_FLOCONS_D_AVOINE = 'pain aux flocons d\'avoine'
     POTION_DE_SOUVENIR = 'potion de souvenir'
     PLANCHE_DE_SURF = 'planche de surf'
-    SUBSTRAT_DE_FURAIE = 'substrat de futaie'
+    SUBSTRAT_DE_FUTAIE = 'substrat de futaie'
 
     # ==================================================================================================================
     # OTHERS
@@ -186,14 +186,14 @@ class Ressources:
             return RessourceConfig(
                 name=ressource_name,
                 ressource_type=RessourceType.Ressource,
-                pods=2
+                pods=10
             )
 
-        elif ressource_name == Ressources.SUBSTRAT_DE_FURAIE:
+        elif ressource_name == Ressources.SUBSTRAT_DE_FUTAIE:
             return RessourceConfig(
                 name=ressource_name,
                 ressource_type=RessourceType.Ressource,
-                pods=2
+                pods=10
             )
 
         # ------------------------------------------------

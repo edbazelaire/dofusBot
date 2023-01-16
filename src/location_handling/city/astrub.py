@@ -107,15 +107,17 @@ class Astrub(AbstractCity):
                 location=[5, -21],
                 door_position=(1063, 521),
                 exit_position=(758, 725),
-                machine_position=(1120, 394)
+                machine_position=(1120, 394),
+                machine_img=Images.ASTRUB_BOULANGERIE
             )
 
         elif job == Jobs.BUCHERON:
             return CraftBuilding(
                 location=[2, -16],
-                door_position=(1066, 363),
+                door_position=(1071, 363),
                 exit_position=(711, 608),
-                machine_position=(1091, 484)
+                machine_position=(1091, 484),
+                machine_img=Images.ASTRUB_SCIERIE
             )
 
         elif job == Jobs.ALCHIMIST:
@@ -123,7 +125,8 @@ class Astrub(AbstractCity):
                 location=[3, -21],
                 door_position=(990, 580),
                 exit_position=(714, 662),
-                machine_position=(806, 347)
+                machine_position=(806, 347),
+                machine_img=Images.ASTRUB_ALCHIMIST
             )
 
         else:

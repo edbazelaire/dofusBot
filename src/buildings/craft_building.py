@@ -9,10 +9,14 @@ from src.utils.utils_fct import wait_click_on, wait_image
 
 
 class CraftBuilding(AbstractBuilding):
-    def __init__(self, location, door_position, exit_position, machine_position):
+    def __init__(self, location, door_position, exit_position, machine_position, machine_img: str = ''):
         super().__init__(location, door_position, exit_position)
 
         self.MACHINE_POSITION = Positions.resize(machine_position)
+        self.machine_img = machine_img
+
+    def enter(self):
+        return self.enter_building(self.DOOR_POSITION, loading_img=self.machine_img)
 
     def use_machine(self) -> bool:
         for i in range(3):

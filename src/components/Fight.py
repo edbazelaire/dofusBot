@@ -6,6 +6,7 @@ from src.enum.positions import Positions
 import pyautogui as pg
 import time
 
+from src.utils.Displayer import Displayer
 from src.utils.ErrorHandler import ErrorHandler
 from src.utils.utils_fct import wait_click_on
 
@@ -18,7 +19,7 @@ class Fight:
         self.enemy_images = Images.get_enemy_images()
 
     def fight(self):
-        print("COMBAT STARTED")
+        Displayer.print("COMBAT STARTED")
 
         self.forfait()
         return
@@ -43,7 +44,7 @@ class Fight:
             self.play_turn()
             time.sleep(0.5)
 
-        print("COMBAT ENDED")
+        Displayer.print("COMBAT ENDED")
 
         # remove "defeat" popup
         pos = pg.locateOnScreen(Images.get(Images.CANCEL_POPUP), confidence=0.7)
@@ -110,7 +111,7 @@ class Fight:
                 y = pos[1]
 
                 char_position = [x, y]
-                print(f"Char located at pos {char_position}")
+                Displayer.print(f"Char located at pos {char_position}")
                 return char_position
 
         ErrorHandler.error("CHAR NOT FOUND")
@@ -124,7 +125,7 @@ class Fight:
                 y = pos[1]
 
                 enemy_position = [x, y]
-                print(f"Enemy located at pos {enemy_position}")
+                Displayer.print(f"Enemy located at pos {enemy_position}")
                 return enemy_position
 
         ErrorHandler.error("NO ENEMY FOUND")
@@ -138,7 +139,7 @@ class Fight:
         # validate ff
         wait_click_on(Images.OK_FF_BUTTON, confidence=0.7)
 
-        print("COMBAT ENDED")
+        Displayer.print("COMBAT ENDED")
 
 
     # ==================================================================================================================
@@ -153,9 +154,9 @@ class Fight:
             for loop2 in range(width):
                 r, g, b = image_data[loop1, loop2]
                 if r >= min_value or g >= min_value or b >= min_value:
-                    print("IS my turn")
+                    Displayer.print("IS my turn")
                     return True
-        print("NOT my turn")
+        Displayer.print("NOT my turn")
         return False
 
     def check_combat_started(self):

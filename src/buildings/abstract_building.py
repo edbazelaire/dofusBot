@@ -49,13 +49,14 @@ class AbstractBuilding:
         else:
             ErrorHandler.fatal_error("BAD CONFIGURATION, neither click_pos or click_img is provided")
 
-        start = time.time()
         if loading_img != '':
             if isinstance(loading_img, str):
                 loading_img = Images.get(loading_img)
 
-            while pg.locateOnScreen(loading_img) is None:
+            start = time.time()
+            while pg.locateOnScreen(loading_img, confidence=0.8) is None:
                 if time.time() - start > 10:
+                    ErrorHandler.error(f"enter building not succeed, loading image ({loading_img}) not found")
                     ErrorHandler.is_error = True
                     return False
                 time.sleep(0.5)

@@ -506,7 +506,7 @@ class ChampAstrub(AbstractRegion):
         if from_location == [5, -31] and to_location[0] >= 6:
             return [5, -30]
 
-        if from_location == [6, -30] and to_location[0] >= 7:
+        if from_location[0] == 6 and 30 >= from_location[1] >= 29 and to_location[0] >= 7:
             return [6, -28]
 
         if from_location[0] == 7 and -25 >= from_location[1] >= -28 and to_location[0] >= 8:

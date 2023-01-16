@@ -3,6 +3,7 @@ import math
 from typing import List
 
 from src.location_handling.city.abstract_city import AbstractCity
+from src.utils.Displayer import Displayer
 from src.utils.JsonHandler import JsonHandler
 from src.utils.utils_fct import get_distance
 
@@ -106,7 +107,7 @@ class AbstractRegion:
                     index = j
 
             if index == 0:
-                path1.appendd(val)
+                path1.append(val)
             else:
                 path1.insert(index, val)
 
@@ -121,7 +122,7 @@ class AbstractRegion:
         :return:
         """
 
-        print('calculating best path... ', end='')
+        Displayer.print('calculating best path... ', end='')
         n_factorial = 1
         for i in range(1, len(all_pos)):
             n_factorial = n_factorial * i

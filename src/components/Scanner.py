@@ -5,6 +5,7 @@ from PIL.Image import Image
 from src.enum.images import Images
 from src.enum.positions import Positions
 from src.utils.CurrentBot import CurrentBot
+from src.utils.Displayer import Displayer
 from src.utils.Sleeper import Sleeper
 
 
@@ -19,7 +20,7 @@ class Scanner:
 
     def scan(self) -> bool:
         """ scan the map for ressources """
-        print('Scanning')
+        Displayer.print('Scanning')
 
         for ressource_name, images in self.images.items():
             # check if this ressource belong to this position

@@ -12,6 +12,12 @@ class CharNames(Enum):
     INCE_ROLA       = 'Ince-Rola'
     RALPHERTIN      = 'Ralphertin'
 
+    # TEAM 2
+    Alizyann        = 'Alizyann'
+    Bilias	        = 'Bilias'
+    Cinifurya	    = 'Cinifurya'
+    Ditoxynag       = 'Ditoxynag'
+
     # TEAM 3
     Anabarch        = 'Anabarch'
     Borias          = 'Boriasi'
@@ -43,28 +49,58 @@ def get_job_routine(char_name: (str, CharNames)) -> (None, JobRoutine):
         return JobRoutine(
             region_name=Regions.CHAMP_ASTRUB,
             ressources=[Ressources.HOUBLON],
-            crafts=[]
+            crafts=[Ressources.BRIOCHETTE]
         )
 
-    if char_name == CharNames.RALPHERTIN.value:
+    if char_name == CharNames.ALIC_CLARIA.value:
         return JobRoutine(
             region_name=Regions.CHAMP_ASTRUB,
-            ressources=[Ressources.ORTIE, Ressources.SAUGE, Ressources.TREFLE_A_5_FEUILLES],
+            ressources=[Ressources.ORTIE, Ressources.SAUGE],
             crafts=[Ressources.POTION_DE_SOUVENIR]
         )
 
     if char_name == CharNames.INCE_ROLA.value:
         return JobRoutine(
             region_name=Regions.CHAMP_ASTRUB,
-            ressources=[Ressources.FRENE, Ressources.CHATAIGNER, Ressources.NOYER],
+            ressources=[Ressources.CHENE, Ressources.NOYER],
+            crafts=[Ressources.PLANCHE_DE_SURF, Ressources.SUBSTRAT_DE_FUTAIE]
+        )
+
+    if char_name == CharNames.RALPHERTIN.value:
+        return JobRoutine(
+            region_name=Regions.PRAIRIE_ASTRUB,
+            ressources=[Ressources.ORTIE, Ressources.SAUGE, Ressources.TREFLE_A_5_FEUILLES],
+            crafts=[Ressources.POTION_DE_SOUVENIR]
+        )
+
+    # =========================================================================================
+    # TEAM 2
+    if char_name == CharNames.Alizyann.value:
+        return JobRoutine(
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.ORGES],
+            crafts=[Ressources.CARASAU]
+        )
+
+    if char_name == CharNames.Bilias.value:
+        return JobRoutine(
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.ORTIE, Ressources.SAUGE],
             crafts=[]
         )
 
-    if char_name == CharNames.ALIC_CLARIA.value:
+    if char_name == CharNames.Cinifurya.value:
+        return JobRoutine(
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.FRENE],
+            crafts=[]
+        )
+
+    if char_name == CharNames.Ditoxynag.value:
         return JobRoutine(
             region_name=Regions.PRAIRIE_ASTRUB,
-            ressources=[Ressources.ORTIE, Ressources.SAUGE],
-            crafts=[Ressources.POTION_DE_SOUVENIR]
+            ressources=[Ressources.ORTIE],
+            crafts=[]
         )
 
     # =========================================================================================
@@ -138,12 +174,22 @@ def get_char_id(char_name: (str, CharNames)):
     # TEAM 1 =====================================================
     if char_name == CharNames.PASCA_VIVIE.value:
         return '#5244'
-
-    if char_name == CharNames.RALPHERTIN.value:
+    if char_name == CharNames.ALIC_CLARIA.value:
         return '#9961'
-
     if char_name == CharNames.INCE_ROLA.value:
         return '#6773'
+    if char_name == CharNames.RALPHERTIN.value:
+        return '#6299'
+
+    # TEAM 2 =====================================================
+    if char_name == CharNames.Alizyann.value:
+        return '#2580'
+    if char_name == CharNames.Bilias.value:
+        return '#1931'
+    if char_name == CharNames.Cinifurya.value:
+        return '#2726'
+    if char_name == CharNames.Ditoxynag.value:
+        return '#8288'
 
     # TEAM 3 =====================================================
     if char_name == CharNames.Anabarch.value:
