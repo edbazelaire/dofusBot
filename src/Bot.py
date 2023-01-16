@@ -34,12 +34,12 @@ class Bot:
         self.job_routine = job_routine
         self.clicked_pos = []
         self.unload_ressources = []
-        self.max_pods = 0 if len(job_routine.crafts) == 0 else Inventory.get_max_pods()
 
         self.Movement = Movement(self, job_routine.region_name, job_routine.ressources, job_routine.city_name)
 
         self.select()
 
+        self.max_pods = 0 if len(job_routine.crafts) == 0 else Inventory.get_max_pods()
         self.Fight = Fight()
         self.Inventory = Inventory()
         self.Craft = Craft(craft_names=job_routine.crafts, max_pods=self.max_pods)
