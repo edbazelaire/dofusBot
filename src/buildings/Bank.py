@@ -20,23 +20,43 @@ class Bank(AbstractBuilding):
 
     def open(self):
         """ open the bank """
+        if self.check_is_opened():
+            return True
+
+        if not self.is_in():
+            ErrorHandler.error('trying to open the bank while not being in the bank')
+            ErrorHandler.is_error = True
+            return False
+
         # click on npc
-        wait_click_on(self.NPC_IMAGE)
+        if not wait_click_on(self.NPC_IMAGE):
+            ErrorHandler.error('unable to click npc image of the bank')
+            return False
 
         # click on "accept" to access your bank inventory
-        wait_click_on(Images.get(Images.BANK_DIALOG_ACCESS))
+        if not wait_click_on(Images.get(Images.BANK_DIALOG_ACCESS)):
+            ErrorHandler.error('unable to find bank dialog access')
+            return False
 
-    def close(self):
+    @staticmethod
+    def close() -> bool:
+        """ close tha bank """
+        if not Bank.check_is_opened():
+            return True
+
         pg.click(*Positions.CLOSE_BANK_BUTTON_POSITION)
-        time.sleep(0.2)
+        time.sleep(1)
 
         while Bank.check_is_opened():
             ErrorHandler.error('bank not closed', ErrorType.RETRY_ACTION_ERROR)
             pg.click(*Positions.CLOSE_BANK_BUTTON_POSITION)
             time.sleep(1)
 
+            if ErrorHandler.is_error:
+                return False
+
         ErrorHandler.reset_error(ErrorType.RETRY_ACTION_ERROR)
-        time.sleep(0.2)
+        return True
 
     def enter(self) -> bool:
         return self.enter_building(click_pos=self.DOOR_POSITION, loading_img=self.NPC_IMAGE)
@@ -55,6 +75,9 @@ class Bank(AbstractBuilding):
             ErrorHandler.error("unable to get out of bank", ErrorType.RETRY_ACTION_ERROR)
             if ErrorHandler.is_error:
                 return False
+
+    def is_in(self) -> bool:
+        return wait_image(self.NPC_IMAGE, max_timer=1)
 
     # ==================================================================================================================
     # BANK TAB
@@ -149,7 +172,7 @@ class Bank(AbstractBuilding):
         wait_click_on(Images.get(Images.BANK_TRANSFER_VISIBLE_OBJ_BTN))
 
     @staticmethod
-    def select_tab(ressource_type, in_bank=True):
+    def select_tab(ressource_type: RessourceType, in_bank=True):
         image = None
         region = Positions.BANK_INVENTORY_REG if in_bank else Positions.BANK_PLAYER_INVENTORY_REG
 
@@ -222,6 +245,11 @@ class Bank(AbstractBuilding):
 
     @staticmethod
     def open_recipes():
+        if not Bank.check_is_opened():
+            ErrorHandler.error(f'trying to open recipe in bank but bank is not opened')
+            ErrorHandler.is_error = True
+            return False
+
         if not Bank.is_recipes_open(max_timer=0.5):
             pg.click(*Positions.BANK_RECIPES_BTN)
             return Bank.is_recipes_open(max_timer=5)
@@ -237,6 +265,11 @@ class Bank(AbstractBuilding):
     @staticmethod
     def search(ressource_name, in_bank=True):
         if in_bank:
+            if not Bank.check_is_opened():
+                ErrorHandler.error(f'trying to search {ressource_name} in bank but bank is not opened')
+                ErrorHandler.is_error = True
+                return False
+
             reset_btn_pos = Positions.BANK_SEARCH_BAR_RESET_BUTTON
             search_bar_pos = Positions.BANK_SEARCH_BAR
         else:
@@ -263,9 +296,9 @@ class Bank(AbstractBuilding):
         return not Bank.check_first_slot_empty(in_bank)
 
     @staticmethod
-    def check_is_opened() -> bool:
+    def check_is_opened(max_timer=1) -> bool:
         """ return True if bank is open """
-        return wait_image(Images.get(Images.BANK_OPEN))
+        return wait_image(Images.get(Images.BANK_OPEN), max_timer=max_timer)
 
     @staticmethod
     def check_first_slot_empty(in_bank=True) -> bool:

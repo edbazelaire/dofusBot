@@ -1,3 +1,4 @@
+import random
 from typing import List, Tuple
 import pyautogui as pg
 import time
@@ -196,8 +197,9 @@ class Bot:
 
         pg.click(*Positions.PRIVATE_MESSAGES_FILTER)
 
-        # send a message to the player
-        send_message(char_name, "hello my friend")
+        # send a random message to the player
+        msg = ''.join(random.choice('azertyuiopqsdfghjklmwxcvbn') for i in range(random.randint(3, 15)))
+        send_message(char_name, msg)
 
         pg.moveTo(*Positions.LAST_MESSAGE_NAME, 0.2)
         pg.click()
@@ -205,7 +207,16 @@ class Bot:
             ErrorHandler.error(f"unable to exchange with player {char_name}")
             return False
 
-    def accept_exchange(self, ressources: (str, List[str])) -> bool:
+        if not wait_image(Images.WAITING_EXCHANGE_WINDOW):
+            ErrorHandler.error(f"exchange sent to {char_name} but window did not pop")
+            return False
+
+    def accept_exchange(self, ressources: (str, List[str]), press_validation=False) -> bool:
+        """
+            accept an exchange request from another bot
+        :param ressources: list of ressources to exchange
+        :param press_validation: instant validate or wait for further confirmation
+        """
         self.select()
 
         if isinstance(ressources, str):
@@ -224,9 +235,11 @@ class Bot:
 
         time.sleep(3)
 
-        return self.validate_exchange()
+        if press_validation:
+            self.validate_exchange()
 
     def validate_exchange(self):
+        """ validate an exchange """
         self.select()
 
         if not wait_click_on(Images.VALIDATE_BTN):
