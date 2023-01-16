@@ -29,6 +29,7 @@ class Images:
     FULL_PODS = 'full_pods.png'
     INVENTORY_PODS_MARKER = 'inventory_pods_marker.png'
     EXCHANGE_BTN = 'exchange_btn.png'
+    WAITING_EXCHANGE_WINDOW = 'waiting_exchange.png'    # TODO
     EXCHANGE_LOADED = 'exchange_loaded.png'
     VALIDATE_BTN = 'validate_btn.png'
     CANCEL_BTN = 'cancel_btn.png'

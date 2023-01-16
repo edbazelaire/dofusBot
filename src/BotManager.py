@@ -9,7 +9,7 @@ from src.Bot import Bot
 from src.enum.images import Images
 from src.enum.positions import Positions
 from src.enum.ressources import Ressources
-from src.utils.ErrorHandler import ErrorHandler
+from src.utils.ErrorHandler import ErrorHandler, ErrorType
 from src.utils.Sleeper import Sleeper
 from src.utils.utils_fct import wait_click_on, wait_image
 
@@ -183,63 +183,114 @@ class BotManager:
         print('='*50)
         return
 
-    def exchange(self, bot_taking: Bot, bot_giving: Bot, ressource_name: str):
+    def exchange(self, bot_taking: Bot, bot_giving: Bot, ressource_name: str) -> bool:
         bank = bot_giving.Movement.city.bank
+
+        if not bot_taking.Movement.location != bank.LOCATION:
+            ErrorHandler.error(f"bot {bot_taking.char_name} is supposed to be at bank location ({bank.LOCATION}) but is actually at ({bot_taking.Movement.location})")
+            return False
+
+        if not bot_giving.Movement.location != bank.LOCATION:
+            ErrorHandler.error(f"bot {bot_giving.char_name} is supposed to be at bank location ({bank.LOCATION}) but is actually at ({bot_giving.Movement.location})")
+            return False
+
+        bot_taking.select()
+        if not bank.is_in():
+            bank.enter()
+
+        bot_giving.select()
+        if not bank.is_in():
+            bank.enter()
 
         while True:
             ressource = Ressources.get(ressource_name)
+            # =======================================================
+            # get ressources from the bank
             bot_giving.select()
-            bank.enter()
             bank.open()
             has_any = bank.transfer(
                 ressource_name=ressource_name,
                 n=(bot_taking.max_pods - 100) // ressource.pods,
                 from_bank=True
             )
-
             bank.close()
-            bank.exit()
 
             if not has_any:
-                return
+                break
 
-            bot_taking.start_exchange(bot_giving.char_name)
-            bot_giving.accept_exchange(ressource_name)
-            bot_taking.validate_exchange()
+            # -------------------------------------------------------
+            # start exchange
+            while not bot_taking.start_exchange(bot_giving.char_name):
+                ErrorHandler.warning("unable to start exchange - retry", ErrorType.RETRY_ACTION_ERROR)
+                if ErrorHandler.is_error:
+                    break
+            ErrorHandler.reset_error(ErrorType.RETRY_ACTION_ERROR)
 
+            # -------------------------------------------------------
+            # accept exchange
+            if not bot_giving.accept_exchange(ressource_name, press_validation=False):
+                break
+
+            # -------------------------------------------------------
+            # validate exchange by bots that takes
+            if not bot_taking.validate_exchange():
+                break
+
+            # -------------------------------------------------------
+            # validate exchange by bots that gives
+            if not bot_giving.validate_exchange():
+                break
+
+            # =======================================================
+            # transfer given ressources in the bank
             bot_taking.select()
-            bank.enter()
             bank.open()
             bank.transfer(ressource_name, from_bank=False)
             bank.close()
-            bank.exit()
+
+        # make both bots leave the bank
+        bot_taking.select()
+        bank.exit()
+        bot_giving.select()
+        bank.exit()
 
     # ==================================================================================================================
     # SWAP TEAM
-    def swap_team(self):
-        print('='*50)
-        print("SWAP TEAM")
-
+    def swap_team(self) -> bool:
+        """ change team (if has multiple team) """
         if len(self.teams) <= 1:
-            return
+            return True
 
-        self.log_next_team()
-        self.create_bots()
+        for i in range(len(self.teams)):
+            print('='*50)
+            print("SWAP TEAM")
 
-        print('done !')
-        print('='*50)
+            self.log_next_team()
+            self.create_bots()
+
+            if len(self.bots) > 0:
+                print('done !')
+                print('='*50)
+                return True
+
+        ErrorHandler.fatal_error('not able to log any team')
+
+    def delete_all_bots(self):
+        for window in pg.getWindowsWithTitle("Dofus 2."):
+            window.close()
+
+        self.bots = []
 
     def log_next_team(self):
         if len(self.teams) <= 1:
             return
 
-        for bot in self.bots:
-            bot.window.close()
-
         if self.team_index is None:
             self.team_index = 0
         else:
             self.team_index = (self.team_index + 1) % len(self.teams)
+
+        self.delete_all_bots()
 
         time.sleep(0.5)
 
@@ -253,6 +304,8 @@ class BotManager:
 
                     else:
                         ErrorHandler.error(f"Unable to connect {char_name.value} for unknown reason - skipping")
+                        # set success to True to skip
+                        success = True
 
                     pg.getWindowsWithTitle('Dofus 2.')[0].close()
 
