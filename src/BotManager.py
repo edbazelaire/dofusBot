@@ -161,29 +161,55 @@ class BotManager:
     def exchange_ressources(self):
         print('='*50)
         print('EXCHANGING RESSOURCES')
-        # take account of who needs what
+        #  init
+        bot_collecting_all_ressources = None
         requested_ressources = {}
         available_ressources = {}
 
+        # -----------------------------------------------------------------------
         # check who is producing and who is requesting what
         for bot in self.bots:
             requested_ressources[bot.id] = bot.get_requested_ressources()
             available_ressources[bot.id] = bot.get_available_ressources()
 
+        # -----------------------------------------------------------------------
         # check who has requested ressources and start exchanges
         for bot_taking in self.bots:
+            # check if bot ends up collecting all remaining ressources
+            if bot_taking.job_routine.take_available_ressources:
+                bot_collecting_all_ressources = bot_taking
+
+            # get threw ressources that this bot requests
             for requested_ressource in requested_ressources[bot_taking.id]:
+                # init a list of bot that exchanged the ressources. Since the bot exchanges all available ressources,
+                # remove available ressource from the bot
+                list_bot_exchange = []
+
+                # get threw list of available ressources for each bot
                 for bot_id, ressources in available_ressources.items():
                     bot_giving = self.bots[bot_id]
 
                     if requested_ressource in ressources:
                         self.exchange(bot_taking, bot_giving, ressource_name=requested_ressource)
+                        list_bot_exchange.append(bot_id)
+
+                # remove available ressource for the bot who exchanged it
+                for bot_id in list_bot_exchange:
+                    available_ressources[bot_id].remove(requested_ressource)
+
+        # -----------------------------------------------------------------------
+        # make bot collects all remaining ressources if one was designated
+        if bot_collecting_all_ressources is not None:
+            for bot_id, ressources in available_ressources.items():
+                for ressource in ressources:
+                    self.exchange(bot_collecting_all_ressources, self.bots[bot_id], ressource)
 
         print('done !')
         print('='*50)
         return
 
-    def exchange(self, bot_taking: Bot, bot_giving: Bot, ressource_name: str) -> bool:
+    @staticmethod
+    def exchange(bot_taking: Bot, bot_giving: Bot, ressource_name: str) -> bool:
         bank = bot_giving.Movement.city.bank
 
         if not bot_taking.Movement.location != bank.LOCATION:

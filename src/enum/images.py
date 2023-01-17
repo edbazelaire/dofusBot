@@ -29,7 +29,7 @@ class Images:
     FULL_PODS = 'full_pods.png'
     INVENTORY_PODS_MARKER = 'inventory_pods_marker.png'
     EXCHANGE_BTN = 'exchange_btn.png'
-    WAITING_EXCHANGE_WINDOW = 'waiting_exchange.png'    # TODO
+    WAITING_EXCHANGE_WINDOW = 'waiting_exchange.png'
     EXCHANGE_LOADED = 'exchange_loaded.png'
     VALIDATE_BTN = 'validate_btn.png'
     CANCEL_BTN = 'cancel_btn.png'
@@ -46,7 +46,7 @@ class Images:
     BANK_PLAYER_TRANSFER_BUTTON = 'bank_player_transfer_button.png'
     BANK_TRANSFER_BUTTON = 'bank_transfer_button.png'
     BANK_TRANSFER_VISIBLE_OBJ_BTN = 'transfer_visible_ressources_button.png'
-    BANK_OPEN = 'bank_open.png'     # TODO : image that validates that bank is open or no
+    BANK_OPEN = 'bank_open.png'
     RECIPES_OPEN = 'recipes_open.png'
     CHAR_LOADED = 'char_loaded.png'
 
