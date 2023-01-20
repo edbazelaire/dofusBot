@@ -32,10 +32,18 @@ class CharNames(Enum):
 
 
 class JobRoutine:
-    def __init__(self, region_name, ressources, crafts, city_name=None):
+    def __init__(self, region_name, ressources, crafts, take_available_ressources=False, city_name=None):
+        """
+        :param region_name:                 name of the Region where the bot is farming
+        :param ressources:                  list of ressources to farm
+        :param crafts:                      list of craft to produce
+        :param take_available_ressources:   if True, the bot takes all other's available ressources
+        :param city_name:                   name of the city where to unload and craft (default : region's city)
+        """
         self.region_name = region_name
         self.ressources = ressources
         self.crafts = crafts
+        self.take_available_ressources = take_available_ressources
         self.city_name = city_name
 
 
