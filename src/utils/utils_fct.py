@@ -63,23 +63,28 @@ def get_distance(pos1: list, pos2: list):
 def read_map_location():
     """ get map location from GUID reading """
 
-    img = pg.screenshot(region=Positions.MAP_LOCATION_REG)
-    img = img.resize((150, 30))
-    value = pytesseract.image_to_string(img, config='--psm 7 --oem 3 -c tessedit_char_whitelist=0123456789,-')
+    while True:
+        if ErrorHandler.is_error:
+            return [0, 0]
 
-    try:
-        split = value.split(',')
-        x = int(split[0])
-        y = int(split[1])
+        img = pg.screenshot(region=Positions.MAP_LOCATION_REG)
+        img = img.resize((150, 30))
+        value = pytesseract.image_to_string(img, config='--psm 7 --oem 3 -c tessedit_char_whitelist=0123456789,-')
 
-        if abs(x) > 100 or abs(y) > 100:
-            ErrorHandler.error(f"unable to read position ({value})")
-            return None
+        try:
+            split = value.split(',')
+            x = int(split[0])
+            y = int(split[1])
 
-        return [x, y]
-    except:
-        ErrorHandler.error(f"unable to read position ({value})")
-        return None
+            if abs(x) > 100 or abs(y) > 100:
+                ErrorHandler.error(f"bar position reading ({value})", ErrorType.RETRY_ACTION_ERROR)
+                time.sleep(2)
+            else:
+                ErrorHandler.reset_error(ErrorType.RETRY_ACTION_ERROR)
+                return [x, y]
+        except:
+            ErrorHandler.error(f"unable to read position ({value})", ErrorType.RETRY_ACTION_ERROR)
+            time.sleep(2)
 
 
 def send_message(name:str, message:str):
@@ -87,6 +92,7 @@ def send_message(name:str, message:str):
     time.sleep(0.5)
     pg.typewrite(f"/w {name} {message}", 0.1)
     pg.press('enter')
+
 
 def read_region():
     # read Zone

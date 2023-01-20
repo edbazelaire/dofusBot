@@ -75,6 +75,11 @@ class BotManager:
                     char_name=char_name,
                     job_routine=job_routine
                 )
+
+                # if team switch : make craft at the end of the farming session
+                if self.duration is not None:
+                    bot.Craft.is_allowed_crafting = False
+
                 self.bots.append(bot)
                 ctr += 1
 
@@ -135,8 +140,8 @@ class BotManager:
         print('='*50)
         print('unloading all to bank ...')
         for bot in self.bots:
-            # bot.Craft.is_allowed_crafting = False
             bot.select()
+            bot.Craft.is_allowed_crafting = True    # reactivate craft if it was blocked
             bot.bank_routine()
 
         done = False
@@ -186,11 +191,11 @@ class BotManager:
     def exchange(self, bot_taking: Bot, bot_giving: Bot, ressource_name: str) -> bool:
         bank = bot_giving.Movement.city.bank
 
-        if not bot_taking.Movement.location != bank.LOCATION:
+        if bot_taking.Movement.location != bank.LOCATION:
             ErrorHandler.error(f"bot {bot_taking.char_name} is supposed to be at bank location ({bank.LOCATION}) but is actually at ({bot_taking.Movement.location})")
             return False
 
-        if not bot_giving.Movement.location != bank.LOCATION:
+        if bot_giving.Movement.location != bank.LOCATION:
             ErrorHandler.error(f"bot {bot_giving.char_name} is supposed to be at bank location ({bank.LOCATION}) but is actually at ({bot_giving.Movement.location})")
             return False
 
@@ -307,7 +312,10 @@ class BotManager:
                         # set success to True to skip
                         success = True
 
-                    pg.getWindowsWithTitle('Dofus 2.')[0].close()
+                    dofus_windows = pg.getWindowsWithTitle('Dofus 2.')
+                    if len(dofus_windows) > 0:
+                        dofus_windows[0].close()
+
 
     def log_character(self, char_name: CharNames) -> bool:
         # activate Ankama window

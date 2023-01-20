@@ -14,12 +14,12 @@ if __name__ == '__main__':
     botManager = BotManager(
         n_max=None,
         duration=4*3600,
-        team_index=1,
+        team_index=0,
         teams=[
             [CharNames.PASCA_VIVIE, CharNames.RALPHERTIN],
             [CharNames.INCE_ROLA, CharNames.ALIC_CLARIA],
-            [CharNames.Alizyann, CharNames.Bilias],
-            [CharNames.Cinifurya, CharNames.Ditoxynag],
+            [CharNames.Alizyann, CharNames.Ditoxynag, CharNames.Bilias],
+            # [CharNames.Cinifurya],
         ]
     )
 

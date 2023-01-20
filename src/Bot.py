@@ -192,7 +192,7 @@ class Bot:
                     requested_ressources.append(requested_ressource)
         return requested_ressources
 
-    def start_exchange(self, char_name: str):
+    def start_exchange(self, char_name: str) -> bool:
         self.select()
 
         pg.click(*Positions.PRIVATE_MESSAGES_FILTER)
@@ -210,6 +210,8 @@ class Bot:
         if not wait_image(Images.WAITING_EXCHANGE_WINDOW):
             ErrorHandler.error(f"exchange sent to {char_name} but window did not pop")
             return False
+
+        return True
 
     def accept_exchange(self, ressources: (str, List[str]), press_validation=False) -> bool:
         """
@@ -236,15 +238,18 @@ class Bot:
         time.sleep(3)
 
         if press_validation:
-            self.validate_exchange()
+            return self.validate_exchange()
+        return True
 
-    def validate_exchange(self):
+    def validate_exchange(self) -> bool:
         """ validate an exchange """
         self.select()
 
         if not wait_click_on(Images.VALIDATE_BTN):
             ErrorHandler.error('unable to validate exchange')
             return False
+
+        return True
 
     # ==================================================================================================================
     # CHECKS

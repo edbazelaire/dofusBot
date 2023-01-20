@@ -78,29 +78,30 @@ def get_job_routine(char_name: (str, CharNames)) -> (None, JobRoutine):
     if char_name == CharNames.Alizyann.value:
         return JobRoutine(
             region_name=Regions.CHAMP_ASTRUB,
-            ressources=[Ressources.ORGES],
-            crafts=[Ressources.CARASAU]
+            ressources=[Ressources.HOUBLON],
+            crafts=[Ressources.BRIOCHETTE],
+
         )
 
     if char_name == CharNames.Bilias.value:
         return JobRoutine(
             region_name=Regions.CHAMP_ASTRUB,
             ressources=[Ressources.ORTIE, Ressources.SAUGE],
-            crafts=[]
+            crafts=[Ressources.POTION_DE_SOUVENIR]
         )
 
     if char_name == CharNames.Cinifurya.value:
         return JobRoutine(
             region_name=Regions.CHAMP_ASTRUB,
-            ressources=[Ressources.FRENE],
+            ressources=[Ressources.FRENE, Ressources.CHATAIGNER],
             crafts=[]
         )
 
     if char_name == CharNames.Ditoxynag.value:
         return JobRoutine(
             region_name=Regions.PRAIRIE_ASTRUB,
-            ressources=[Ressources.ORTIE],
-            crafts=[]
+            ressources=[Ressources.ORTIE, Ressources.SAUGE],
+            crafts=[Ressources.POTION_DE_SOUVENIR]
         )
 
     # =========================================================================================
