@@ -29,11 +29,11 @@ if __name__ == '__main__':
     bot = Bot(
         region_name=Regions.CHAMP_ASTRUB,
         ressources=[
-            Ressources.FRENE,
-            Ressources.CHENE,
+            Ressources.ORGES,
+            Ressources.HOUBLON
         ],
         crafts=[
-            Ressources.PLANCHE_DE_SURF
+            Ressources.CARASAU
         ]
     )
     bot.run()

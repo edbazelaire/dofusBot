@@ -8,9 +8,10 @@ class Ressources:
     # ==================================================================================================================
     # COLLECTABLES
     # CEREALS
-    HOUBLON = "houblon"
     BLE = "ble"
     ORGES = "orges"
+    AVOINE = "avoine"
+    HOUBLON = "houblon"
     SEIGLE = "seigle"
     CHANVRE = "chanvre"
     MALT = "malt"
@@ -41,11 +42,12 @@ class Ressources:
     PAIN_AUX_FLOCONS_D_AVOINE = 'pain aux flocons d\'avoine'
     POTION_DE_SOUVENIR = 'potion de souvenir'
     PLANCHE_DE_SURF = 'planche de surf'
-    SUBSTRAT_DE_FURAIE = 'substrat de futaie'
+    SUBSTRAT_DE_FUTAIE = 'substrat de futaie'
 
     # ==================================================================================================================
     # OTHERS
     CENDRES_ETERNELLES = 'cendres eternelles'
+    AUBERGINE = 'aubergine'
 
     @staticmethod
     def get(ressource_name):
@@ -53,14 +55,7 @@ class Ressources:
         # COLLECTABLES
         # -----------------------------------------------------------------------------------------
         # CEREALS
-        if ressource_name == Ressources.HOUBLON:
-            return RessourceConfig(
-                name=ressource_name,
-                ressource_type=RessourceType.Ressource,
-                pods=2
-            )
-
-        elif ressource_name == Ressources.BLE:
+        if ressource_name == Ressources.BLE:
             return RessourceConfig(
                 name=ressource_name,
                 ressource_type=RessourceType.Ressource,
@@ -74,11 +69,18 @@ class Ressources:
                 pods=2
             )
 
-        elif ressource_name == Ressources.TREFLE_A_5_FEUILLES:
+        elif ressource_name == Ressources.AVOINE:
             return RessourceConfig(
                 name=ressource_name,
                 ressource_type=RessourceType.Ressource,
-                pods=1
+                pods=2
+            )
+
+        if ressource_name == Ressources.HOUBLON:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Ressource,
+                pods=2
             )
 
         # -----------------------------------------------------------------------------------------
@@ -124,11 +126,24 @@ class Ressources:
                 pods=1
             )
 
+        elif ressource_name == Ressources.TREFLE_A_5_FEUILLES:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Ressource,
+                pods=1
+            )
+
         # -----------------------------------------------------------------------------------------
         # OTHER
         elif ressource_name == Ressources.CENDRES_ETERNELLES:
             return RessourceConfig(
                 name='cendres eternelles',
+                ressource_type=RessourceType.Ressource,
+                pods=1
+            )
+        elif ressource_name == Ressources.AUBERGINE:
+            return RessourceConfig(
+                name='aubergine',
                 ressource_type=RessourceType.Ressource,
                 pods=1
             )
@@ -171,14 +186,14 @@ class Ressources:
             return RessourceConfig(
                 name=ressource_name,
                 ressource_type=RessourceType.Ressource,
-                pods=2
+                pods=10
             )
 
-        elif ressource_name == Ressources.SUBSTRAT_DE_FURAIE:
+        elif ressource_name == Ressources.SUBSTRAT_DE_FUTAIE:
             return RessourceConfig(
                 name=ressource_name,
                 ressource_type=RessourceType.Ressource,
-                pods=2
+                pods=10
             )
 
         # ------------------------------------------------

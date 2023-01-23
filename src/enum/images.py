@@ -20,11 +20,19 @@ class Images:
     CURSOR_RIGHT = 'cursor_right.png'
     CURSOR_UP = 'cursor_up.png'
     CURSOR_DOWN = 'cursor_down.png'
-    GHOST_FORM = 'ghost_form.png'                                   # TODO
     OK_TRANSFER_BUTTON = 'ok_transfer.png'
     INVENTORY_OPENED = 'inventory_opened.png'
     CRAFT_MACHINE_LOADED = 'craft_machine_loaded.png'
     AFFICHER_RECETTES_DISPO = 'afficher_recettes_dispo.png'
+    JOIN_FIGHT_IMG = 'join_fight.png'   # TODO
+    GHOST_FORM = 'ghost_form.png'       # TODO
+    FULL_PODS = 'full_pods.png'
+    INVENTORY_PODS_MARKER = 'inventory_pods_marker.png'
+    EXCHANGE_BTN = 'exchange_btn.png'
+    WAITING_EXCHANGE_WINDOW = 'waiting_exchange.png'
+    EXCHANGE_LOADED = 'exchange_loaded.png'
+    VALIDATE_BTN = 'validate_btn.png'
+    CANCEL_BTN = 'cancel_btn.png'
 
     # BANK                  ====================================================================
     BANK_DIR = 'bank'
@@ -38,8 +46,22 @@ class Images:
     BANK_PLAYER_TRANSFER_BUTTON = 'bank_player_transfer_button.png'
     BANK_TRANSFER_BUTTON = 'bank_transfer_button.png'
     BANK_TRANSFER_VISIBLE_OBJ_BTN = 'transfer_visible_ressources_button.png'
-    BANK_OPEN = 'bank_open.png'     # TODO : image that validates that bank is open or no
+    BANK_OPEN = 'bank_open.png'
     RECIPES_OPEN = 'recipes_open.png'
+    CHAR_LOADED = 'char_loaded.png'
+
+    # BUILDINGS                ====================================================================
+    ASTRUB_SCIERIE = 'astrub_scierie.png'
+    ASTRUB_BOULANGERIE = 'astrub_boulangerie.png'
+    ASTRUB_ALCHIMIST = 'astrub_alchimist.png'
+
+    # SWAP TEAM                ====================================================================
+    SWAP_TEAM_DIR = 'swap_team'
+    MULTI_ACCOUNT_BUTTON = 'multi_account_button.png'
+    MULTI_ACCOUNT_LOADED = 'multi_account_loaded.png'
+    ACCOUNT_AVATAR = 'account_avatar.png'
+    LOG_ACCOUNT = 'log_account.png'
+    SERVER_FULL = 'server_full.png'
 
     # STUFFS                ====================================================================
     STUFFS_DIR = 'stuffs'

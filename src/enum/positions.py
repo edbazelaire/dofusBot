@@ -18,7 +18,8 @@ class Positions:
 
     # ==================================================================================================================
     # GAME WINDOW SCREEN CONFIGURATION
-    WINDOW_SIZE_PERC: float = 1     # percentage of size changes from default size (WINDOW_DEFAULT_SIZE)
+    WINDOW_SIZE_PERC: float = 1             # percentage of size changes from default size (WINDOW_DEFAULT_SIZE)
+    SCREEN_REG: tuple = (0, 0, 1920, 1080)  # region of the screen
 
     # ==================================================================================================================
     # GAME WINDOW
@@ -28,9 +29,15 @@ class Positions:
     Y_MAX = 900
     WINDOW_REG: list = []
 
-    # CHANGE MAP
+    # -- change map
     X_BAND_OFFSET = 20
     Y_BAND_OFFSET = 15
+
+    # ==================================================================================================================
+    # MESSAGE BAR
+    MESSAGE_BAR = (459, 1030)
+    PRIVATE_MESSAGES_FILTER = (705, 983)
+    LAST_MESSAGE_NAME = (377, 993)
 
     # ==================================================================================================================
     # BANK
@@ -65,10 +72,28 @@ class Positions:
     CRAFT_EXIT_MACHINE_BTN = (1561, 87)     # button clicked to exit machine
 
     # ==================================================================================================================
+    # HDV
+    BUY_BTN = (695, 126)
+    SELL_BTN = (870, 126)
+    QTY_BTN = (513, 325)
+    QTY_1 = (525, 350)
+    QTY_10 = (525, 375)
+    QTY_100 = (525, 400)
+    # -- buy
+    HDV_BUY_SEARCH_BAR = (473, 200)
+    HDV_BUY_SEARCH_BAR_RESET_BTN = (570, 202)
+    # -- sell
+    HDV_SELL_SEARCH_BAR = (1031, 188)
+    HDV_SELL_SEARCH_BAR_RESET_BTN = (1204, 190)
+    # -- player
+    HDV_PLAYER_SEARCH_BAR = (1557, 797)
+    HDV_PLAYER_SEARCH_BAR_RESET_BTN = (1431, 795)
+
+    # ==================================================================================================================
     # PERSONAL TABS
     INVENTORY_CLICK_POS = (1412, 949)           # position to click to open inventory
     INVENTORY_PODS_REG = (1365, 840, 10, 6)
-    INVENTORY_PODS_VALUE_REG = (1325, 777, 45, 23)
+    INVENTORY_PODS_VALUE_REG = (1325, 777, 50, 23)
     INVENTORY_PODS_BAR_MIDDLE = (1320, 844)
 
     # RESSOURCES
@@ -93,31 +118,40 @@ class Positions:
     PM_REG = (795, 1006, 20, 22)
     PA_REG = (744, 1010, 20, 22)
 
-    def __init__(self, game_window_id):
+    def __init__(self, game_window_id: (int, None) = None):
         Positions.GAME_WINDOW_ID = game_window_id
-        Positions.set_window_size()
 
-        for name, val in vars(Positions).items():
-            # filter constants
-            if name.upper() != name:
-                continue
+        if game_window_id is None:
+            Positions.WINDOW_REG = [
+                Positions.GAME_WINDOW_DEFAULT_POS[0],
+                Positions.GAME_WINDOW_DEFAULT_POS[1],
+                Positions.GAME_WINDOW_DEFAULT_SIZE[0],
+                Positions.GAME_WINDOW_DEFAULT_SIZE[1],
+            ]
+        else:
+            Positions.set_window_size()
 
-            # do not change default values
-            if '_DEFAULT' in name:
-                continue
+            for name, val in vars(Positions).items():
+                # filter constants
+                if name.upper() != name:
+                    continue
 
-            # do not change settings
-            if name == 'WINDOW_SIZE_PERC' or name == 'WINDOW_REG' or name == 'WINDOW_POS':
-                continue
+                # do not change default values
+                if '_DEFAULT' in name:
+                    continue
 
-            # filter
-            if not isinstance(val, tuple):
-                continue
+                # do not change settings
+                if name == 'WINDOW_SIZE_PERC' or name == 'WINDOW_REG' or name == 'WINDOW_POS':
+                    continue
 
-            if len(val) == 0:
-                continue
+                # filter
+                if not isinstance(val, tuple):
+                    continue
 
-            setattr(Positions, name, self.resize(val))
+                if len(val) == 0:
+                    continue
+
+                setattr(Positions, name, self.resize(val))
 
         # update GameWindow X & Y from WindowRegion
         Positions.X_MIN = Positions.WINDOW_REG[0] + Positions.X_BAND_OFFSET
