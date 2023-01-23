@@ -20,13 +20,30 @@ class Bank(AbstractBuilding):
 
     def open(self):
         """ open the bank """
+        if self.check_is_opened():
+            return True
+
+        if not self.is_in():
+            ErrorHandler.error('trying to open the bank while not being in the bank')
+            ErrorHandler.is_error = True
+            return False
+
         # click on npc
-        wait_click_on(self.NPC_IMAGE)
+        if not wait_click_on(self.NPC_IMAGE):
+            ErrorHandler.error('unable to click npc image of the bank')
+            return False
 
         # click on "accept" to access your bank inventory
-        wait_click_on(Images.get(Images.BANK_DIALOG_ACCESS))
+        if not wait_click_on(Images.get(Images.BANK_DIALOG_ACCESS)):
+            ErrorHandler.error('unable to find bank dialog access')
+            return False
 
-    def close(self):
+    @staticmethod
+    def close() -> bool:
+        """ close tha bank """
+        if not Bank.check_is_opened():
+            return True
+
         pg.click(*Positions.CLOSE_BANK_BUTTON_POSITION)
         time.sleep(1)
 
@@ -35,8 +52,11 @@ class Bank(AbstractBuilding):
             pg.click(*Positions.CLOSE_BANK_BUTTON_POSITION)
             time.sleep(1)
 
+            if ErrorHandler.is_error:
+                return False
+
         ErrorHandler.reset_error(ErrorType.RETRY_ACTION_ERROR)
-        time.sleep(1)
+        return True
 
     def enter(self) -> bool:
         return self.enter_building(click_pos=self.DOOR_POSITION, loading_img=self.NPC_IMAGE)
@@ -55,6 +75,9 @@ class Bank(AbstractBuilding):
             ErrorHandler.error("unable to get out of bank", ErrorType.RETRY_ACTION_ERROR)
             if ErrorHandler.is_error:
                 return False
+
+    def is_in(self) -> bool:
+        return wait_image(self.NPC_IMAGE, max_timer=1)
 
     # ==================================================================================================================
     # BANK TAB
@@ -76,22 +99,28 @@ class Bank(AbstractBuilding):
 
         # set transfer from / to the bank
         from_position = Positions.BANK_FIRST_RESSOURCE_POSITION if from_bank else Positions.BANK_PLAYER_FIRST_RESSOURCE_POSITION
-        to_position = Positions.BANK_PLAYER_FIRST_RESSOURCE_POSITION if from_bank else Positions.BANK_FIRST_RESSOURCE_POSITION
 
-        # drag ressource from inv to the other
-        pg.moveTo(*from_position)
-        pg.dragTo(*to_position, button='left', duration=1)
+        if n is None or n == 0:
+            pg.keyDown('ctrl')
+            pg.doubleClick(*from_position)
+            pg.keyUp('ctrl')
 
-        # type quantity of ressources to transfer
-        if n is not None and n > 0:
+        else:
+            to_position = Positions.BANK_PLAYER_FIRST_RESSOURCE_POSITION if from_bank else Positions.BANK_FIRST_RESSOURCE_POSITION
+
+            # drag ressource from inv to the other
+            pg.moveTo(*from_position)
+            pg.dragTo(*to_position, button='left', duration=1)
+
+            # type quantity of ressources to transfer
             pg.typewrite(str(n), interval=0.1)
 
-        time.sleep(2)
+            time.sleep(1)
 
-        # validate transfer from bank
-        pg.press('enter')
+            # validate transfer from bank
+            pg.press('enter')
+
         time.sleep(1)
-
         return True
 
     @staticmethod
@@ -143,7 +172,7 @@ class Bank(AbstractBuilding):
         wait_click_on(Images.get(Images.BANK_TRANSFER_VISIBLE_OBJ_BTN))
 
     @staticmethod
-    def select_tab(ressource_type, in_bank=True):
+    def select_tab(ressource_type: RessourceType, in_bank=True):
         image = None
         region = Positions.BANK_INVENTORY_REG if in_bank else Positions.BANK_PLAYER_INVENTORY_REG
 
@@ -167,6 +196,7 @@ class Bank(AbstractBuilding):
             region=region,
             confidence=0.7
         )
+
     @staticmethod
     def select_player_ressource_tab():
         wait_click_on(
@@ -215,6 +245,11 @@ class Bank(AbstractBuilding):
 
     @staticmethod
     def open_recipes():
+        if not Bank.check_is_opened():
+            ErrorHandler.error(f'trying to open recipe in bank but bank is not opened')
+            ErrorHandler.is_error = True
+            return False
+
         if not Bank.is_recipes_open(max_timer=0.5):
             pg.click(*Positions.BANK_RECIPES_BTN)
             return Bank.is_recipes_open(max_timer=5)
@@ -225,12 +260,16 @@ class Bank(AbstractBuilding):
     def is_recipes_open(max_timer: float = 2):
         return wait_image(Images.RECIPES_OPEN, max_timer=max_timer)
 
-
     # ==================================================================================================================
     # UTILS
     @staticmethod
     def search(ressource_name, in_bank=True):
         if in_bank:
+            if not Bank.check_is_opened():
+                ErrorHandler.error(f'trying to search {ressource_name} in bank but bank is not opened')
+                ErrorHandler.is_error = True
+                return False
+
             reset_btn_pos = Positions.BANK_SEARCH_BAR_RESET_BUTTON
             search_bar_pos = Positions.BANK_SEARCH_BAR
         else:
@@ -242,29 +281,30 @@ class Bank(AbstractBuilding):
 
         # reset search bar
         pg.click(*reset_btn_pos)
-        time.sleep(1)
+        time.sleep(0.5)
 
         # click on search bar
         pg.click(*search_bar_pos)
-        time.sleep(1)
+        time.sleep(0.5)
 
         # type ressource name in search bar
         ressource = Ressources.get(ressource_name)
         pg.typewrite(ressource.name)
+        time.sleep(1)
 
         # if first slot empty, return false
         return not Bank.check_first_slot_empty(in_bank)
 
     @staticmethod
-    def check_is_opened() -> bool:
+    def check_is_opened(max_timer=1) -> bool:
         """ return True if bank is open """
-        return wait_image(Images.get(Images.BANK_OPEN))
+        return wait_image(Images.get(Images.BANK_OPEN), max_timer=max_timer)
 
     @staticmethod
     def check_first_slot_empty(in_bank=True) -> bool:
         """ check if first slot is empty """
         pos = Positions.BANK_FIRST_RESSOURCE_POSITION if in_bank else Positions.BANK_PLAYER_FIRST_RESSOURCE_POSITION
-        EXPECTED_COLOR = (64, 66, 59)  # TODO !
+        EXPECTED_COLOR = (64, 66, 59)
         CHECK_REGION = (
             pos[0] - 20,
             pos[1] - 20,

@@ -4,20 +4,15 @@ from typing import List
 from src.buildings.Bank import Bank
 from src.enum.jobs import Jobs
 from src.enum.ressources import Ressources
+from src.utils.Displayer import Displayer
 from src.utils.ErrorHandler import ErrorHandler
 
 
 class Craft:
-    CRAFT_INTERVAL: int = 30 * 60   # interval between each craft sessions
+    CRAFT_INTERVAL: int = 60 * 60   # interval between each craft sessions
 
     CRAFTS = {
         Jobs.PAYSAN: {
-            Ressources.BRIOCHETTE: {
-                Ressources.HOUBLON: 5,
-                Ressources.TREFLE_A_5_FEUILLES: 1,
-                Ressources.CENDRES_ETERNELLES: 1
-            },
-
             Ressources.PAIN_D_INCARNAM: {
                 Ressources.BLE: 4
             },
@@ -25,16 +20,33 @@ class Craft:
             Ressources.CARASAU: {
                 Ressources.ORGES: 4,
                 Ressources.ORTIE: 1
-            }
+            },
+
+            Ressources.PAIN_AUX_FLOCONS_D_AVOINE: {
+                Ressources.AVOINE: 5,
+                Ressources.SAUGE: 1,
+                Ressources.AUBERGINE: 1
+            },
+
+            Ressources.BRIOCHETTE: {
+                Ressources.HOUBLON:             5,
+                Ressources.TREFLE_A_5_FEUILLES: 1,
+                Ressources.CENDRES_ETERNELLES:  1
+            },
         },
 
         Jobs.BUCHERON: {
             Ressources.PLANCHE_DE_SURF: {
-                Ressources.FRENE,
-                Ressources.CHATAIGNER,
-                Ressources.NOYER,
-                Ressources.CHENE,
-            }
+                Ressources.FRENE: 10,
+                Ressources.CHATAIGNER: 10,
+                Ressources.NOYER: 10,
+                Ressources.CHENE: 10,
+            },
+
+            Ressources.SUBSTRAT_DE_FUTAIE: {
+                Ressources.PLANCHE_DE_SURF: 1,
+                Ressources.POTION_DE_SOUVENIR: 1
+            },
         },
 
         Jobs.ALCHIMIST: {
@@ -48,13 +60,16 @@ class Craft:
     @property
     def is_crafting(self):
         """ can the player craft or not """
-        return len(self.crafts) > 0 and (self.last_craft_time is None or time.time() - self.last_craft_time > self.CRAFT_INTERVAL)
+        return len(self.crafts) > 0 \
+            and (self.last_craft_time is None or time.time() - self.last_craft_time > self.CRAFT_INTERVAL) \
+            and self.is_allowed_crafting
 
     def __init__(self, craft_names: List[str], max_pods):
         self.crafts = craft_names           # list of available crafts
         self.craft_order = None             # name of the craft to do
         self.last_craft_time = None
 
+        self.is_allowed_crafting = True
         self.max_pods = max_pods
 
     def transfer_required_ressources(self):
@@ -74,7 +89,7 @@ class Craft:
                 continue
 
             # set craft order and return
-            print("CRAFT ORDER SET : " + craft_name)
+            Displayer.print("CRAFT ORDER SET : " + craft_name)
             self.craft_order = craft_name
             return True
 

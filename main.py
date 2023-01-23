@@ -30,7 +30,7 @@ if __name__ == '__main__':
         region_name=Regions.CHAMP_ASTRUB,
         ressources=[
             Ressources.ORGES,
-            Ressources.SEIGLE
+            Ressources.HOUBLON
         ],
         crafts=[
             Ressources.CARASAU
