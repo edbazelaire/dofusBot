@@ -4,13 +4,14 @@ from src.enum.locations import Locations
 from src.enum.regions import Regions
 from src.enum.ressources import Ressources
 from src.location_handling.city.bonta import Bonta
+from src.location_handling.city.village_des_eleveurs import VillageDesEleveurs
 from src.location_handling.regions.abstract_region import AbstractRegion
 from src.utils.utils_fct import in_between_loc
 
 
 class MontagneKoalak(AbstractRegion):
     NAME = Regions.MONTAGNE_KOALAK
-    CITY = Bonta.NAME
+    CITY = VillageDesEleveurs.NAME
 
     PHOENIX_STATUE_LOCATION: list = [-10, 13]
     CHECKPOINT: list = Locations.ZAAPS[Regions.MONTAGNE_KOALAK]

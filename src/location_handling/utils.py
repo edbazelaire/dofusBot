@@ -1,6 +1,7 @@
 from src.location_handling.city.Frigost import Frigost
 from src.location_handling.city.astrub import Astrub
 from src.location_handling.city.bonta import Bonta
+from src.location_handling.city.village_des_eleveurs import VillageDesEleveurs
 from src.location_handling.regions.mine_astrub import MineAstrub
 from src.location_handling.regions.champ_astrub import ChampAstrub
 from src.location_handling.regions.champ_glace import ChampGlace
@@ -18,6 +19,8 @@ def get_city(city_name: str):
         return Astrub()
     elif city_name == Frigost.NAME:
         return Frigost()
+    elif city_name == VillageDesEleveurs.NAME:
+        return VillageDesEleveurs()
 
     else:
         ErrorHandler.fatal_error(f"unknown city {city_name}")
