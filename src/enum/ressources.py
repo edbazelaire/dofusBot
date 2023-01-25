@@ -30,16 +30,18 @@ class Ressources:
     ORTIE = 'ortie'
     SAUGE = 'sauge'
     TREFLE_A_5_FEUILLES = 'trefle a 5 feuilles'
+    ORCHIDEE_FREYESQUE = 'orchidee freyesque'
 
     # METALS
     FER = 'fer'
 
     # ==================================================================================================================
     # CRAFTS
-    BRIOCHETTE = 'briochette'
     PAIN_D_INCARNAM = 'pain d\'incarnam'
     CARASAU = 'carasau'
     PAIN_AUX_FLOCONS_D_AVOINE = 'pain aux flocons d\'avoine'
+    BRIOCHETTE = 'briochette'
+    PAIN_DE_SEIGLE = 'pain de seigle'
     POTION_DE_SOUVENIR = 'potion de souvenir'
     PLANCHE_DE_SURF = 'planche de surf'
     SUBSTRAT_DE_FUTAIE = 'substrat de futaie'
@@ -48,6 +50,7 @@ class Ressources:
     # OTHERS
     CENDRES_ETERNELLES = 'cendres eternelles'
     AUBERGINE = 'aubergine'
+    EAU_POTABLE = 'eau potable'
 
     @staticmethod
     def get(ressource_name):
@@ -77,6 +80,13 @@ class Ressources:
             )
 
         if ressource_name == Ressources.HOUBLON:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Ressource,
+                pods=2
+            )
+
+        if ressource_name == Ressources.SEIGLE:
             return RessourceConfig(
                 name=ressource_name,
                 ressource_type=RessourceType.Ressource,
@@ -133,6 +143,13 @@ class Ressources:
                 pods=1
             )
 
+        elif ressource_name == Ressources.ORCHIDEE_FREYESQUE:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Ressource,
+                pods=1
+            )
+
         # -----------------------------------------------------------------------------------------
         # OTHER
         elif ressource_name == Ressources.CENDRES_ETERNELLES:
@@ -142,6 +159,12 @@ class Ressources:
                 pods=1
             )
         elif ressource_name == Ressources.AUBERGINE:
+            return RessourceConfig(
+                name='aubergine',
+                ressource_type=RessourceType.Ressource,
+                pods=1
+            )
+        elif ressource_name == Ressources.EAU_POTABLE:
             return RessourceConfig(
                 name='aubergine',
                 ressource_type=RessourceType.Ressource,
@@ -174,6 +197,13 @@ class Ressources:
             )
 
         elif ressource_name == Ressources.BRIOCHETTE:
+            return RessourceConfig(
+                name=ressource_name,
+                ressource_type=RessourceType.Consumable,
+                pods=2
+            )
+
+        elif ressource_name == Ressources.PAIN_DE_SEIGLE:
             return RessourceConfig(
                 name=ressource_name,
                 ressource_type=RessourceType.Consumable,

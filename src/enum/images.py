@@ -12,6 +12,7 @@ class Images:
     # COMMONS               ====================================================================
     SCREENSHOTS_DIR = 'screenshots'
     PHOENIX_STATUE = 'phoenix_statue.png'
+    PHOENIX_STATUE_1 = 'phoenix_statue_1.png'
     PHOENIX_STATUE_2 = 'phoenix_statue_2.png'
     PHOENIX_STATUE_3 = 'phoenix_statue_3.png'
     YES_BUTTON = 'yes_button.png'
@@ -25,7 +26,7 @@ class Images:
     CRAFT_MACHINE_LOADED = 'craft_machine_loaded.png'
     AFFICHER_RECETTES_DISPO = 'afficher_recettes_dispo.png'
     JOIN_FIGHT_IMG = 'join_fight.png'   # TODO
-    GHOST_FORM = 'ghost_form.png'       # TODO
+    GHOST_FORM = 'ghost_form.png'
     FULL_PODS = 'full_pods.png'
     INVENTORY_PODS_MARKER = 'inventory_pods_marker.png'
     EXCHANGE_BTN = 'exchange_btn.png'
@@ -54,6 +55,7 @@ class Images:
     ASTRUB_SCIERIE = 'astrub_scierie.png'
     ASTRUB_BOULANGERIE = 'astrub_boulangerie.png'
     ASTRUB_ALCHIMIST = 'astrub_alchimist.png'
+    BONTA_BOULANGERIE = 'bonta_boulangerie.png'
 
     # SWAP TEAM                ====================================================================
     SWAP_TEAM_DIR = 'swap_team'

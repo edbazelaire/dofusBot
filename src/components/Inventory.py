@@ -90,3 +90,11 @@ class Inventory:
         time.sleep(0.5)
 
         return test
+
+    @staticmethod
+    def check_is_ghost():
+        """ open inventory to check if player is in ghost form """
+        Inventory.open()
+        success = wait_image(Images.GHOST_FORM)
+        Inventory.close()
+        return success

@@ -6,4 +6,4 @@ class Routines(Enum):
     Craft = 'craft'
     Ghost = 'ghost'
     Fight = 'fight'
-    Phoenix = 'fight'
+    Phoenix = 'phoenix'

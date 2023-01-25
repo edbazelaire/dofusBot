@@ -1,3 +1,4 @@
+import math
 import time
 from typing import List
 
@@ -32,6 +33,12 @@ class Craft:
                 Ressources.HOUBLON:             5,
                 Ressources.TREFLE_A_5_FEUILLES: 1,
                 Ressources.CENDRES_ETERNELLES:  1
+            },
+
+            Ressources.PAIN_DE_SEIGLE: {
+                Ressources.SEIGLE:              6,
+                Ressources.ORCHIDEE_FREYESQUE:  1,
+                Ressources.EAU_POTABLE:         1
             },
         },
 
@@ -111,8 +118,9 @@ class Craft:
         for ressource_name, qty in self.get_recipe(craft).items():
             req_pods += qty * Ressources.get(ressource_name).pods
 
+        marge = self.max_pods * 0.2     # Todo : better
         # return max number of craft possible depending on max pods
-        return (self.max_pods - 150) // req_pods
+        return math.floor((self.max_pods - marge) // req_pods)
 
     @staticmethod
     def get_recipe(craft_name: str) -> dict:

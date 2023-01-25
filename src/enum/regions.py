@@ -4,3 +4,4 @@ class Regions:
     PLAINES_CANIA   = "plaines_cania"
     MINE_ASTRUB     = "mine_astrub"
     CHAMP_GLACE     = "champ_glace"
+    MONTAGNE_KOALAK = "montagne_koalak"

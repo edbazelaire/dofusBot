@@ -62,7 +62,7 @@ def get_job_routine(char_name: (str, CharNames)) -> (None, JobRoutine):
 
     if char_name == CharNames.ALIC_CLARIA.value:
         return JobRoutine(
-            region_name=Regions.CHAMP_ASTRUB,
+            region_name=Regions.PRAIRIE_ASTRUB,
             ressources=[Ressources.ORTIE, Ressources.SAUGE],
             crafts=[Ressources.POTION_DE_SOUVENIR]
         )
@@ -70,14 +70,14 @@ def get_job_routine(char_name: (str, CharNames)) -> (None, JobRoutine):
     if char_name == CharNames.INCE_ROLA.value:
         return JobRoutine(
             region_name=Regions.CHAMP_ASTRUB,
-            ressources=[Ressources.CHENE, Ressources.NOYER],
+            ressources=[Ressources.CHENE, Ressources.FRENE, Ressources.CHATAIGNER],
             crafts=[Ressources.PLANCHE_DE_SURF, Ressources.SUBSTRAT_DE_FUTAIE]
         )
 
     if char_name == CharNames.RALPHERTIN.value:
         return JobRoutine(
-            region_name=Regions.PRAIRIE_ASTRUB,
-            ressources=[Ressources.ORTIE, Ressources.SAUGE, Ressources.TREFLE_A_5_FEUILLES],
+            region_name=Regions.CHAMP_ASTRUB,
+            ressources=[Ressources.ORTIE, Ressources.SAUGE],
             crafts=[Ressources.POTION_DE_SOUVENIR]
         )
 
@@ -85,9 +85,9 @@ def get_job_routine(char_name: (str, CharNames)) -> (None, JobRoutine):
     # TEAM 2
     if char_name == CharNames.Alizyann.value:
         return JobRoutine(
-            region_name=Regions.CHAMP_ASTRUB,
-            ressources=[Ressources.HOUBLON],
-            crafts=[Ressources.BRIOCHETTE],
+            region_name=Regions.PLAINES_CANIA,
+            ressources=[Ressources.SEIGLE, Ressources.CHANVRE],
+            crafts=[Ressources.PAIN_DE_SEIGLE],
 
         )
 
@@ -107,9 +107,9 @@ def get_job_routine(char_name: (str, CharNames)) -> (None, JobRoutine):
 
     if char_name == CharNames.Ditoxynag.value:
         return JobRoutine(
-            region_name=Regions.PRAIRIE_ASTRUB,
-            ressources=[Ressources.ORTIE, Ressources.SAUGE],
-            crafts=[Ressources.POTION_DE_SOUVENIR]
+            region_name=Regions.MONTAGNE_KOALAK,
+            ressources=[Ressources.ORCHIDEE_FREYESQUE],
+            crafts=[]
         )
 
     # =========================================================================================
@@ -168,7 +168,7 @@ def get_job_routine(char_name: (str, CharNames)) -> (None, JobRoutine):
     if char_name == CharNames.Doliphragie.value:
         return JobRoutine(
             region_name=Regions.PRAIRIE_ASTRUB,
-            ressources=[Ressources.ORTIE, Ressources.SAUGE],
+            ressources=[Ressources.ORTIE, Ressources.SAUGE, Ressources.TREFLE_A_5_FEUILLES],
             crafts=[Ressources.POTION_DE_SOUVENIR]
         )
 

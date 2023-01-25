@@ -35,7 +35,7 @@ class AbstractMine(AbstractRegion):
         # get from OUTSIDE -> mine
         if to_location in self.MINE_PATH and from_location not in self.MINE_PATH:
             path.append(self.MINE_LOCATION)
-            path.append((Actions.CLICK_ON, self.MINE_ENTER_CLICK_POS))
+            path.append([Actions.CLICK_ON, self.MINE_ENTER_CLICK_POS])
             path += self.get_path_in_mine(self.MINE_PATH[0], to_location)
 
         # from mine -> mine
@@ -45,7 +45,7 @@ class AbstractMine(AbstractRegion):
         # get from mine -> OUTSIDE
         elif from_location in self.MINE_PATH and to_location not in self.MINE_PATH:
             path += self.get_path_in_mine(from_location, self.MINE_PATH[0])
-            path.append((Actions.CLICK_ON, self.MINE_MAP_EXIT_POS))
+            path.append([Actions.CLICK_ON, self.MINE_MAP_EXIT_POS])
             path.append(to_location)
 
         return path

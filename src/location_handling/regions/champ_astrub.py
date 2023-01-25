@@ -3,6 +3,7 @@ from src.enum.regions import Regions
 from src.enum.ressources import Ressources
 from src.location_handling.city.astrub import Astrub
 from src.location_handling.regions.abstract_region import AbstractRegion
+from src.utils.utils_fct import in_between_loc
 
 
 class ChampAstrub(AbstractRegion):
@@ -471,6 +472,14 @@ class ChampAstrub(AbstractRegion):
             [0, -23],
             [2, -23],
         ],
+
+        # OTHER
+        Ressources.EAU_POTABLE: [
+            [4, -27],
+            [6, -30],
+            [7, -24],
+            [8, -22],
+        ]
     }
 
     # IMAGES
@@ -500,6 +509,8 @@ class ChampAstrub(AbstractRegion):
                 and from_location[1] > Astrub.TOP_LEFT_CITY_CHECKPOINT[1]:
             return Astrub.TOP_LEFT_CITY_CHECKPOINT
 
+        # --------------------------------------------------------
+        # BORDERS
         if from_location == [4, -32] and to_location[0] >= 5:
             return [4, -31]
 
@@ -511,5 +522,28 @@ class ChampAstrub(AbstractRegion):
 
         if from_location[0] == 7 and -25 >= from_location[1] >= -28 and to_location[0] >= 8:
             return [7, -24]
+
+        # --------------------------------------------------------
+        # IN CALANQUES
+        if in_between_loc(from_location, [8, -29], [12, -25]):
+            # exit points
+            if from_location == [8, -26]:
+                return [7, -26]
+            if from_location == [9, -25]:
+                return [9, -24]
+
+            # go to an exit point
+            if to_location[0] <= 7:
+                return [8, -26]
+
+            if to_location[0] <= 9 and to_location[1] >= -24:
+                return [9, -25]
+
+        if in_between_loc(from_location, [10, -24], [12, -22]):
+            # exit points
+            if from_location == [10, -23]:
+                return [9, -23]
+
+            return [10, -23]
 
         return to_location

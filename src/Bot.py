@@ -19,7 +19,7 @@ from src.utils.CurrentBot import CurrentBot
 from src.utils.Displayer import Displayer
 from src.utils.ErrorHandler import ErrorHandler
 from src.utils.Sleeper import Sleeper
-from src.utils.utils_fct import read_map_location, check_is_ghost, check_ok_button, wait_click_on, check_map_change, \
+from src.utils.utils_fct import read_map_location, check_ok_button, wait_click_on, check_map_change, \
     send_message, wait_image
 
 
@@ -91,7 +91,7 @@ class Bot:
         elif check_ok_button(click=True):
             return
 
-        elif check_is_ghost():
+        elif Inventory.check_is_ghost():
             self.Movement.phoenix_routine()
 
         elif self.check_craft():
@@ -105,6 +105,9 @@ class Bot:
     def play(self):
         self.select()
 
+        if ErrorHandler.is_error:
+            return
+
         # MOVEMENT REQUEST CHECK ==========================================
         # if last_position set : check map changed
         if self.Movement.last_location is not None:
@@ -116,7 +119,10 @@ class Bot:
                 print("")
             elif self.Fight.check_combat_started():
                 return self.fight_routine()
-            elif self.Movement.last_time_requested_movement is None or time.time() - self.Movement.last_time_requested_movement < ErrorHandler.TRAVEL_MAP_TIME:
+            elif self.Movement.last_time_requested_movement is None or time.time() - self.Movement.last_time_requested_movement <= ErrorHandler.TRAVEL_MAP_TIME:
+                return
+            else:
+                self.Movement.last_time_requested_movement = time.time()
                 return
 
         # check if has craft order

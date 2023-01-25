@@ -12,7 +12,8 @@ class Locations:
     BONTA_MILICE_LOCATION = [-32, -57]
 
     ZAAPS = {
-        Regions.PLAINES_CANIA: [-27, -36]
+        Regions.PLAINES_CANIA: [-27, -36],
+        Regions.MONTAGNE_KOALAK: [-16, 1]
     }
 
     PHOENIX_STATUES = {

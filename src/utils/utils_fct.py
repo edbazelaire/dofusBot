@@ -108,6 +108,16 @@ def read_region():
     return split_val[0], split_val[1]
 
 
+def in_between_loc(from_location, loc1, loc2):
+    x_min = min(loc1[0], loc2[0])
+    x_max = max(loc1[0], loc2[0])
+
+    y_min = min(loc1[1], loc2[1])
+    y_max = max(loc1[1], loc2[1])
+
+    return x_max >= from_location[0] >= x_min and y_max >= from_location[1] >= y_min
+
+
 def check_map_change(from_location, do_map_load_check=False, at_time=None) -> bool:
     """ check if player changed map by looking at map position """
     map_location = read_map_location()
@@ -160,16 +170,6 @@ def check_map_loaded() -> bool:
             return True
 
         time.sleep(0.1)
-
-
-def check_is_ghost():
-    """ open inventory to check if player is in ghost form """
-    # TODO
-    # open_inventory()
-    # success = wait_image()
-    # open_inventory()
-    # return success
-    return False
 
 
 def check_ok_button(click=False):

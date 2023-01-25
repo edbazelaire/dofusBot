@@ -91,13 +91,17 @@ class Movement:
 
     def move_towards(self, to_location: list) -> bool:
         """ take one step towards the requested position """
+        if ErrorHandler.is_error:
+            return False
+
+        self.location = read_map_location()
         if to_location == self.location:
             return True
 
         # re aim location while region find an in-between aiming location
         while True:
             aiming_location = self.region.get_aiming_location(self.location, to_location)
-            if aiming_location == to_location:
+            if aiming_location == to_location or Actions.is_action(aiming_location):
                 break
             to_location = aiming_location
 
@@ -105,6 +109,7 @@ class Movement:
             ErrorHandler.fatal_error("aiming location == self.location")
 
         if Actions.is_action(aiming_location):
+            self.last_location = self.location
             Actions.do(aiming_location)
             return False
 
@@ -221,3 +226,6 @@ class Movement:
             if success:
                 Sleeper.sleep(3)
                 self.parent.reset_routine()
+            else:
+                ErrorHandler.error("Unable to click on phoenix statue -> reset")
+                ErrorHandler.is_error = True

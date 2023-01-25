@@ -15,7 +15,7 @@ class Actions:
     EQUIP_PODS_STUFF = 'equip_pods_stuff'
 
     CLICK_ON = 'click_on'
-    WAIT = 'click_on'
+    WAIT = 'wait'
 
     @staticmethod
     def is_action(value: str):
@@ -24,7 +24,7 @@ class Actions:
                 if val == value:
                     return True
 
-        elif isinstance(value, tuple):
+        elif isinstance(value, list):
             if Actions.is_action(value[0]):
                 return True
 
@@ -32,13 +32,17 @@ class Actions:
 
     # __________________________________________________________________________________________________________________
     @staticmethod
-    def do(action: str, *args):
+    def do(action: (list, str), *args):
         if not Actions.is_action(action):
             ErrorHandler.fatal_error(f"requested action ({action}) is not an action")
             return
 
+        # LIST (action with args)
+        if isinstance(action, list):
+            Actions.do(action[0], *action[1:])
+
         # DRINK POTIONS
-        if action == Actions.TAKE_BONTA_POTION:
+        elif action == Actions.TAKE_BONTA_POTION:
             Actions.take_potion(img=Images.BONTA_POTION, expected_location=Locations.BONTA_MILICE_LOCATION)
 
         elif action == Actions.TAKE_RECALL_POTION:
@@ -60,6 +64,9 @@ class Actions:
     # __________________________________________________________________________________________________________________
     @staticmethod
     def take_potion(img: str, expected_location: list = None, offset_x=5, offset_y=5) -> bool:
+        # to check with ocr that map was loaded
+        current_location = read_map_location()
+
         pos = None
         start = time.time()
         while pos is None:
@@ -68,9 +75,6 @@ class Actions:
                 ErrorHandler.is_error = True
                 return False
             pos = pg.locateOnScreen(Images.get(img), confidence=0.8)
-
-        # to check with ocr that map was loaded
-        current_location = read_map_location()
 
         # use potion
         pg.doubleClick(pos[0] + offset_x, pos[1] + offset_y)

@@ -98,7 +98,6 @@ class PrairieAstrub(AbstractRegion):
             [5, -10],
             [6, -10],
             [6, -9],
-            [7, -9],
             [8, -10],
             [8, -14],
         ],

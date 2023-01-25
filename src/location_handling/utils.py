@@ -4,6 +4,7 @@ from src.location_handling.city.bonta import Bonta
 from src.location_handling.regions.mine_astrub import MineAstrub
 from src.location_handling.regions.champ_astrub import ChampAstrub
 from src.location_handling.regions.champ_glace import ChampGlace
+from src.location_handling.regions.montagne_koalak import MontagneKoalak
 from src.location_handling.regions.planies_cania import PlainesCania
 from src.location_handling.regions.prairie_astrub import PrairieAstrub
 from src.utils.ErrorHandler import ErrorHandler
@@ -33,5 +34,7 @@ def get_region(region_name: str, ressources: list):
         return MineAstrub(ressources)
     elif region_name == ChampGlace.NAME:
         return ChampGlace(ressources)
+    elif region_name == MontagneKoalak.NAME:
+        return MontagneKoalak(ressources)
     else:
         ErrorHandler.fatal_error(f"unknown region {region_name}")
